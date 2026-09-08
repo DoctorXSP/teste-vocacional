@@ -1,0 +1,38 @@
+.barraSuperior {
+    width: 100%;
+    display: block;
+    background-color: #008080;
+    height: 80px;
+    text-align: center;
+    margin-top: -35px;
+    margin-bottom: 15px;
+}
+.barraTexto {
+    text-align: center;
+    color: #FFF;
+    font-size: 40pt;
+}
+.corpo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.corpo p {
+    display: block;
+    width: 50%;
+    text-align: justify;
+    font-size: 14pt;
+}
+.sectionIns {
+  width: 80%; 
+  margin: auto; 
+  margin-top: 45px; 
+  text-align: 'center'; 
+  font-size: 16pt;
+  font-weight: bold;
+  background-image: url('./img/back.jpg');
+  background-size: cover; 
+  background-position: center; 
+  background-repeat: no-repeat;
+}
+

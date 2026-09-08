@@ -1,0 +1,16 @@
+# Dependências do Node (muito pesadas para subir)
+node_modules/
+package-lock.json
+
+# Arquivos com senhas e variáveis confidenciais
+.env
+.env.local
+
+# Builds de produção
+build/
+dist/
+
+# Arquivos temporários de log e backups gerados
+*.log
+*.zip
+*.sql
