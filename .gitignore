@@ -9,7 +9,14 @@
 /coverage
 
 # production
-/build
+build/
+dist/
+
+# Arquivos temporários de log e backups gerados
+*.log
+*.zip
+# Ignora apenas os arquivos de backup gerados pelo sistema
+TesteVocacional_*.sql
 
 # misc
 .DS_Store
