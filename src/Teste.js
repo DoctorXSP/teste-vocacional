@@ -17,6 +17,9 @@ import GraficoRadar from './GraficoRadar';
 // Importa a imagem do logotipo da instituição
 import logoEtec from './img/Logo.png';
 
+// Importa a imagem de entrada localizada na pasta ./img/
+import imgEntrada from './img/entrada.jpg';
+
 // Importa o componente visual gerador de QR Code em formato SVG de alta resolução
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -32,27 +35,22 @@ import jsPDF from 'jspdf';
 
 // Objeto com as 10 sugestões de carreira/profissão para cada uma das 4 áreas avaliadas
 const listaProfissoes = {
-  // Lista de carreiras sugeridas para o perfil Biológicas e Saúde
   biologicas: ["Bioquímico", "Biólogo", "Dentista", "Enfermeiro", "Farmacêutico", "Fisioterapeuta", "Médico", "Nutricionista", "Pesquisador", "Veterinário"],
-  // Lista de carreiras sugeridas para o perfil de Ciências Exatas, Engenharia e Cálculos
   exatas: ["Analista de Sistemas", "Arquiteto", "Automação Industrial", "Cientista de Dados", "Desenvolvedor de Software", "Economista", "Eletroeletrônica", "Engenheiro", "Físico", "Matemático"],
-  // Lista de carreiras sugeridas para o perfil de Humanas, Gestão, Comunicação e Sociais
   humanas: ["Administrador", "Advogado", "Comércio Exterior", "Escritor", "Gestor de Recursos Humanos", "Jornalista", "Logística", "Professor", "Psicólogo", "Sociólogo"],
-  // Lista de carreiras sugeridas para o perfil de Tecnologia da Informação, Redes e Eletrônica
   tecnologicas: ["Analista de Sistemas", "Arquiteto de Tecnologia", "Automação Industrial", "Cyber Security", "Desenvolvedor Web", "Desenvolvimento de Sistemas", "Eletroeletrônica", "Especialista em Cloud", "Informática", "Redes de Computadores"]
 };
 
 // Dicionário para mapear as chaves internas para os nomes formais exibidos na interface
 const nomesAreas = {
-  biologicas: 'Biológicas',     // Nome legível para a chave biologicas
-  exatas: 'Exatas',             // Nome legível para a chave exatas
-  humanas: 'Humanas',           // Nome legível para a chave humanas
-  tecnologicas: 'Tecnológicas'  // Nome legível para a chave tecnologicas
+  biologicas: 'Biológicas',
+  exatas: 'Exatas',
+  humanas: 'Humanas',
+  tecnologicas: 'Tecnológicas'
 };
 
 // Dicionário com blocos de texto HTML formatados contendo a análise vocacional e a grade de cursos da Etec
 const textosEducacionais = {
-  // Bloco explicativo com cursos presentes e ausentes para quem pontuar em Biológicas
   biologicas: `
     <p style="margin: 0 0 10px 0;">
       <b>Resultado do Teste:</b> Seu perfil demonstrou maior afinidade com a área de <b>Biológicas e Saúde</b>, evidenciando interesse por organismos vivos, bem-estar humano, processos químicos e preservação ambiental.
@@ -75,7 +73,6 @@ const textosEducacionais = {
     </div>
   `,
 
-  // Bloco explicativo com cursos presentes e ausentes para quem pontuar em Exatas
   exatas: `
     <p style="margin: 0 0 10px 0;">
       <b>Resultado do Teste:</b> Seu resultado evidenciou forte raciocínio lógico-matemático e grande vocação para a área de <b>Exatas, Indústria, Gestão e Tecnologia</b>.
@@ -108,7 +105,6 @@ const textosEducacionais = {
     </div>
   `,
 
-  // Bloco explicativo com cursos presentes e ausentes para quem pontuar em Humanas
   humanas: `
     <p style="margin: 0 0 10px 0;">
       <b>Resultado do Teste:</b> Seu perfil revelou destacada facilidade para <b>Humanas e Ciências Sociais Aplicadas</b>, com excelente potencial de liderança, inteligência emocional, negociação e trabalho em equipe.
@@ -134,7 +130,6 @@ const textosEducacionais = {
     </div>
   `,
 
-  // Bloco explicativo com cursos presentes e ausentes para quem pontuar em Tecnológicas
   tecnologicas: `
     <p style="margin: 0 0 10px 0;">
       <b>Resultado do Teste:</b> Seu teste indicou afinidade máxima com o eixo de <b>Tecnologia da Informação e Transformação Digital</b>, perfil indispensável para as profissões do futuro.
@@ -168,18 +163,12 @@ const textosEducacionais = {
 // FUNÇÕES UTILITÁRIAS
 // ============================================================================
 
-// Função que implementa o algoritmo de Fisher-Yates para embaralhar itens de uma lista aleatoriamente sem viés
 function embaralharArray(array) {
-  // Cria uma cópia superficial do vetor recebido para evitar efeitos colaterais no vetor original
   const arr = [...array];
-  // Itera regressivamente a partir do último elemento até o segundo índice
   for (let i = arr.length - 1; i > 0; i--) {
-    // Sorteia um índice aleatório inteiro entre zero e a posição i atual
     const j = Math.floor(Math.random() * (i + 1));
-    // Realiza a desestruturação para permutar os valores de posição entre i e j
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-  // Retorna o array completamente reorganizado de maneira pseudoaleatória
   return arr;
 }
 
@@ -187,8 +176,13 @@ function embaralharArray(array) {
 // COMPONENTE PRINCIPAL
 // ============================================================================
 
-// Definição da função do componente React Teste recebendo os dados do usuário conectado
 function Teste({ usuario }) {
+  // Estado que controla a exibição da tela inicial de orientações
+  const [emInstrucoes, setEmInstrucoes] = useState(true);
+
+  // Estado de controle de hover para o botão principal de Início
+  const [hoverBtnInicio, setHoverBtnInicio] = useState(false);
+
   // Estado que armazena as 10 questões sorteadas e preparadas para a rodada do teste
   const [sessaoQuestoes, setSessaoQuestoes] = useState([]);
   // Estado que indica qual o índice da pergunta ativa (de 0 a 9)
@@ -202,18 +196,18 @@ function Teste({ usuario }) {
   const [opcaoAtivaId, setOpcaoAtivaId] = useState(null);
 
   // Estados acumuladores de pontuação para cada uma das 4 áreas
-  const [biologicas, setBiologicas] = useState(0);     // Pontuação total em Biológicas
-  const [exatas, setExatas] = useState(0);             // Pontuação total em Exatas
-  const [humanas, setHumanas] = useState(0);           // Pontuação total em Humanas
-  const [tecnologicas, setTecnologicas] = useState(0); // Pontuação total em Tecnológicas
+  const [biologicas, setBiologicas] = useState(0);
+  const [exatas, setExatas] = useState(0);
+  const [humanas, setHumanas] = useState(0);
+  const [tecnologicas, setTecnologicas] = useState(0);
 
   // Estados de controle e resultado final
-  const [finalizado, setFinalizado] = useState(false);                     // Flag que indica se o aluno respondeu as 10 perguntas
-  const [houveEmpate, setHouveEmpate] = useState(false);                   // Flag que indica se houve empate no primeiro lugar
-  const [areasEmpatadas, setAreasEmpatadas] = useState([]);                 // Lista com as áreas que empataram na liderança
-  const [profissoesRecomendadas, setProfissoesRecomendadas] = useState([]); // Lista com as 10 carreiras apuradas no relatório
-  const [textoFinal, setTextoFinal] = useState("");                         // Bloco de texto em HTML explicativo do resultado
-  const [gerandoPDF, setGerandoPDF] = useState(false);                     // Flag de carregamento enquanto o PDF é processado
+  const [finalizado, setFinalizado] = useState(false);
+  const [houveEmpate, setHouveEmpate] = useState(false);
+  const [areasEmpatadas, setAreasEmpatadas] = useState([]);
+  const [profissoesRecomendadas, setProfissoesRecomendadas] = useState([]);
+  const [textoFinal, setTextoFinal] = useState("");
+  const [gerandoPDF, setGerandoPDF] = useState(false);
 
   // Referência vinculada ao nó DOM da div do relatório impresso
   const relatorioRef = useRef(null);
@@ -222,63 +216,42 @@ function Teste({ usuario }) {
   // CICLOS DE VIDA E EFEITOS (USEEFFECT)
   // ============================================================================
 
-  // Efeito executado na montagem do componente para buscar as perguntas do backend
   useEffect(() => {
-    // Função assíncrona interna para requisitar e sortear as 10 perguntas
     const carregarTodasAsQuestoes = async () => {
       try {
-        // Log informativo no console do navegador
         console.log("Baixando acervo completo de questões...");
-        // Requisita todas as questões cadastradas na rota do servidor
         const response = await axios.get("http://localhost:3012/todasQuestoes");
-        // Extrai a listagem de dados do corpo da resposta
         const todas = response.data;
 
-        // Valida se a resposta é um vetor não vazio
         if (Array.isArray(todas) && todas.length > 0) {
-          // Embaralha o acervo geral de questões
           let embaralhadas = embaralharArray(todas);
-          // Cria o vetor de destino que conterá rigorosamente 10 questões
           let listaFinal10 = [];
 
-          // Laço de segurança para garantir o preenchimento de 10 itens mesmo com poucas perguntas no banco
           while (listaFinal10.length < 10) {
-            // Percorre as perguntas embaralhadas
             for (let q of embaralhadas) {
-              // Se ainda não atingiu o limite de 10 perguntas, insere a questão
               if (listaFinal10.length < 10) {
                 listaFinal10.push(q);
               }
             }
-            // Se o acervo original tiver menos que 10, reembaralha para novo ciclo
             embaralhadas = embaralharArray(todas);
           }
 
-          // Salva as 10 perguntas selecionadas no estado
           setSessaoQuestoes(listaFinal10);
-          // Inicializa o ponteiro de questão no índice 0
           setIndiceAtual(0);
         }
       } catch (error) {
-        // Registra eventuais falhas de conexão ou rede no console
         console.error("Erro ao carregar acervo de questões:", error);
       }
     };
 
-    // Executa a rotina de busca de questões
     carregarTodasAsQuestoes();
-  }, []); // Executa apenas uma vez no carregamento inicial do componente
+  }, []);
 
-  // Efeito que monitora o avanço das questões para preparar a pergunta e reembaralhar as opções
   useEffect(() => {
-    // Verifica se existem perguntas carregadas e se o teste ainda não passou da décima questão
     if (sessaoQuestoes.length > 0 && indiceAtual < 10) {
-      // Obtém o objeto da questão correspondente à posição atual
       const questaoAtual = sessaoQuestoes[indiceAtual];
-      // Atualiza o estado da questão atual em tela
       setQuestao(questaoAtual);
 
-      // Constrói o array com as alternativas, amarrando cada texto ao seu respectivo setter de pontuação
       const opcoes = [
         { id: 'bio', texto: questaoAtual.opcaoA, setPontuacao: setBiologicas },
         { id: 'exa', texto: questaoAtual.opcaoB, setPontuacao: setExatas },
@@ -286,65 +259,45 @@ function Teste({ usuario }) {
         { id: 'tec', texto: questaoAtual.opcaoD, setPontuacao: setTecnologicas }
       ];
 
-      // Embaralha as 4 alternativas para que as posições dos botões fiquem dinâmicas
       setOpcoesEmbaralhadas(embaralharArray(opcoes));
     }
-  }, [sessaoQuestoes, indiceAtual]); // Disparado sempre que o índice da questão ou a lista for alterada
+  }, [sessaoQuestoes, indiceAtual]);
 
   // ============================================================================
   // FUNÇÕES DE LÓGICA E PROCESSAMENTO DO TESTE
   // ============================================================================
 
-  // Função responsável por contabilizar a pontuação da opção escolhida e navegar para a próxima questão
   const registrarEscolha = (setPontuacao) => {
-    // Incrementa a pontuação da área associada ao botão clicado em 10 pontos
     setPontuacao(prev => prev + 10);
 
-    // Atualiza o índice da questão de forma atômica baseada no valor prévio
     setIndiceAtual(prevIndice => {
-      // Calcula o próximo índice
       const proximo = prevIndice + 1;
-      // Se alcançou ou ultrapassou a décima pergunta (índice 10), marca o teste como finalizado
       if (proximo >= 10) {
         setFinalizado(true);
       }
-      // Retorna o índice incrementado
       return proximo;
     });
   };
 
-  // Função memorizada com useCallback para apurar as pontuações, resolver desempates e enviar ao banco
   const determinarProfissoes = useCallback(async () => {
-    // Agrupa os valores de pontuação de todas as áreas
     const valores = { biologicas, exatas, humanas, tecnologicas };
-    // Converte em pares [chave, valor] e ordena de forma decrescente pela pontuação
     const ordenado = Object.entries(valores).sort((a, b) => b[1] - a[1]);
 
-    // Obtém o maior valor de pontuação obtido
     const pontuacaoMaxima = ordenado[0][1];
-    // Filtra todas as áreas que alcançaram essa pontuação máxima e que sejam maiores que zero
     const categoriasVencedoras = ordenado
       .filter(([_, pontuacao]) => pontuacao === pontuacaoMaxima && pontuacao > 0)
       .map(([categoria]) => categoria);
 
-    // Identifica se ocorreu empate (quando mais de uma área obteve a pontuação máxima)
     const ehEmpate = categoriasVencedoras.length > 1;
-    // Atualiza o estado indicando se houve empate
     setHouveEmpate(ehEmpate);
-    // Armazena as chaves das áreas empatadas
     setAreasEmpatadas(categoriasVencedoras);
 
-    // Vetor que guardará as 10 profissões selecionadas para exibição no relatório
     let listaProfissoesCalculada = [];
 
-    // Tratamento caso ocorra empate entre duas ou mais áreas
     if (ehEmpate) {
-      // Calcula quantas profissões cada área vencedora deve ceder igualmente para fechar 10
       const qtdPorArea = Math.floor(10 / categoriasVencedoras.length);
-      // Cria uma coleção Set para evitar nomes de profissões duplicadas
       const conjuntoUnico = new Set();
 
-      // Primeira passada: distribui as profissões igualmente entre as áreas empatadas
       categoriasVencedoras.forEach(cat => {
         const carreirasDaArea = listaProfissoes[cat];
         let adicionadas = 0;
@@ -356,7 +309,6 @@ function Teste({ usuario }) {
         }
       });
 
-      // Segunda passada: completa a lista até atingir 10 itens caso a divisão inteira deixe sobra
       for (let cat of categoriasVencedoras) {
         for (let prof of listaProfissoes[cat]) {
           if (conjuntoUnico.size < 10) {
@@ -365,10 +317,8 @@ function Teste({ usuario }) {
         }
       }
 
-      // Converte o Set de volta em um array comum
       listaProfissoesCalculada = Array.from(conjuntoUnico);
 
-      // Concatena as mensagens e cursos de todas as vertentes que empataram
       const textoCombinado = categoriasVencedoras
         .map(cat => `
           <div style="margin-top: 14px; padding-top: 10px; border-top: 2px dashed #ccc;">
@@ -380,26 +330,18 @@ function Teste({ usuario }) {
         `)
         .join('');
 
-      // Salva o texto combinado no estado
       setTextoFinal(textoCombinado);
     } else {
-      // Caso haja vitória isolada de uma única área
       const categoriaUnica = categoriasVencedoras[0] || ordenado[0][0];
-      // Pega as 10 profissões da área vencedora
       listaProfissoesCalculada = listaProfissoes[categoriaUnica].slice(0, 10);
-      // Define o texto informativo padrão correspondente à área única
       setTextoFinal(textosEducacionais[categoriaUnica]);
     }
 
-    // Salva a lista calculada de profissões no estado
     setProfissoesRecomendadas(listaProfissoesCalculada);
 
-    // Se o usuário estiver autenticado e possuir ID, grava as notas no backend
     if (usuario && usuario.id) {
-      // Monta a string legível do perfil (ex: "Tecnológicas / Exatas")
       const perfilParaGravar = categoriasVencedoras.map(cat => nomesAreas[cat]).join(' / ');
       try {
-        // Envia requisição POST para persistir o resultado vocacional na base
         await axios.post("http://localhost:3012/salvarResultado", {
           userId: usuario.id,
           biologicas,
@@ -413,9 +355,8 @@ function Teste({ usuario }) {
         console.error("Erro ao registrar resultado no banco:", err);
       }
     }
-  }, [biologicas, exatas, humanas, tecnologicas, usuario]); // Dependências da função memorizada
+  }, [biologicas, exatas, humanas, tecnologicas, usuario]);
 
-  // Efeito que aciona o cálculo das profissões assim que o teste for finalizado
   useEffect(() => {
     if (finalizado) {
       determinarProfissoes();
@@ -426,63 +367,43 @@ function Teste({ usuario }) {
   // EXPORTAÇÃO E GERAÇÃO DO RELATÓRIO EM PDF
   // ============================================================================
 
-  // Função assíncrona responsável por capturar o relatório e convertê-lo em PDF multipáginas
   const gerarPDF = async () => {
-    // Interrompe se o elemento referenciado do relatório não existir no DOM
     if (!relatorioRef.current) return;
-    // Ativa o estado de carregamento do botão
     setGerandoPDF(true);
 
     try {
-      // Pega a referência do nó HTML do relatório
       const elemento = relatorioRef.current;
-
-      // Rasteriza o elemento HTML em um Canvas com escala dobrada (alta nitidez)
       const canvas = await html2canvas(elemento, {
-        scale: 2,                                                  // Resolução dobrada para melhor legibilidade
-        useCORS: true,                                             // Habilita carregar imagens de outros domínios
-        backgroundColor: '#ffffff',                                // Define fundo branco para a página
-        ignoreElements: (el) => el.classList.contains('no-print-pdf') // Ignora elementos com a classe de não impressão
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        ignoreElements: (el) => el.classList.contains('no-print-pdf')
       });
 
-      // Converte o canvas para imagem em formato PNG base64
       const imgData = canvas.toDataURL('image/png');
-      // Instancia o objeto jsPDF em orientação retrato ('p'), unidade milímetros ('mm') e padrão 'a4'
       const pdf = new jsPDF('p', 'mm', 'a4');
-
-      // Obtém a largura da página A4 em milímetros (210mm)
       const paginaLargura = pdf.internal.pageSize.getWidth();
-      // Obtém a altura da página A4 em milímetros (297mm)
       const paginaAltura = pdf.internal.pageSize.getHeight();
 
-      // Calcula a altura correspondente da imagem mantendo a proporção em relação à largura útil
       const imagemAltura = (canvas.height * paginaLargura) / canvas.width;
-      // Variável de controle com a altura total restante para impressão
       let alturaRestante = imagemAltura;
-      // Coordenada vertical Y de inserção no PDF
       let posicaoY = 0;
 
-      // Adiciona a primeira fatia da imagem na primeira página do PDF
       pdf.addImage(imgData, 'PNG', 0, posicaoY, paginaLargura, imagemAltura);
-      // Abate a altura da folha já impressa
       alturaRestante -= paginaAltura;
 
-      // Laço para adicionar novas páginas enquanto houver conteúdo excedente
       while (alturaRestante > 0) {
-        posicaoY -= paginaAltura; // Desloca a coordenada Y para cima para imprimir a próxima seção
-        pdf.addPage();            // Cria uma nova folha no PDF
-        pdf.addImage(imgData, 'PNG', 0, posicaoY, paginaLargura, imagemAltura); // Renderiza a imagem deslocada
-        alturaRestante -= paginaAltura; // Abate a altura processada
+        posicaoY -= paginaAltura;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, posicaoY, paginaLargura, imagemAltura);
+        alturaRestante -= paginaAltura;
       }
 
-      // Sanitiza o nome do estudante para uso seguro no arquivo de download
       const nomeLimpo = usuario?.nome ? usuario.nome.trim().replace(/\s+/g, '_') : 'Aluno';
-      // Dispara o download automático do arquivo com o nome personalizado
       pdf.save(`Resultado_Vocacional_${nomeLimpo}.pdf`);
     } catch (erro) {
       console.error('Erro ao gerar o PDF:', erro);
     } finally {
-      // Desativa o estado de carregamento do botão
       setGerandoPDF(false);
     }
   };
@@ -492,21 +413,187 @@ function Teste({ usuario }) {
   // ============================================================================
 
   return (
-    // Contêiner principal envolvendo todo o layout do componente
     <div className='corpoP'>
-      {/* Barra superior com o título da aplicação */}
+      {/* Barra superior de identificação */}
       <div className='barraSuperior'>
         <h1 className='barraTexto'>Teste de Aptidão Vocacional</h1>
       </div>
 
-      {/* Seção central dinâmica onde alternam as questões ou o relatório final */}
       <section style={{ width: '95%', margin: 'auto', marginTop: '25px', textAlign: 'center', fontSize: '16pt', fontWeight: 'bold' }}>
-        {/* Renderização condicional: se o teste não terminou, exibe as perguntas; caso contrário, exibe o relatório */}
-        {!finalizado ? (
-          // Exibe a questão caso os dados estejam carregados
+        
+        {/* ====================================================================
+            ETAPA 1: TELA INICIAL (IMAGEM FIXADA AO TOPO + BOTÃO LOGO ABAIXO)
+        ==================================================================== */}
+        {emInstrucoes ? (
+          <div style={{
+            maxWidth: '1180px',
+            margin: '0 auto 30px auto',
+            backgroundColor: 'rgba(255, 255, 255, 0.97)',
+            borderRadius: '16px',
+            padding: '28px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+            color: '#212529',
+            boxSizing: 'border-box'
+          }}>
+            {/* Título de engajamento */}
+            <h2 style={{
+              color: '#1a73e8',
+              fontSize: '23pt',
+              fontWeight: '800',
+              marginBottom: '20px',
+              textShadow: 'none'
+            }}>
+              Descubra Seu Futuro Profissional: Teste Vocacional Dinâmico ETEC
+            </h2>
+
+            {/* Layout flex: alinhamento ao topo com align-items: flex-start */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              justifyContent: 'center',
+              gap: '30px',
+              textAlign: 'left'
+            }}>
+              {/* ------------------------------------------------------------------
+                  COLUNA ESQUERDA: FIXA AO TOPO NA ROLAGEM (STICKY)
+                  Contém a imagem 400x400 e o botão de ação logo abaixo
+              ------------------------------------------------------------------ */}
+              <div style={{
+                flexShrink: 0,
+                width: '400px',
+                position: 'sticky',
+                top: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center'
+              }}>
+                {/* Imagem de entrada vinda de ./img/entrada.jpg */}
+                <img
+                  src={imgEntrada}
+                  alt="Ilustração Representativa - Teste Vocacional ETEC"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "https://placehold.co/400x400/1a73e8/ffffff?text=ETEC+de+Embu";
+                  }}
+                  style={{
+                    width: '400px',
+                    height: '400px',
+                    objectFit: 'cover',
+                    border: '3px solid #FFF',
+                    borderRadius: '16px',
+                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.35)',
+                    display: 'block'
+                  }}
+                />
+
+                {/* Botão posicionado logo abaixo da imagem */}
+                <button
+                  onClick={() => setEmInstrucoes(false)}
+                  onMouseEnter={() => setHoverBtnInicio(true)}
+                  onMouseLeave={() => setHoverBtnInicio(false)}
+                  style={{
+                    width: '100%',
+                    marginTop: '16px',
+                    background: hoverBtnInicio
+                      ? 'linear-gradient(180deg, #34A853 0%, #2e7d32 100%)'
+                      : 'linear-gradient(180deg, #1a73e8 0%, #1557b0 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '14px 18px',
+                    borderRadius: '10px',
+                    fontSize: '13pt',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    boxShadow: hoverBtnInicio
+                      ? '0 6px 0 #1b5e20, 0 10px 20px rgba(0,0,0,0.35)'
+                      : '0 5px 0 #0d47a1, 0 8px 15px rgba(0,0,0,0.25)',
+                    transform: hoverBtnInicio ? 'translateY(-2px)' : 'translateY(0)',
+                    transition: 'all 0.15s ease-in-out',
+                    outline: 'none'
+                  }}
+                >
+                  🚀 Começar Meu Teste Vocacional
+                </button>
+              </div>
+
+              {/* COLUNA DIREITA: Texto explicativo, avisos e detalhes do teste */}
+              <div style={{
+                flex: 1,
+                fontSize: '11.5pt',
+                fontWeight: 'normal',
+                lineHeight: '1.45',
+                color: '#333'
+              }}>
+                <p style={{ margin: '0 0 10px 0', fontSize: '12pt', color: '#1f2937' }}>
+                  Este teste foi estruturado sobre um acervo com mais de <b>100 questões dinâmicas</b>. A cada rodada, nosso algoritmo realiza um sorteio aleatório de situações cotidianas dentre dezenas de possibilidades para mapear com clareza suas reais afinidades, estilo de resolução de problemas e tomada de decisão.
+                </p>
+
+                {/* Bloco de inclusão e representatividade */}
+                <div style={{
+                  backgroundColor: '#f0f7ff',
+                  borderLeft: '4px solid #1a73e8',
+                  padding: '10px 14px',
+                  borderRadius: '6px',
+                  marginBottom: '10px'
+                }}>
+                  <b style={{ color: '#1557b0', fontSize: '11pt' }}>👥 Representatividade e Inclusão:</b>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '10.5pt', color: '#2d3748' }}>
+                    Todas as perguntas são <b>unissex, neutras e abertas</b> para ambos os sexos e para todas as faixas etárias. As ilustrações são <b>meramente ilustrativas</b> e focadas na valorização da diversidade e representatividade em todos os ambientes profissionais, sem qualquer indução de resposta correta.
+                  </p>
+                </div>
+
+                {/* Bloco detalhando o que é entregue ao final */}
+                <div style={{
+                  backgroundColor: '#f0fdf4',
+                  borderLeft: '4px solid #16a34a',
+                  padding: '10px 14px',
+                  borderRadius: '6px',
+                  marginBottom: '10px'
+                }}>
+                  <b style={{ color: '#166534', fontSize: '11pt' }}>📊 O que você recebe no seu Relatório Final:</b>
+                  <ul style={{ margin: '4px 0 0 0', paddingLeft: '18px', fontSize: '10.5pt', color: '#1f2937' }}>
+                    <li><b>Pontuação por Eixos:</b> Nível de afinidade em <i>Biológicas</i>, <i>Exatas</i>, <i>Humanas</i> e <i>Tecnológicas</i> com <b>Gráfico de Radar Interativo</b>.</li>
+                    <li><b>10 Carreiras Recomendadas:</b> Uma amostragem de profissões que se encaixam no seu perfil preponderante.</li>
+                    <li><b>Conexão com a ETEC de Embu:</b> Mapeamento detalhado dos cursos técnicos gratuitos (Novotec/M-TEC e Modulares Noturnos) que potencializam sua formação na região.</li>
+                    <li><b>Versão para Impressão e PDF:</b> Geração de um documento A4 diagramado para salvar no celular, computador ou imprimir.</li>
+                  </ul>
+                </div>
+
+                {/* Incentivo de participação no vestibulinho */}
+                <div style={{
+                  backgroundColor: '#fef2f2',
+                  borderLeft: '4px solid #ef4444',
+                  padding: '9px 13px',
+                  borderRadius: '6px',
+                  marginBottom: '10px'
+                }}>
+                  <b style={{ color: '#b91c1c', fontSize: '11pt' }}>🎓 Venha Estudar na ETEC de Embu das Artes!</b>
+                  <span style={{ fontSize: '10pt', color: '#4b5563', display: 'block', marginTop: '3px' }}>
+                    O ensino público e gratuito do Centro Paula Souza oferece alta empregabilidade e sólida preparação para o mercado de trabalho e para os maiores vestibulares. Não deixe de se inscrever no <b>Vestibulinho</b> e dar o salto inicial na sua carreira!
+                  </span>
+                </div>
+
+                {/* Isenção ética de responsabilidade */}
+                <div style={{
+                  backgroundColor: '#fffdf0',
+                  borderLeft: '4px solid #f59e0b',
+                  padding: '8px 12px',
+                  borderRadius: '6px'
+                }}>
+                  <span style={{ fontSize: '9.5pt', color: '#78350f', display: 'block' }}>
+                    ⚠️ <i><b>Aviso de Orientação Vocacional:</b> Como todo instrumento de autoavaliação, este teste não é 100% eficaz nem uma sentença definitiva. Ele deve ser utilizado exclusivamente como apoio e orientação reflexiva, tendo em vista que preferências e aptidões amadurecem e mudam ao longo da vida. As profissões indicadas são uma pequena amostragem de partida dentre as centenas de opções existentes em cada grande eixo.</i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : !finalizado ? (
+          /* ====================================================================
+              ETAPA 2: FLUXO DE PERGUNTAS (10 QUESTÕES)
+          ==================================================================== */
           questao ? (
             <>
-              {/* Contador exibindo o número da pergunta atual */}
+              {/* Contador de questão */}
               <p style={{ color: '#DDD', fontSize: '13pt', marginBottom: '10px' }}>
                 Questão {indiceAtual + 1} de 10
               </p>
@@ -514,9 +601,8 @@ function Teste({ usuario }) {
               {/* Enunciado da pergunta */}
               <h2 style={{ color: '#FFF', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>{questao.questao}</h2>
 
-              {/* Contêiner com a ilustração e as opções de resposta */}
+              {/* Contêiner com a ilustração e as alternativas */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '15px' }}>
-                {/* Renderiza a imagem ilustrativa da questão caso exista */}
                 {questao.imagem && (
                   <img
                     src={`http://localhost:3012/${questao.imagem}`}
@@ -533,19 +619,17 @@ function Teste({ usuario }) {
                   />
                 )}
 
-                {/* Coluna com os botões das alternativas embaralhadas */}
+                {/* Botões das alternativas embaralhadas */}
                 <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', width: '100%' }}>
                   {opcoesEmbaralhadas.map(opcao => {
-                    // Verifica se a opção atual é a que está sob efeito de hover
                     const isHovered = opcaoAtivaId === opcao.id;
 
                     return (
-                      // Botão de resposta interativo com efeito 3D e relevo dinâmico
                       <button
                         key={opcao.id}
-                        onClick={() => registrarEscolha(opcao.setPontuacao)} // Registra pontuação e avança
-                        onMouseEnter={() => setOpcaoAtivaId(opcao.id)}      // Ativa efeito de hover
-                        onMouseLeave={() => setOpcaoAtivaId(null)}          // Desativa efeito de hover
+                        onClick={() => registrarEscolha(opcao.setPontuacao)}
+                        onMouseEnter={() => setOpcaoAtivaId(opcao.id)}
+                        onMouseLeave={() => setOpcaoAtivaId(null)}
                         style={{
                           textAlign: 'left',
                           background: isHovered
@@ -578,15 +662,13 @@ function Teste({ usuario }) {
               </div>
             </>
           ) : (
-            // Mensagem de espera caso os dados da questão ainda estejam carregando
             <p>Carregando questão...</p>
           )
         ) : (
-          // ====================================================================
-          // RELATÓRIO VOCACIONAL COMPLETO APÓS A CONCLUSÃO DO TESTE
-          // ====================================================================
+          /* ====================================================================
+              ETAPA 3: RELATÓRIO VOCACIONAL FINAL E EXPORTAÇÃO EM PDF
+          ==================================================================== */
           <div>
-            {/* Contêiner principal com largura de 800px para enquadramento perfeito em impressão A4 */}
             <div
               ref={relatorioRef}
               style={{
@@ -600,7 +682,7 @@ function Teste({ usuario }) {
                 boxSizing: 'border-box'
               }}
             >
-              {/* 1. Logotipo institucional ocupando a largura do topo */}
+              {/* 1. Logotipo institucional */}
               <div style={{ width: '100%', marginBottom: '14px', textAlign: 'center' }}>
                 <img
                   src={logoEtec}
@@ -609,7 +691,7 @@ function Teste({ usuario }) {
                 />
               </div>
 
-              {/* 2. Cabeçalho formal com identificação do aluno e título do documento */}
+              {/* 2. Cabeçalho com identificação do candidato */}
               <div style={{ borderBottom: '2px solid #1a73e8', paddingBottom: '10px', marginBottom: '16px', textAlign: 'left' }}>
                 <h2 style={{ color: '#1a73e8', margin: 0, fontSize: '21px', fontWeight: 'bold' }}>
                   Relatório Individual de Aptidão Vocacional
@@ -621,13 +703,10 @@ function Teste({ usuario }) {
                 )}
               </div>
 
-              {/* 3. Bloco superior: 40% para a lista de profissões e 60% para o Radar */}
+              {/* 3. Bloco superior: 40% Lista e 60% Radar */}
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', width: '100%', gap: '20px', marginBottom: '20px' }}>
-                
-                {/* Lado Esquerdo (40%): alerta de empate ou cabeçalho e listagem de carreiras */}
                 <div style={{ width: '40%', flex: '0 0 40%', textAlign: 'left', boxSizing: 'border-box' }}>
                   {houveEmpate ? (
-                    // Exibição em caso de empate entre áreas
                     <div style={{ backgroundColor: '#fff3cd', border: '1px solid #ffeeba', color: '#856404', padding: '10px', borderRadius: '6px', marginBottom: '12px' }}>
                       <h4 style={{ margin: 0, fontSize: '13.5px', fontWeight: 'bold' }}>⚖️ Empate Técnico Identificado!</h4>
                       <p style={{ margin: '4px 0 0 0', fontSize: '11.5px', lineHeight: '1.35' }}>
@@ -635,13 +714,11 @@ function Teste({ usuario }) {
                       </p>
                     </div>
                   ) : (
-                    // Exibição padrão para área única
                     <p style={{ fontWeight: 'bold', fontSize: '15px', margin: '0 0 8px 0', color: '#111' }}>
                       Carreiras recomendadas para o seu perfil:
                     </p>
                   )}
 
-                  {/* Lista ordenada com as 10 profissões recomendadas */}
                   <ul style={{ marginLeft: '12px', paddingLeft: '12px', fontSize: '13px', lineHeight: '1.5', margin: 0 }}>
                     {profissoesRecomendadas.map((profissao, index) => (
                       <li key={index}>{profissao}</li>
@@ -649,25 +726,23 @@ function Teste({ usuario }) {
                   </ul>
                 </div>
 
-                {/* Lado Direito (60%): Gráfico de radar vocacional */}
                 <div style={{ width: '60%', flex: '0 0 60%', alignSelf: 'flex-start', display: 'flex', justifyContent: 'center', boxSizing: 'border-box' }}>
                   <GraficoRadar biologicas={biologicas} exatas={exatas} humanas={humanas} tecnologicas={tecnologicas} />
                 </div>
               </div>
 
-              {/* 4. Bloco inferior: Análise e comparação com os cursos que a Etec oferece e não oferece */}
+              {/* 4. Bloco inferior: Análise e comparação com os cursos da Etec */}
               <div style={{ width: '100%', textAlign: 'left', marginBottom: '18px', borderTop: '1px solid #e0e0e0', paddingTop: '14px' }}>
                 <h4 style={{ color: '#202124', fontSize: '16px', fontWeight: 'bold', margin: '0 0 10px 0' }}>
                   Análise do Resultado e Guia de Cursos da Etec de Embu:
                 </h4>
-                {/* Inserção dinâmica do conteúdo HTML com base no resultado apurado */}
                 <div
                   style={{ fontSize: '13px', fontWeight: 'normal', textAlign: 'justify', lineHeight: '1.5', color: '#333' }}
                   dangerouslySetInnerHTML={{ __html: textoFinal }}
                 />
               </div>
 
-              {/* 5. Rodapé: Chamada para inscrição, botões de ação e QR Code */}
+              {/* 5. Rodapé: Inscrição, botões de ação e QR Code */}
               <div
                 style={{
                   marginTop: '16px',
@@ -679,7 +754,6 @@ function Teste({ usuario }) {
                   textAlign: 'left'
                 }}
               >
-                {/* Lado esquerdo do rodapé: chamadas e botões (ocultos na impressão via .no-print-pdf) */}
                 <div style={{ flex: 1, paddingRight: '20px' }}>
                   <h4 style={{ margin: '0 0 5px 0', color: '#EA4335', fontSize: '16px', fontWeight: 'bold' }}>
                     Se inscreva no Vestibulinho da ETEC de Embu!
@@ -688,9 +762,7 @@ function Teste({ usuario }) {
                     Acesse o portal oficial para conferir os períodos de inscrição, cursos do Novotec e vagas abertas:
                   </p>
                   
-                  {/* Bloco de botões de navegação e exportação */}
                   <div className="no-print-pdf">
-                    {/* Botão de redirecionamento externo para a página do vestibulinho */}
                     <div style={{ marginBottom: '10px' }}>
                       <a
                         href="https://vestibulinho.etec.sp.gov.br/"
@@ -712,7 +784,6 @@ function Teste({ usuario }) {
                       </a>
                     </div>
 
-                    {/* Botão que aciona a exportação direta do elemento em documento PDF */}
                     <div>
                       <button
                         onClick={gerarPDF}
@@ -735,7 +806,6 @@ function Teste({ usuario }) {
                   </div>
                 </div>
 
-                {/* Lado direito do rodapé: exibição do QR Code vetorial de 200px com legenda */}
                 <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
                   <QRCodeSVG
                     value="https://vestibulinho.etec.sp.gov.br/"
