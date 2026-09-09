@@ -248,8 +248,10 @@ const GraficoRadar = ({ biologicas, exatas, humanas, tecnologicas }) => {
             {/* Contêiner de posicionamento relativo que abriga o Canvas e a camada absoluta de ícones */}
             <div style={{ position: 'relative', width: '100%', height: '380px' }}>
                 
-                {/* Elemento Canvas gerenciado pelo Chart.js para o gráfico de teia */}
-                <Radar data={data} options={options} />
+                {/* Elemento Canvas gerenciado pelo Chart.js para o gráfico de teia com prioridade de sobreposição */}
+                <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 10 }}>
+                    <Radar data={data} options={options} />
+                </div>
 
                 {/* Camada sobreposta transparente com os ícones vetoriais de cada área */}
                 <div
@@ -260,7 +262,7 @@ const GraficoRadar = ({ biologicas, exatas, humanas, tecnologicas }) => {
                         width: '100%',
                         height: '100%',
                         pointerEvents: 'none', // Permite que os eventos do mouse passem direto para o canvas
-                        zIndex: 10              // Garante que os ícones fiquem sobrepostos ao gráfico
+                        zIndex: 1               // Nível de camada posicionado abaixo das janelas flutuantes do canvas
                     }}
                 >
                     {/* 1. Ícone da vertente de Biológicas (Posicionado no topo central) */}
