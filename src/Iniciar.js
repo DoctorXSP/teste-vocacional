@@ -1,197 +1,230 @@
-// Importa o React e o hook de gerenciamento de estado
+// ============================================================================
+// IMPORTAÇÕES DE MÓDULOS, COMPONENTES E ESTILOS
+// ============================================================================
+
+// Importa o React base e o hook useState para criação e manipulação dos estados locais do componente
 import React, { useState } from 'react';
-// Importa componentes visuais do Bootstrap para formulários e botões
+
+// Importa os componentes gráficos de interface do pacote react-bootstrap para formulários, botões e avisos
 import { Button, Form, Alert } from 'react-bootstrap';
-// Importa a folha de estilos personalizada
+
+// Importa o arquivo de folha de estilos CSS global com classes personalizadas (como .corpoP e .barraSuperior)
 import './index.css';
-// Importa o componente que executa o questionário vocacional
+
+// Importa o componente visual Teste, que será renderizado após a conclusão bem-sucedida do cadastro
 import Teste from './Teste';
 
-// Declara o componente funcional Iniciar
+// ============================================================================
+// COMPONENTE PRINCIPAL: INICIAR
+// ============================================================================
+
+// Declaração do componente funcional Iniciar responsável pela coleta de dados do candidato
 const Iniciar = () => {
-  // Estado para armazenar o nome digitado no campo de texto
+  // --------------------------------------------------------------------------
+  // ESTADOS DO FORMULÁRIO E CONTROLE DE NAVEGAÇÃO
+  // --------------------------------------------------------------------------
+
+  // Estado que armazena o nome digitado no campo de texto pelo candidato
   const [nome, alterarNome] = useState('');
-  // Estado para armazenar o e-mail digitado no campo
+
+  // Estado que armazena o endereço de e-mail informado pelo candidato
   const [email, alterarEmail] = useState('');
-  // Estado para armazenar o WhatsApp digitado
+
+  // Estado que armazena o número de telefone/WhatsApp preenchido
   const [whatsapp, alterarWhatsapp] = useState('');
-  // Estado para mensagens informativas de retorno ou erros
+
+  // Estado que guarda as mensagens de retorno para exibição em alerta (validação ou erro da API)
   const [mensagem, alterarMensagem] = useState('');
-  // Estado para alternar a tela visível ('Iniciar' ou 'Teste')
+
+  // Estado de controle de rota interna da tela (inicia em 'Iniciar' e avança para 'Teste')
   const [pagina, alterarPagina] = useState('Iniciar');
-  // Estado para armazenar os dados do usuário cadastrado, incluindo o id gerado
+
+  // Estado que armazena os dados do candidato (incluindo o id gerado no banco) para compartilhar com o Teste
   const [usuarioCadastrado, setUsuarioCadastrado] = useState(null);
 
-  // Manipulador de submissão do formulário de cadastro
+  // --------------------------------------------------------------------------
+  // LÓGICA DE SUBMISSÃO E ENVIO DO CADASTRO (POST)
+  // --------------------------------------------------------------------------
+
+  // Função assíncrona disparada ao enviar o formulário
   const enviarFormulario = async (evento) => {
-    // Impede o recarregamento automático padrão da página pelo navegador
+    // Cancela o comportamento nativo de reload da página acionado pelo navegador
     evento.preventDefault();
 
-    // Validação de preenchimento mínimo dos campos
+    // Valida se algum dos três campos principais está vazio após remover espaços em branco
     if (!nome.trim() || !email.trim() || !whatsapp.trim()) {
-      // Exibe mensagem de alerta solicitando preenchimento
+      // Alimenta o estado de mensagem solicitando o preenchimento integral
       alterarMensagem('Por favor, preencha todos os campos.');
-      // Encerra a função caso falte algum dado
+      // Interrompe o fluxo de execução para evitar requisições com dados incompletos
       return;
     }
 
-    // Agrupa os valores dos estados em um objeto estruturado
+    // Agrupa os valores dos estados em um objeto simples para envio
     const dadosFormulario = { nome, email, whatsapp };
 
-    // Bloco de tratamento de exceções para requisição assíncrona
+    // Bloco de controle para captura de eventuais exceções de rede ou servidor
     try {
-      // Executa a chamada HTTP POST para a rota de cadastro no backend
+      // Dispara a requisição HTTP POST para a rota de cadastro no servidor local Node.js
       const resposta = await fetch('http://localhost:3012/caduser', {
-        // Método HTTP utilizado
+        // Define o método da requisição como POST
         method: 'POST',
-        // Cabeçalhos informando o envio e recepção de JSON
+        // Configura os cabeçalhos indicando envio e recepção de dados estruturados em JSON
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        // Converte o objeto JavaScript em uma string JSON
+        // Converte o objeto JavaScript para uma cadeia de caracteres no padrão JSON
         body: JSON.stringify(dadosFormulario),
       });
 
-      // Converte o corpo da resposta HTTP em objeto JSON
+      // Extrai e converte a resposta do corpo HTTP para objeto JavaScript
       const resultado = await resposta.json();
 
-      // Dispara erro caso a requisição não tenha sido respondida com status 2xx
+      // Se a resposta HTTP contiver status de erro (fora do intervalo 200-299), lança uma exceção
       if (!resposta.ok) {
-        // Lança exceção com a mensagem recebida da API ou padrão
+        // Dispara o erro utilizando a mensagem retornada pelo backend ou texto genérico
         throw new Error(resultado.message || 'Erro ao inserir registro!');
       }
 
-      // Armazena as informações retornadas do usuário para compartilhar com o teste
+      // Armazena no estado o ID gerado pelo banco de dados junto com o nome do candidato
       setUsuarioCadastrado({
-        // Guarda o ID numérico criado no banco
+        // Guarda a chave primária (ID) criada no banco de dados
         id: resultado.userId,
-        // Guarda o nome do candidato
+        // Guarda o nome completo do candidato
         nome: nome
       });
 
-      // Transiciona o estado de rota interna para renderizar o componente do Teste
+      // Atualiza o estado da página, permitindo a transição de tela para o componente Teste
       alterarPagina('Teste');
-    // Captura qualquer falha de rede ou validação
     } catch (erro) {
-      // Atualiza a mensagem na interface alertando o usuário da falha
+      // Em caso de falha de conexão ou erro reportado pela API, atualiza a mensagem exibida na tela
       alterarMensagem(`Erro ao cadastrar: ${erro.message}`);
     }
   };
 
-  // Renderização condicional verificando se deve exibir o formulário inicial ou o teste
+  // --------------------------------------------------------------------------
+  // RENDERIZAÇÃO DO COMPONENTE VISUAL (JSX)
+  // --------------------------------------------------------------------------
+
+  // Operador ternário que verifica se a tela em exibição deve ser o formulário inicial
   return pagina === 'Iniciar' ? (
-    // Contêiner principal com fundo estilizado
+    // Contêiner geral da visualização com fundo roxo institucional
     <div className="corpoP">
-      {/* Barra superior de identificação */}
+      {/* Barra superior fixa de cabeçalho da aplicação */}
       <div className="barraSuperior">
-        {/* Título principal do aplicativo */}
+        {/* Título principal do cabeçalho institucional */}
         <h1 className="barraTexto">Teste de Aptidão Vocacional</h1>
       </div>
 
-      {/* Seção central que envolve o formulário de entrada */}
+      {/* Seção centralizada que engloba os campos e textos de entrada */}
       <section
         style={{
-          width: '50%',
-          margin: 'auto',
-          marginTop: '45px',
-          textAlign: 'center',
-          fontSize: '16pt',
-          fontWeight: 'bold',
+          width: '50%',             // Limita a largura a 50% do contêiner-pai
+          margin: 'auto',            // Centraliza horizontalmente na janela
+          marginTop: '45px',         // Adiciona recuo superior de 45 pixels
+          textAlign: 'center',       // Centraliza o alinhamento de textos internos
+          fontSize: '16pt',          // Define tamanho base da fonte em 16 pontos
+          fontWeight: 'bold',        // Define o peso da fonte padrão em negrito
         }}
       >
-        {/* Subtítulo da etapa */}
+        {/* Título da seção em texto branco */}
         <h1 style={{ color: '#FFF' }}>Início</h1>
-        {/* Orientação ao candidato */}
+
+        {/* Parágrafo com orientações prévias ao candidato */}
         <p style={{ color: '#FFF' }}>
           Preencha o formulário abaixo e clique em iniciar
         </p>
 
-        {/* Formulário com escuta no evento de envio onSubmit */}
+        {/* Formulário com manipulador de submissão vinculado */}
         <Form onSubmit={enviarFormulario}>
-          {/* Grupo de campo para o Nome */}
+          {/* Grupo de entrada para o campo Nome */}
           <Form.Group controlId="nome" style={{ marginBottom: 12 }}>
-            {/* Label do campo Nome */}
+            {/* Rótulo descritivo do campo Nome em branco e negrito */}
             <Form.Label style={{ color: '#FFF', fontWeight: 'bold', marginRight: 10 }}>
               Nome:
             </Form.Label>
-            {/* Input controlado pelo estado nome */}
+            {/* Campo de entrada de texto controlado pelo estado nome */}
             <Form.Control
-              type="text"
-              required
-              value={nome}
-              onChange={(e) => alterarNome(e.target.value)}
-              placeholder="Preencha o nome completo"
-              style={{ width: '60%', margin: 'auto', padding: 5, fontSize: 14 }}
+              type="text"                                    // Tipo do controle: texto
+              required                                       // Torna o preenchimento obrigatório no navegador
+              value={nome}                                   // Liga o valor ao estado local nome
+              onChange={(e) => alterarNome(e.target.value)}  // Atualiza o estado a cada caractere digitado
+              placeholder="Preencha o nome completo"        // Texto explicativo exibido quando vazio
+              style={{ width: '60%', margin: 'auto', padding: 5, fontSize: 14 }} // Estilização visual do campo
             />
           </Form.Group>
 
-          {/* Grupo de campo para o E-mail */}
+          {/* Grupo de entrada para o campo E-mail */}
           <Form.Group controlId="email" style={{ marginBottom: 12 }}>
-            {/* Label do campo E-mail */}
+            {/* Rótulo descritivo do campo E-mail */}
             <Form.Label style={{ color: '#FFF', fontWeight: 'bold', marginRight: 10 }}>
               e-Mail:
             </Form.Label>
-            {/* Input controlado pelo estado email */}
+            {/* Campo de entrada de texto com validação automática de e-mail */}
             <Form.Control
-              type="email"
-              required
-              value={email}
-              onChange={(e) => alterarEmail(e.target.value)}
-              placeholder="seuemail@exemplo.com"
-              style={{ width: '60%', margin: 'auto', padding: 5, fontSize: 14 }}
+              type="email"                                    // Tipo do controle: e-mail
+              required                                        // Validação de preenchimento obrigatório
+              value={email}                                   // Liga o valor ao estado local email
+              onChange={(e) => alterarEmail(e.target.value)}  // Atualiza o estado a cada tecla digitada
+              placeholder="seuemail@exemplo.com"              // Exemplo de máscara informativa
+              style={{ width: '60%', margin: 'auto', padding: 5, fontSize: 14 }} // Dimensões do campo
             />
           </Form.Group>
 
-          {/* Grupo de campo para o WhatsApp */}
+          {/* Grupo de entrada para o campo WhatsApp */}
           <Form.Group controlId="whatsapp" style={{ marginBottom: 15 }}>
-            {/* Label do campo WhatsApp */}
+            {/* Rótulo descritivo do campo WhatsApp */}
             <Form.Label style={{ color: '#FFF', fontWeight: 'bold', marginRight: 10 }}>
               WhatsApp:
             </Form.Label>
-            {/* Input controlado pelo estado whatsapp */}
+            {/* Campo de entrada controlado pelo estado whatsapp */}
             <Form.Control
-              type="text"
-              required
-              value={whatsapp}
-              onChange={(e) => alterarWhatsapp(e.target.value)}
-              placeholder="(11) 99999-9999"
-              style={{ width: '60%', margin: 'auto', padding: 5, fontSize: 14 }}
+              type="text"                                       // Tipo do controle: texto
+              required                                          // Preenchimento obrigatório
+              value={whatsapp}                                  // Liga o valor ao estado local whatsapp
+              onChange={(e) => alterarWhatsapp(e.target.value)} // Atualiza o estado com o valor digitado
+              placeholder="(11) 99999-9999"                     // Máscara sugerida de preenchimento
+              style={{ width: '60%', margin: 'auto', padding: 5, fontSize: 14 }} // Largura e formato
             />
           </Form.Group>
 
-          {/* Botão para confirmação e envio dos dados */}
+          {/* Botão para validação e submissão do formulário */}
           <Button
-            variant="primary"
-            type="submit"
+            variant="primary"        // Variante base de estilo do Bootstrap
+            type="submit"            // Define o botão como disparador de envio do formulário
             style={{
-              fontSize: 20,
-              padding: '10px 30px',
-              backgroundColor: '#FBBC05',
-              borderColor: '#FBBC05',
-              color: '#202124',
-              fontWeight: 'bold',
-              margin: 15,
-              cursor: 'pointer'
+              fontSize: 20,          // Tamanho da fonte do botão em 20 pixels
+              padding: '10px 30px',  // Espaçamento interno vertical e horizontal
+              backgroundColor: '#FBBC05', // Cor de fundo amarela chamativa
+              borderColor: '#FBBC05',     // Cor de borda correspondente ao fundo
+              color: '#202124',      // Cor do texto escuro para contraste de leitura
+              fontWeight: 'bold',    // Texto em negrito destacado
+              margin: 15,            // Margem de respiro ao redor do botão
+              cursor: 'pointer'      // Cursor em formato de mão ao posicionar o mouse
             }}
           >
             Iniciar Teste
           </Button>
         </Form>
 
-        {/* Exibe o componente de alerta caso exista mensagem de erro registrada */}
+        {/* Renderização condicional do alerta de falha de preenchimento ou erro de rede */}
         {mensagem && (
+          // Caixa de alerta visual do tipo perigo (danger / vermelho)
           <Alert variant="danger" style={{ marginTop: 15, fontSize: 14 }}>
-            {mensagem}
+            {mensagem}               {/* Exibe o texto de erro contido no estado */}
           </Alert>
         )}
       </section>
     </div>
   ) : (
-    // Renderiza o componente Teste repassando o objeto com o ID do usuário cadastrado
+    // Transiciona para o componente Teste repassando o objeto com o ID e o nome do candidato cadastrado
     <Teste usuario={usuarioCadastrado} />
   );
 };
 
-// Exporta o componente Iniciar como padrão do módulo
+// ============================================================================
+// EXPORTAÇÃO DO COMPONENTE
+// ============================================================================
+
+// Exporta o componente Iniciar como padrão para ser integrado na tela principal (App.js)
 export default Iniciar;

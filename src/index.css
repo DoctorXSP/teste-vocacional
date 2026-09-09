@@ -1,90 +1,128 @@
+/* ============================================================================
+   ESTILOS GLOBAIS E RESET DE ESTRUTURA
+   ============================================================================ */
+
+/* Configurações básicas e padronização visual aplicadas a todo o corpo do documento */
 body {
-  margin: 0;
+  margin: 0;                               /* Zera as margens externas padrão do navegador */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    sans-serif;                            /* Pilha de fontes nativas do sistema operacional */
+  -webkit-font-smoothing: antialiased;     /* Otimiza a renderização de bordas de fonte em navegadores WebKit/Safari */
+  -moz-osx-font-smoothing: grayscale;      /* Suavização de renderização em escala de cinza no Firefox macOS */
 }
 
+/* Estilização para blocos e trechos com formatação de código-fonte */
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+    monospace;                             /* Pilha tipográfica monoespaçada para clareza técnica */
 }
+
+/* ============================================================================
+   BARRA DE MENU DE NAVEGAÇÃO
+   ============================================================================ */
+
+/* Barra de menu superior fixa em bloco com fundo escuro */
 .menu {
-  padding-top: 15px;
-  /*padding-bottom: 5px;*/
-  height: 40px;
-  width: 100%;
-  display: block;
-  text-align: center;
-  background-color: black;
-  padding: 5px;
+  padding-top: 15px;                       /* Espaçamento interno superior de 15 pixels */
+  /*padding-bottom: 5px;*/                 /* (Comentado) Espaçamento interno inferior reservado */
+  height: 40px;                            /* Fixa a altura da barra em 40 pixels */
+  width: 100%;                             /* Ocupa a totalidade da largura útil da tela */
+  display: block;                          /* Renderiza como contêiner em bloco */
+  text-align: center;                      /* Centraliza horizontalmente botões e links internos */
+  background-color: black;                 /* Define a cor de fundo como preto puro */
+  padding: 5px;                            /* Espaçamento interno complementar em todas as faces */
 }
-.menu .btn{
-  margin:0 35;
-  background-color: red;
-  color: #FFF;
-  font-weight: 700;
-  padding: 3px;
+
+/* Botões de atalho dispostos dentro da barra de menu */
+.menu .btn {
+  margin: 0 35px;                          /* Margem de 0 pixels vertical e 35 pixels nas laterais */
+  background-color: red;                   /* Define a cor de preenchimento vermelha do botão */
+  color: #FFF;                             /* Cor do texto em branco para alto contraste */
+  font-weight: 700;                        /* Define espessura em negrito acentuado */
+  padding: 3px;                            /* Espaçamento interno compacto de 3 pixels */
 }
+
+/* ============================================================================
+   BOTÕES DE AÇÃO PRINCIPAL
+   ============================================================================ */
+
+/* Botão de destaque principal para início de fluxos do teste */
 .btnPrincipal {
-  background-color: red;
-  color: #FFF;
-  font-weight: 700;
-  padding: 3px 15px;
-  font-size: 20pt;
-  border-radius: 5px;
-  box-shadow: 5px 5px 5px #000;
-  margin-bottom: 10px;
+  background-color: red;                   /* Fundo vermelho chamativo para conversão */
+  color: #FFF;                             /* Cor do texto em branco de alta visibilidade */
+  font-weight: 700;                        /* Peso da fonte em negrito forte */
+  padding: 3px 15px;                       /* Espaçamento interno de 3px vertical e 15px horizontal */
+  font-size: 20pt;                         /* Tamanho de fonte ampliado em 20 pontos */
+  border-radius: 5px;                      /* Arredondamento leve dos cantos em 5 pixels */
+  box-shadow: 5px 5px 5px #000;            /* Sombra projetada preta para criar relevo 3D */
+  margin-bottom: 10px;                     /* Afastamento inferior de 10 pixels */
 }
-.btnPrincipal :hover {
-  background-color: #008080;
+
+/* Estado de foco/interação do mouse sobre o botão principal */
+.btnPrincipal:hover {
+  background-color: #008080;               /* Altera a cor de fundo para verde-petróleo (teal) ao passar o mouse */
 }
+
+/* ============================================================================
+   SEÇÃO INSTITUCIONAL COM IMAGEM DE FUNDO
+   ============================================================================ */
+
+/* Seção com enquadramento proporcional e imagem ilustrativa institucional */
 .sectionIns {
-  width: 80%; 
-  margin: auto; 
-  margin-top: 45px; 
-  text-align: 'center'; 
-  font-size: 16pt;
-  font-weight: bold;
-  background-image: url('./img/back.jpg');
-  background-size: contain; 
-  background-position: center; 
-  background-repeat: no-repeat;
+  width: 80%;                              /* Limita a largura em 80% do contêiner-pai */
+  margin: auto;                            /* Centraliza horizontalmente o elemento na página */
+  margin-top: 45px;                        /* Recuo superior de 45 pixels em relação ao elemento anterior */
+  text-align: center;                      /* Centraliza todos os textos e elementos filhos */
+  font-size: 16pt;                         /* Tamanho da tipografia em 16 pontos */
+  font-weight: bold;                       /* Texto formatado com peso em negrito */
+  background-image: url('./img/back.jpg');   /* Define o arquivo 'back.jpg' como plano de fundo */
+  background-size: contain;                /* Escala a imagem mantendo a proporção inteira visível sem cortes */
+  background-position: center;             /* Alinha a imagem perfeitamente ao centro do contêiner */
+  background-repeat: no-repeat;            /* Impede a duplicação em grade/mosaico da imagem */
 }
-/* Garante que o fundo roxo ocupe toda a altura e largura da tela */
+
+/* ============================================================================
+   ESTRUTURA DE FUNDO E TELA CHEIA
+   ============================================================================ */
+
+/* Contêiner que envolve todo o corpo da tela com fundo roxo padronizado */
 .corpoP {
-  background-color: purple !important;
-  min-height: 100vh;
-  width: 100%;
-  box-sizing: border-box;
+  background-color: purple !important;     /* Aplica a cor roxa forçada com prioridade máxima */
+  min-height: 100vh;                       /* Garante que o fundo ocupe no mínimo 100% da altura da viewport */
+  width: 100%;                             /* Ocupa a largura total da página */
+  box-sizing: border-box;                  /* Inclui bordas e paddings no cálculo dimensional do contêiner */
 }
 
-/* Centralização vertical e horizontal perfeita do modal */
+/* ============================================================================
+   CUSTOMIZAÇÕES E ALINHAMENTOS DO MODAL BOOTSTRAP
+   ============================================================================ */
+
+/* Força o contêiner externo do Modal a atuar como Flexbox para centralização total */
 .modal {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  display: flex !important;                /* Habilita o modelo Flexbox ignorando a regra de bloco nativa */
+  align-items: center !important;          /* Centraliza a caixa de diálogo verticalmente na tela */
+  justify-content: center !important;      /* Centraliza a caixa de diálogo horizontalmente na tela */
 }
 
+/* Ajusta o invólucro interno (.modal-dialog) para manter o alinhamento sem margens indesejadas */
 .modal-dialog {
-  margin: auto !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-height: calc(100vh - 60px) !important;
+  margin: auto !important;                 /* Centraliza a margem nos eixos vertical e horizontal */
+  display: flex !important;                /* Mantém o comportamento interno em modelo flexível */
+  align-items: center !important;          /* Garante o alinhamento central transversal */
+  justify-content: center !important;      /* Garante o alinhamento central longitudinal */
+  min-height: calc(100vh - 60px) !important; /* Fixa altura mínima descontando a margem de respiro */
 }
 
-/* Remove a carcaça branca e bordas extras do Bootstrap */
+/* Remove molduras padrão, fundos brancos e bordas do contêiner do Bootstrap */
 .modal-content.modal-auth-custom {
-  background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+  background-color: transparent !important;/* Remove o fundo branco nativo para usar o estilo customizado */
+  border: none !important;                 /* Remove contornos e bordas pré-definidas da biblioteca */
+  box-shadow: none !important;             /* Anula sombras padrão do Bootstrap para usar sombras próprias */
 }
 
-/* Escurece levemente o fundo roxo por trás do modal mantendo o tom purple */
+/* Personaliza a cortina escura de fundo (backdrop) preservando a atmosfera roxa da aplicação */
 .modal-backdrop.show {
-  opacity: 0.55 !important;
-  background-color: #1a0026 !important;
+  opacity: 0.55 !important;                /* Define o nível de transparência da cortina em 55% */
+  background-color: #1a0026 !important;    /* Tonalidade roxa ultra-escura para harmonizar com o layout */
 }

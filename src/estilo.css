@@ -1,38 +1,50 @@
+/* ============================================================================
+   ESTILOS GERAIS DE CABEÇALHO E ESTRUTURA DO APLICATIVO
+   ============================================================================ */
+
+/* Estilização da barra superior fixa/destacada no topo da interface */
 .barraSuperior {
-    width: 100%;
-    display: block;
-    background-color: #008080;
-    height: 80px;
-    text-align: center;
-    margin-top: -35px;
-    margin-bottom: 15px;
-}
-.barraTexto {
-    text-align: center;
-    color: #FFF;
-    font-size: 40pt;
-}
-.corpo {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.corpo p {
-    display: block;
-    width: 50%;
-    text-align: justify;
-    font-size: 14pt;
-}
-.sectionIns {
-  width: 80%; 
-  margin: auto; 
-  margin-top: 45px; 
-  text-align: 'center'; 
-  font-size: 16pt;
-  font-weight: bold;
-  background-image: url('./img/back.jpg');
-  background-size: cover; 
-  background-position: center; 
-  background-repeat: no-repeat;
+    width: 100%;                  /* Faz a barra ocupar 100% da largura útil da tela */
+    display: block;                /* Renderiza como elemento em bloco tradicional */
+    background-color: #008080;     /* Define a tonalidade verde-petróleo (teal) como cor de fundo */
+    height: 80px;                  /* Fixa a altura da barra superior em 80 pixels */
+    text-align: center;            /* Centraliza horizontalmente o conteúdo de texto interno */
+    margin-top: -35px;             /* Margem negativa superior para compensar espaçamentos nativos do topo */
+    margin-bottom: 15px;           /* Adiciona espaçamento inferior de 15 pixels para afastar o conteúdo seguinte */
 }
 
+/* Tipografia e estética do título inserido dentro da barra superior */
+.barraTexto {
+    text-align: center;            /* Garante o alinhamento centralizado do texto */
+    color: #FFF;                   /* Define a cor da fonte como branca pura para alto contraste */
+    font-size: 40pt;               /* Aplica tamanho de fonte de 40 pontos para grande visibilidade */
+}
+
+/* Contêiner genérico flexível para alinhamento e centralização de blocos de conteúdo */
+.corpo {
+    display: flex;                 /* Habilita o modelo de layout flexível (Flexbox) */
+    justify-content: center;       /* Centraliza horizontalmente os elementos-filhos no eixo principal */
+    align-items: center;           /* Alinha verticalmente os elementos-filhos ao centro no eixo transversal */
+}
+
+/* Formatação dos parágrafos de texto inseridos dentro da classe .corpo */
+.corpo p {
+    display: block;                /* Garante comportamento visual de bloco ao parágrafo */
+    width: 50%;                    /* Limita a largura do bloco de texto à metade (50%) do contêiner-pai */
+    text-align: justify;           /* Justifica as margens esquerda e direita do texto para leitura uniforme */
+    font-size: 14pt;               /* Define a tipografia no tamanho de 14 pontos */
+}
+
+/* Seção principal para áreas com imagem de fundo e destaques institucionais */
+.sectionIns {
+    width: 80%;                            /* Define a largura do bloco em 80% do elemento pai */
+    margin: auto;                          /* Centraliza o bloco automaticamente nas laterais */
+    margin-top: 45px;                      /* Adiciona um recuo superior de 45 pixels */
+    text-align: center;                    /* Centraliza todos os textos e itens internos */
+    font-size: 16pt;                       /* Aplica tamanho padrão de 16 pontos para a tipografia interna */
+    font-weight: bold;                     /* Define peso de fonte em negrito para todos os textos */
+    background-image: url('./img/back.jpg'); /* Carrega a imagem 'back.jpg' como fundo do elemento */
+    background-size: cover;                /* Redimensiona a imagem para preencher todo o contêiner sem distorcer */
+    background-position: center;           /* Centraliza o ponto focal da imagem de fundo */
+    background-repeat: no-repeat;          /* Evita a repetição e duplicação da imagem em mosaico */
+}

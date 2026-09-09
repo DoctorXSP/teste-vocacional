@@ -1,40 +1,58 @@
-// Importa os hooks essenciais do React para estado, ciclo de vida e manipulação de referências do DOM
+// ============================================================================
+// IMPORTAÇÕES DE MÓDULOS E BIBLIOTECAS EXTERNAS
+// ============================================================================
+
+// Importa o React base e os hooks essenciais para manipulação de estado, ciclo de vida e DOM
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-// Importa a folha de estilos CSS personalizada da aplicação
+
+// Importa o arquivo de folha de estilos padrão da aplicação
 import './index.css';
-// Importa a biblioteca Axios para comunicação com o backend Node.js
+
+// Importa o cliente HTTP Axios para requisições de API junto ao backend
 import axios from 'axios';
-// Importa o componente visual do radar de competências em formato de alvo
+
+// Importa o componente gráfico customizado do tipo Radar/Teia para exibir as 4 vertentes
 import GraficoRadar from './GraficoRadar';
 
-// Importa a imagem institucional que se encontra em src/img/Logo.png
+// Importa a imagem do logotipo da instituição
 import logoEtec from './img/Logo.png';
 
-// Importa o gerador de QR Code em formato vetorial SVG de alta definição
+// Importa o componente visual gerador de QR Code em formato SVG de alta resolução
 import { QRCodeSVG } from 'qrcode.react';
-// Importa o html2canvas para rasterizar o elemento HTML da tela em um Canvas
+
+// Importa a biblioteca html2canvas para renderizar a árvore do DOM em uma tela canvas bitmap
 import html2canvas from 'html2canvas';
-// Importa o jsPDF para encapsular o relatório no formato padronizado de folha A4
+
+// Importa a biblioteca jsPDF para geração de documentos PDF para impressão/download
 import jsPDF from 'jspdf';
 
-// Dicionário com as 10 profissões sugeridas para cada vertente avaliada
+// ============================================================================
+// ESTRUTURAS DE DADOS ESTÁTICAS E CONSTANTES
+// ============================================================================
+
+// Objeto com as 10 sugestões de carreira/profissão para cada uma das 4 áreas avaliadas
 const listaProfissoes = {
+  // Lista de carreiras sugeridas para o perfil Biológicas e Saúde
   biologicas: ["Bioquímico", "Biólogo", "Dentista", "Enfermeiro", "Farmacêutico", "Fisioterapeuta", "Médico", "Nutricionista", "Pesquisador", "Veterinário"],
+  // Lista de carreiras sugeridas para o perfil de Ciências Exatas, Engenharia e Cálculos
   exatas: ["Analista de Sistemas", "Arquiteto", "Automação Industrial", "Cientista de Dados", "Desenvolvedor de Software", "Economista", "Eletroeletrônica", "Engenheiro", "Físico", "Matemático"],
+  // Lista de carreiras sugeridas para o perfil de Humanas, Gestão, Comunicação e Sociais
   humanas: ["Administrador", "Advogado", "Comércio Exterior", "Escritor", "Gestor de Recursos Humanos", "Jornalista", "Logística", "Professor", "Psicólogo", "Sociólogo"],
+  // Lista de carreiras sugeridas para o perfil de Tecnologia da Informação, Redes e Eletrônica
   tecnologicas: ["Analista de Sistemas", "Arquiteto de Tecnologia", "Automação Industrial", "Cyber Security", "Desenvolvedor Web", "Desenvolvimento de Sistemas", "Eletroeletrônica", "Especialista em Cloud", "Informática", "Redes de Computadores"]
 };
 
-// Mapeamento dos identificadores internos para os nomes formais exibidos na interface
+// Dicionário para mapear as chaves internas para os nomes formais exibidos na interface
 const nomesAreas = {
-  biologicas: 'Biológicas',
-  exatas: 'Exatas',
-  humanas: 'Humanas',
-  tecnologicas: 'Tecnológicas'
+  biologicas: 'Biológicas',     // Nome legível para a chave biologicas
+  exatas: 'Exatas',             // Nome legível para a chave exatas
+  humanas: 'Humanas',           // Nome legível para a chave humanas
+  tecnologicas: 'Tecnológicas'  // Nome legível para a chave tecnologicas
 };
 
-// Textos institucionais e educacionais contendo cursos que a Etec TEM e cursos que a Etec NÃO TEM
+// Dicionário com blocos de texto HTML formatados contendo a análise vocacional e a grade de cursos da Etec
 const textosEducacionais = {
+  // Bloco explicativo com cursos presentes e ausentes para quem pontuar em Biológicas
   biologicas: `
     <p style="margin: 0 0 10px 0;">
       <b>Resultado do Teste:</b> Seu perfil demonstrou maior afinidade com a área de <b>Biológicas e Saúde</b>, evidenciando interesse por organismos vivos, bem-estar humano, processos químicos e preservação ambiental.
@@ -57,6 +75,7 @@ const textosEducacionais = {
     </div>
   `,
 
+  // Bloco explicativo com cursos presentes e ausentes para quem pontuar em Exatas
   exatas: `
     <p style="margin: 0 0 10px 0;">
       <b>Resultado do Teste:</b> Seu resultado evidenciou forte raciocínio lógico-matemático e grande vocação para a área de <b>Exatas, Indústria, Gestão e Tecnologia</b>.
@@ -89,6 +108,7 @@ const textosEducacionais = {
     </div>
   `,
 
+  // Bloco explicativo com cursos presentes e ausentes para quem pontuar em Humanas
   humanas: `
     <p style="margin: 0 0 10px 0;">
       <b>Resultado do Teste:</b> Seu perfil revelou destacada facilidade para <b>Humanas e Ciências Sociais Aplicadas</b>, com excelente potencial de liderança, inteligência emocional, negociação e trabalho em equipe.
@@ -114,6 +134,7 @@ const textosEducacionais = {
     </div>
   `,
 
+  // Bloco explicativo com cursos presentes e ausentes para quem pontuar em Tecnológicas
   tecnologicas: `
     <p style="margin: 0 0 10px 0;">
       <b>Resultado do Teste:</b> Seu teste indicou afinidade máxima com o eixo de <b>Tecnologia da Informação e Transformação Digital</b>, perfil indispensável para as profissões do futuro.
@@ -143,78 +164,121 @@ const textosEducacionais = {
   `
 };
 
-// Algoritmo Fisher-Yates para embaralhamento sem viés
+// ============================================================================
+// FUNÇÕES UTILITÁRIAS
+// ============================================================================
+
+// Função que implementa o algoritmo de Fisher-Yates para embaralhar itens de uma lista aleatoriamente sem viés
 function embaralharArray(array) {
+  // Cria uma cópia superficial do vetor recebido para evitar efeitos colaterais no vetor original
   const arr = [...array];
+  // Itera regressivamente a partir do último elemento até o segundo índice
   for (let i = arr.length - 1; i > 0; i--) {
+    // Sorteia um índice aleatório inteiro entre zero e a posição i atual
     const j = Math.floor(Math.random() * (i + 1));
+    // Realiza a desestruturação para permutar os valores de posição entre i e j
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
+  // Retorna o array completamente reorganizado de maneira pseudoaleatória
   return arr;
 }
 
-// Declaração do componente funcional Teste
+// ============================================================================
+// COMPONENTE PRINCIPAL
+// ============================================================================
+
+// Definição da função do componente React Teste recebendo os dados do usuário conectado
 function Teste({ usuario }) {
+  // Estado que armazena as 10 questões sorteadas e preparadas para a rodada do teste
   const [sessaoQuestoes, setSessaoQuestoes] = useState([]);
+  // Estado que indica qual o índice da pergunta ativa (de 0 a 9)
   const [indiceAtual, setIndiceAtual] = useState(0);
+  // Estado que armazena os dados da questão corrente sendo visualizada
   const [questao, setQuestao] = useState(null);
+  // Estado que armazena a lista de alternativas com texto e função pontuadora embaralhadas
   const [opcoesEmbaralhadas, setOpcoesEmbaralhadas] = useState([]);
 
-  // Estado para controlar o botão que está com hover ou ativo (para o efeito de relevo dinâmico)
+  // Estado auxiliar para controlar qual botão está em hover/ativo para animações de relevo
   const [opcaoAtivaId, setOpcaoAtivaId] = useState(null);
 
-  const [biologicas, setBiologicas] = useState(0);
-  const [exatas, setExatas] = useState(0);
-  const [humanas, setHumanas] = useState(0);
-  const [tecnologicas, setTecnologicas] = useState(0);
+  // Estados acumuladores de pontuação para cada uma das 4 áreas
+  const [biologicas, setBiologicas] = useState(0);     // Pontuação total em Biológicas
+  const [exatas, setExatas] = useState(0);             // Pontuação total em Exatas
+  const [humanas, setHumanas] = useState(0);           // Pontuação total em Humanas
+  const [tecnologicas, setTecnologicas] = useState(0); // Pontuação total em Tecnológicas
 
-  const [finalizado, setFinalizado] = useState(false);
-  const [houveEmpate, setHouveEmpate] = useState(false);
-  const [areasEmpatadas, setAreasEmpatadas] = useState([]);
-  const [profissoesRecomendadas, setProfissoesRecomendadas] = useState([]);
-  const [textoFinal, setTextoFinal] = useState("");
-  const [gerandoPDF, setGerandoPDF] = useState(false);
+  // Estados de controle e resultado final
+  const [finalizado, setFinalizado] = useState(false);                     // Flag que indica se o aluno respondeu as 10 perguntas
+  const [houveEmpate, setHouveEmpate] = useState(false);                   // Flag que indica se houve empate no primeiro lugar
+  const [areasEmpatadas, setAreasEmpatadas] = useState([]);                 // Lista com as áreas que empataram na liderança
+  const [profissoesRecomendadas, setProfissoesRecomendadas] = useState([]); // Lista com as 10 carreiras apuradas no relatório
+  const [textoFinal, setTextoFinal] = useState("");                         // Bloco de texto em HTML explicativo do resultado
+  const [gerandoPDF, setGerandoPDF] = useState(false);                     // Flag de carregamento enquanto o PDF é processado
 
+  // Referência vinculada ao nó DOM da div do relatório impresso
   const relatorioRef = useRef(null);
 
-  // Carrega as questões do banco e monta a fila única de 10 perguntas
+  // ============================================================================
+  // CICLOS DE VIDA E EFEITOS (USEEFFECT)
+  // ============================================================================
+
+  // Efeito executado na montagem do componente para buscar as perguntas do backend
   useEffect(() => {
+    // Função assíncrona interna para requisitar e sortear as 10 perguntas
     const carregarTodasAsQuestoes = async () => {
       try {
+        // Log informativo no console do navegador
         console.log("Baixando acervo completo de questões...");
+        // Requisita todas as questões cadastradas na rota do servidor
         const response = await axios.get("http://localhost:3012/todasQuestoes");
+        // Extrai a listagem de dados do corpo da resposta
         const todas = response.data;
 
+        // Valida se a resposta é um vetor não vazio
         if (Array.isArray(todas) && todas.length > 0) {
+          // Embaralha o acervo geral de questões
           let embaralhadas = embaralharArray(todas);
+          // Cria o vetor de destino que conterá rigorosamente 10 questões
           let listaFinal10 = [];
 
+          // Laço de segurança para garantir o preenchimento de 10 itens mesmo com poucas perguntas no banco
           while (listaFinal10.length < 10) {
+            // Percorre as perguntas embaralhadas
             for (let q of embaralhadas) {
+              // Se ainda não atingiu o limite de 10 perguntas, insere a questão
               if (listaFinal10.length < 10) {
                 listaFinal10.push(q);
               }
             }
+            // Se o acervo original tiver menos que 10, reembaralha para novo ciclo
             embaralhadas = embaralharArray(todas);
           }
 
+          // Salva as 10 perguntas selecionadas no estado
           setSessaoQuestoes(listaFinal10);
+          // Inicializa o ponteiro de questão no índice 0
           setIndiceAtual(0);
         }
       } catch (error) {
+        // Registra eventuais falhas de conexão ou rede no console
         console.error("Erro ao carregar acervo de questões:", error);
       }
     };
 
+    // Executa a rotina de busca de questões
     carregarTodasAsQuestoes();
-  }, []);
+  }, []); // Executa apenas uma vez no carregamento inicial do componente
 
-  // Prepara a questão atual e embaralha as opções
+  // Efeito que monitora o avanço das questões para preparar a pergunta e reembaralhar as opções
   useEffect(() => {
+    // Verifica se existem perguntas carregadas e se o teste ainda não passou da décima questão
     if (sessaoQuestoes.length > 0 && indiceAtual < 10) {
+      // Obtém o objeto da questão correspondente à posição atual
       const questaoAtual = sessaoQuestoes[indiceAtual];
+      // Atualiza o estado da questão atual em tela
       setQuestao(questaoAtual);
 
+      // Constrói o array com as alternativas, amarrando cada texto ao seu respectivo setter de pontuação
       const opcoes = [
         { id: 'bio', texto: questaoAtual.opcaoA, setPontuacao: setBiologicas },
         { id: 'exa', texto: questaoAtual.opcaoB, setPontuacao: setExatas },
@@ -222,43 +286,65 @@ function Teste({ usuario }) {
         { id: 'tec', texto: questaoAtual.opcaoD, setPontuacao: setTecnologicas }
       ];
 
+      // Embaralha as 4 alternativas para que as posições dos botões fiquem dinâmicas
       setOpcoesEmbaralhadas(embaralharArray(opcoes));
     }
-  }, [sessaoQuestoes, indiceAtual]);
+  }, [sessaoQuestoes, indiceAtual]); // Disparado sempre que o índice da questão ou a lista for alterada
 
-  // Registra a pontuação e avança
+  // ============================================================================
+  // FUNÇÕES DE LÓGICA E PROCESSAMENTO DO TESTE
+  // ============================================================================
+
+  // Função responsável por contabilizar a pontuação da opção escolhida e navegar para a próxima questão
   const registrarEscolha = (setPontuacao) => {
+    // Incrementa a pontuação da área associada ao botão clicado em 10 pontos
     setPontuacao(prev => prev + 10);
 
+    // Atualiza o índice da questão de forma atômica baseada no valor prévio
     setIndiceAtual(prevIndice => {
+      // Calcula o próximo índice
       const proximo = prevIndice + 1;
+      // Se alcançou ou ultrapassou a décima pergunta (índice 10), marca o teste como finalizado
       if (proximo >= 10) {
         setFinalizado(true);
       }
+      // Retorna o índice incrementado
       return proximo;
     });
   };
 
-  // Apura os resultados vocacionais, resolve empates e salva no banco de dados
+  // Função memorizada com useCallback para apurar as pontuações, resolver desempates e enviar ao banco
   const determinarProfissoes = useCallback(async () => {
+    // Agrupa os valores de pontuação de todas as áreas
     const valores = { biologicas, exatas, humanas, tecnologicas };
+    // Converte em pares [chave, valor] e ordena de forma decrescente pela pontuação
     const ordenado = Object.entries(valores).sort((a, b) => b[1] - a[1]);
 
+    // Obtém o maior valor de pontuação obtido
     const pontuacaoMaxima = ordenado[0][1];
+    // Filtra todas as áreas que alcançaram essa pontuação máxima e que sejam maiores que zero
     const categoriasVencedoras = ordenado
       .filter(([_, pontuacao]) => pontuacao === pontuacaoMaxima && pontuacao > 0)
       .map(([categoria]) => categoria);
 
+    // Identifica se ocorreu empate (quando mais de uma área obteve a pontuação máxima)
     const ehEmpate = categoriasVencedoras.length > 1;
+    // Atualiza o estado indicando se houve empate
     setHouveEmpate(ehEmpate);
+    // Armazena as chaves das áreas empatadas
     setAreasEmpatadas(categoriasVencedoras);
 
+    // Vetor que guardará as 10 profissões selecionadas para exibição no relatório
     let listaProfissoesCalculada = [];
 
+    // Tratamento caso ocorra empate entre duas ou mais áreas
     if (ehEmpate) {
+      // Calcula quantas profissões cada área vencedora deve ceder igualmente para fechar 10
       const qtdPorArea = Math.floor(10 / categoriasVencedoras.length);
+      // Cria uma coleção Set para evitar nomes de profissões duplicadas
       const conjuntoUnico = new Set();
 
+      // Primeira passada: distribui as profissões igualmente entre as áreas empatadas
       categoriasVencedoras.forEach(cat => {
         const carreirasDaArea = listaProfissoes[cat];
         let adicionadas = 0;
@@ -270,6 +356,7 @@ function Teste({ usuario }) {
         }
       });
 
+      // Segunda passada: completa a lista até atingir 10 itens caso a divisão inteira deixe sobra
       for (let cat of categoriasVencedoras) {
         for (let prof of listaProfissoes[cat]) {
           if (conjuntoUnico.size < 10) {
@@ -278,8 +365,10 @@ function Teste({ usuario }) {
         }
       }
 
+      // Converte o Set de volta em um array comum
       listaProfissoesCalculada = Array.from(conjuntoUnico);
 
+      // Concatena as mensagens e cursos de todas as vertentes que empataram
       const textoCombinado = categoriasVencedoras
         .map(cat => `
           <div style="margin-top: 14px; padding-top: 10px; border-top: 2px dashed #ccc;">
@@ -291,18 +380,26 @@ function Teste({ usuario }) {
         `)
         .join('');
 
+      // Salva o texto combinado no estado
       setTextoFinal(textoCombinado);
     } else {
+      // Caso haja vitória isolada de uma única área
       const categoriaUnica = categoriasVencedoras[0] || ordenado[0][0];
+      // Pega as 10 profissões da área vencedora
       listaProfissoesCalculada = listaProfissoes[categoriaUnica].slice(0, 10);
+      // Define o texto informativo padrão correspondente à área única
       setTextoFinal(textosEducacionais[categoriaUnica]);
     }
 
+    // Salva a lista calculada de profissões no estado
     setProfissoesRecomendadas(listaProfissoesCalculada);
 
+    // Se o usuário estiver autenticado e possuir ID, grava as notas no backend
     if (usuario && usuario.id) {
+      // Monta a string legível do perfil (ex: "Tecnológicas / Exatas")
       const perfilParaGravar = categoriasVencedoras.map(cat => nomesAreas[cat]).join(' / ');
       try {
+        // Envia requisição POST para persistir o resultado vocacional na base
         await axios.post("http://localhost:3012/salvarResultado", {
           userId: usuario.id,
           biologicas,
@@ -316,79 +413,110 @@ function Teste({ usuario }) {
         console.error("Erro ao registrar resultado no banco:", err);
       }
     }
-  }, [biologicas, exatas, humanas, tecnologicas, usuario]);
+  }, [biologicas, exatas, humanas, tecnologicas, usuario]); // Dependências da função memorizada
 
+  // Efeito que aciona o cálculo das profissões assim que o teste for finalizado
   useEffect(() => {
     if (finalizado) {
       determinarProfissoes();
     }
   }, [finalizado, determinarProfissoes]);
 
-  // Função assíncrona para gerar o PDF multipáginas com paginação contínua e quebra de A4
+  // ============================================================================
+  // EXPORTAÇÃO E GERAÇÃO DO RELATÓRIO EM PDF
+  // ============================================================================
+
+  // Função assíncrona responsável por capturar o relatório e convertê-lo em PDF multipáginas
   const gerarPDF = async () => {
+    // Interrompe se o elemento referenciado do relatório não existir no DOM
     if (!relatorioRef.current) return;
+    // Ativa o estado de carregamento do botão
     setGerandoPDF(true);
 
     try {
+      // Pega a referência do nó HTML do relatório
       const elemento = relatorioRef.current;
 
+      // Rasteriza o elemento HTML em um Canvas com escala dobrada (alta nitidez)
       const canvas = await html2canvas(elemento, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        // Oculta os botões interativos para não aparecerem no documento impresso
-        ignoreElements: (el) => el.classList.contains('no-print-pdf')
+        scale: 2,                                                  // Resolução dobrada para melhor legibilidade
+        useCORS: true,                                             // Habilita carregar imagens de outros domínios
+        backgroundColor: '#ffffff',                                // Define fundo branco para a página
+        ignoreElements: (el) => el.classList.contains('no-print-pdf') // Ignora elementos com a classe de não impressão
       });
 
+      // Converte o canvas para imagem em formato PNG base64
       const imgData = canvas.toDataURL('image/png');
+      // Instancia o objeto jsPDF em orientação retrato ('p'), unidade milímetros ('mm') e padrão 'a4'
       const pdf = new jsPDF('p', 'mm', 'a4');
 
-      const paginaLargura = pdf.internal.pageSize.getWidth();   // 210 mm
-      const paginaAltura = pdf.internal.pageSize.getHeight();    // 297 mm
+      // Obtém a largura da página A4 em milímetros (210mm)
+      const paginaLargura = pdf.internal.pageSize.getWidth();
+      // Obtém a altura da página A4 em milímetros (297mm)
+      const paginaAltura = pdf.internal.pageSize.getHeight();
 
-      // Calcula a altura da imagem proporcional à largura da página A4
+      // Calcula a altura correspondente da imagem mantendo a proporção em relação à largura útil
       const imagemAltura = (canvas.height * paginaLargura) / canvas.width;
+      // Variável de controle com a altura total restante para impressão
       let alturaRestante = imagemAltura;
+      // Coordenada vertical Y de inserção no PDF
       let posicaoY = 0;
 
-      // Adiciona a primeira página
+      // Adiciona a primeira fatia da imagem na primeira página do PDF
       pdf.addImage(imgData, 'PNG', 0, posicaoY, paginaLargura, imagemAltura);
+      // Abate a altura da folha já impressa
       alturaRestante -= paginaAltura;
 
-      // Adiciona páginas complementares enquanto houver conteúdo além da primeira folha
+      // Laço para adicionar novas páginas enquanto houver conteúdo excedente
       while (alturaRestante > 0) {
-        posicaoY -= paginaAltura;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, posicaoY, paginaLargura, imagemAltura);
-        alturaRestante -= paginaAltura;
+        posicaoY -= paginaAltura; // Desloca a coordenada Y para cima para imprimir a próxima seção
+        pdf.addPage();            // Cria uma nova folha no PDF
+        pdf.addImage(imgData, 'PNG', 0, posicaoY, paginaLargura, imagemAltura); // Renderiza a imagem deslocada
+        alturaRestante -= paginaAltura; // Abate a altura processada
       }
 
+      // Sanitiza o nome do estudante para uso seguro no arquivo de download
       const nomeLimpo = usuario?.nome ? usuario.nome.trim().replace(/\s+/g, '_') : 'Aluno';
+      // Dispara o download automático do arquivo com o nome personalizado
       pdf.save(`Resultado_Vocacional_${nomeLimpo}.pdf`);
     } catch (erro) {
       console.error('Erro ao gerar o PDF:', erro);
     } finally {
+      // Desativa o estado de carregamento do botão
       setGerandoPDF(false);
     }
   };
 
+  // ============================================================================
+  // RENDERIZAÇÃO DO COMPONENTE VISUAL (JSX)
+  // ============================================================================
+
   return (
+    // Contêiner principal envolvendo todo o layout do componente
     <div className='corpoP'>
+      {/* Barra superior com o título da aplicação */}
       <div className='barraSuperior'>
         <h1 className='barraTexto'>Teste de Aptidão Vocacional</h1>
       </div>
 
+      {/* Seção central dinâmica onde alternam as questões ou o relatório final */}
       <section style={{ width: '95%', margin: 'auto', marginTop: '25px', textAlign: 'center', fontSize: '16pt', fontWeight: 'bold' }}>
+        {/* Renderização condicional: se o teste não terminou, exibe as perguntas; caso contrário, exibe o relatório */}
         {!finalizado ? (
+          // Exibe a questão caso os dados estejam carregados
           questao ? (
             <>
+              {/* Contador exibindo o número da pergunta atual */}
               <p style={{ color: '#DDD', fontSize: '13pt', marginBottom: '10px' }}>
                 Questão {indiceAtual + 1} de 10
               </p>
               
+              {/* Enunciado da pergunta */}
               <h2 style={{ color: '#FFF', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>{questao.questao}</h2>
 
+              {/* Contêiner com a ilustração e as opções de resposta */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '15px' }}>
+                {/* Renderiza a imagem ilustrativa da questão caso exista */}
                 {questao.imagem && (
                   <img
                     src={`http://localhost:3012/${questao.imagem}`}
@@ -405,16 +533,19 @@ function Teste({ usuario }) {
                   />
                 )}
 
+                {/* Coluna com os botões das alternativas embaralhadas */}
                 <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', width: '100%' }}>
                   {opcoesEmbaralhadas.map(opcao => {
+                    // Verifica se a opção atual é a que está sob efeito de hover
                     const isHovered = opcaoAtivaId === opcao.id;
 
                     return (
+                      // Botão de resposta interativo com efeito 3D e relevo dinâmico
                       <button
                         key={opcao.id}
-                        onClick={() => registrarEscolha(opcao.setPontuacao)}
-                        onMouseEnter={() => setOpcaoAtivaId(opcao.id)}
-                        onMouseLeave={() => setOpcaoAtivaId(null)}
+                        onClick={() => registrarEscolha(opcao.setPontuacao)} // Registra pontuação e avança
+                        onMouseEnter={() => setOpcaoAtivaId(opcao.id)}      // Ativa efeito de hover
+                        onMouseLeave={() => setOpcaoAtivaId(null)}          // Desativa efeito de hover
                         style={{
                           textAlign: 'left',
                           background: isHovered
@@ -447,11 +578,15 @@ function Teste({ usuario }) {
               </div>
             </>
           ) : (
+            // Mensagem de espera caso os dados da questão ainda estejam carregando
             <p>Carregando questão...</p>
           )
         ) : (
+          // ====================================================================
+          // RELATÓRIO VOCACIONAL COMPLETO APÓS A CONCLUSÃO DO TESTE
+          // ====================================================================
           <div>
-            {/* CONTÊINER DO RELATÓRIO A4 (800px) */}
+            {/* Contêiner principal com largura de 800px para enquadramento perfeito em impressão A4 */}
             <div
               ref={relatorioRef}
               style={{
@@ -465,7 +600,7 @@ function Teste({ usuario }) {
                 boxSizing: 'border-box'
               }}
             >
-              {/* 1. LOGO DA ETEC: 100% da largura útil no topo */}
+              {/* 1. Logotipo institucional ocupando a largura do topo */}
               <div style={{ width: '100%', marginBottom: '14px', textAlign: 'center' }}>
                 <img
                   src={logoEtec}
@@ -474,7 +609,7 @@ function Teste({ usuario }) {
                 />
               </div>
 
-              {/* 2. CABEÇALHO DO RELATÓRIO */}
+              {/* 2. Cabeçalho formal com identificação do aluno e título do documento */}
               <div style={{ borderBottom: '2px solid #1a73e8', paddingBottom: '10px', marginBottom: '16px', textAlign: 'left' }}>
                 <h2 style={{ color: '#1a73e8', margin: 0, fontSize: '21px', fontWeight: 'bold' }}>
                   Relatório Individual de Aptidão Vocacional
@@ -486,12 +621,13 @@ function Teste({ usuario }) {
                 )}
               </div>
 
-              {/* 3. BLOCO SUPERIOR: 40% Profissões e 60% Gráfico de Radar alinhados ao topo */}
+              {/* 3. Bloco superior: 40% para a lista de profissões e 60% para o Radar */}
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', width: '100%', gap: '20px', marginBottom: '20px' }}>
                 
-                {/* Lado Esquerdo: 40% da largura para as profissões e empate */}
+                {/* Lado Esquerdo (40%): alerta de empate ou cabeçalho e listagem de carreiras */}
                 <div style={{ width: '40%', flex: '0 0 40%', textAlign: 'left', boxSizing: 'border-box' }}>
                   {houveEmpate ? (
+                    // Exibição em caso de empate entre áreas
                     <div style={{ backgroundColor: '#fff3cd', border: '1px solid #ffeeba', color: '#856404', padding: '10px', borderRadius: '6px', marginBottom: '12px' }}>
                       <h4 style={{ margin: 0, fontSize: '13.5px', fontWeight: 'bold' }}>⚖️ Empate Técnico Identificado!</h4>
                       <p style={{ margin: '4px 0 0 0', fontSize: '11.5px', lineHeight: '1.35' }}>
@@ -499,11 +635,13 @@ function Teste({ usuario }) {
                       </p>
                     </div>
                   ) : (
+                    // Exibição padrão para área única
                     <p style={{ fontWeight: 'bold', fontSize: '15px', margin: '0 0 8px 0', color: '#111' }}>
                       Carreiras recomendadas para o seu perfil:
                     </p>
                   )}
 
+                  {/* Lista ordenada com as 10 profissões recomendadas */}
                   <ul style={{ marginLeft: '12px', paddingLeft: '12px', fontSize: '13px', lineHeight: '1.5', margin: 0 }}>
                     {profissoesRecomendadas.map((profissao, index) => (
                       <li key={index}>{profissao}</li>
@@ -511,24 +649,25 @@ function Teste({ usuario }) {
                   </ul>
                 </div>
 
-                {/* Lado Direito: 60% da largura para o Gráfico de Radar alinhado ao topo */}
+                {/* Lado Direito (60%): Gráfico de radar vocacional */}
                 <div style={{ width: '60%', flex: '0 0 60%', alignSelf: 'flex-start', display: 'flex', justifyContent: 'center', boxSizing: 'border-box' }}>
                   <GraficoRadar biologicas={biologicas} exatas={exatas} humanas={humanas} tecnologicas={tecnologicas} />
                 </div>
               </div>
 
-              {/* 4. BLOCO INFERIOR: Resultado Detalhado + Cursos que TEM e NÃO TEM na Etec (100% da largura útil) */}
+              {/* 4. Bloco inferior: Análise e comparação com os cursos que a Etec oferece e não oferece */}
               <div style={{ width: '100%', textAlign: 'left', marginBottom: '18px', borderTop: '1px solid #e0e0e0', paddingTop: '14px' }}>
                 <h4 style={{ color: '#202124', fontSize: '16px', fontWeight: 'bold', margin: '0 0 10px 0' }}>
                   Análise do Resultado e Guia de Cursos da Etec de Embu:
                 </h4>
+                {/* Inserção dinâmica do conteúdo HTML com base no resultado apurado */}
                 <div
                   style={{ fontSize: '13px', fontWeight: 'normal', textAlign: 'justify', lineHeight: '1.5', color: '#333' }}
                   dangerouslySetInnerHTML={{ __html: textoFinal }}
                 />
               </div>
 
-              {/* 5. RODAPÉ DO RELATÓRIO: Inscrição, Botão de PDF e QR Code em tamanho 200px */}
+              {/* 5. Rodapé: Chamada para inscrição, botões de ação e QR Code */}
               <div
                 style={{
                   marginTop: '16px',
@@ -540,7 +679,7 @@ function Teste({ usuario }) {
                   textAlign: 'left'
                 }}
               >
-                {/* Lado Esquerdo: Chamada institucional + Botão Inscrever + Botão PDF abaixo */}
+                {/* Lado esquerdo do rodapé: chamadas e botões (ocultos na impressão via .no-print-pdf) */}
                 <div style={{ flex: 1, paddingRight: '20px' }}>
                   <h4 style={{ margin: '0 0 5px 0', color: '#EA4335', fontSize: '16px', fontWeight: 'bold' }}>
                     Se inscreva no Vestibulinho da ETEC de Embu!
@@ -549,9 +688,9 @@ function Teste({ usuario }) {
                     Acesse o portal oficial para conferir os períodos de inscrição, cursos do Novotec e vagas abertas:
                   </p>
                   
-                  {/* Bloco de botões marcado com a classe .no-print-pdf (ignorado na exportação) */}
+                  {/* Bloco de botões de navegação e exportação */}
                   <div className="no-print-pdf">
-                    {/* Botão de Inscrição */}
+                    {/* Botão de redirecionamento externo para a página do vestibulinho */}
                     <div style={{ marginBottom: '10px' }}>
                       <a
                         href="https://vestibulinho.etec.sp.gov.br/"
@@ -573,7 +712,7 @@ function Teste({ usuario }) {
                       </a>
                     </div>
 
-                    {/* Botão de Salvar PDF abaixo do botão de inscrição */}
+                    {/* Botão que aciona a exportação direta do elemento em documento PDF */}
                     <div>
                       <button
                         onClick={gerarPDF}
@@ -596,7 +735,7 @@ function Teste({ usuario }) {
                   </div>
                 </div>
 
-                {/* Lado Direito: QR Code dobrado (200px) com a legenda solicitada */}
+                {/* Lado direito do rodapé: exibição do QR Code vetorial de 200px com legenda */}
                 <div style={{ textAlign: 'center', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
                   <QRCodeSVG
                     value="https://vestibulinho.etec.sp.gov.br/"
@@ -618,5 +757,5 @@ function Teste({ usuario }) {
   );
 }
 
-// Exporta o componente Teste como exportação padrão
+// Exportação padrão do componente Teste para utilização em outras rotas da aplicação
 export default Teste;
