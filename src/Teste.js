@@ -180,6 +180,9 @@ function Teste({ usuario }) {
   // Estado que controla a exibição da tela inicial de orientações
   const [emInstrucoes, setEmInstrucoes] = useState(true);
 
+  // [NOVO] Estado que armazena a contagem exata de questões registradas no banco
+  const [totalQuestoesBanco, setTotalQuestoesBanco] = useState(0);
+
   // Estado de controle de hover para o botão principal de Início
   const [hoverBtnInicio, setHoverBtnInicio] = useState(false);
 
@@ -224,6 +227,9 @@ function Teste({ usuario }) {
         const todas = response.data;
 
         if (Array.isArray(todas) && todas.length > 0) {
+          // [NOVO] Guarda o tamanho real do acervo de perguntas usando .length
+          setTotalQuestoesBanco(todas.length);
+
           let embaralhadas = embaralharArray(todas);
           let listaFinal10 = [];
 
@@ -516,7 +522,7 @@ function Teste({ usuario }) {
                 </button>
               </div>
 
-              {/* COLUNA DIREITA: Texto explicativo, avisos e detalhes do teste */}
+              {/* COLUNA DIREITA: Texto explicativo com contagem dinâmica */}
               <div style={{
                 flex: 1,
                 fontSize: '11.5pt',
@@ -525,7 +531,12 @@ function Teste({ usuario }) {
                 color: '#333'
               }}>
                 <p style={{ margin: '0 0 10px 0', fontSize: '12pt', color: '#1f2937' }}>
-                  Este teste foi estruturado sobre um acervo com mais de <b>100 questões dinâmicas</b>. A cada rodada, nosso algoritmo realiza um sorteio aleatório de situações cotidianas dentre dezenas de possibilidades para mapear com clareza suas reais afinidades, estilo de resolução de problemas e tomada de decisão.
+                  {/* [DINÂMICO] Exibe o total real de questões cadastradas via .length */}
+                  Este teste foi estruturado sobre um acervo com{' '}
+                  <b>
+                    {totalQuestoesBanco > 0 ? `${totalQuestoesBanco} questões cadastradas` : 'dezenas de questões dinâmicas'}
+                  </b>
+                  . A cada rodada, nosso algoritmo realiza um sorteio aleatório de situações cotidianas para mapear com clareza suas reais afinidades, estilo de resolução de problemas e tomada de decisão.
                 </p>
 
                 {/* Bloco de inclusão e representatividade */}

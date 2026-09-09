@@ -559,3 +559,17 @@ app.post('/restaurar', uploadMemoria.single('arquivoBackup'), (req, res) => {
     return res.status(500).json({ message: `Erro ao descompactar ou processar o backup: ${err.message}` });
   }
 });
+
+// Endpoint GET /totalQuestoes: Retorna a quantidade exata de perguntas cadastradas no banco
+app.get('/totalQuestoes', (req, res) => {
+  const query = 'SELECT COUNT(*) AS total FROM questoes';
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Erro ao contar questões:', err);
+      return res.status(500).json({ message: 'Erro ao consultar banco de dados' });
+    }
+    // Retorna { total: X }
+    res.json({ total: results[0]?.total || 0 });
+  });
+});
