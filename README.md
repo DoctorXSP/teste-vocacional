@@ -1,70 +1,112 @@
-# Getting Started with Create React App
+# 🧭 Teste Vocacional Web
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Aplicação Full Stack interativa desenvolvida para orientação profissional e mapeamento de perfis em quatro vertentes centrais: **Biológicas**, **Exatas**, **Humanas** e **Tecnológicas**.
 
-## Available Scripts
+O sistema apresenta questionários dinâmicos com alternativas aleatórias, processa os perfis ponderados, gera relatórios com gráficos (radar/polar) e exportação em PDF com QR Code, além de disponibilizar um módulo administrativo para gestão de perguntas, upload de imagens e rotinas de backup do banco de dados.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 🏗️ Arquitetura da Solução
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Frontend:** React (Vite / CRA), Bootstrap, Chart.js, jsPDF, html2canvas.
+- **Backend:** Node.js, Express, Multer, Archiver.
+- **Banco de Dados:** MySQL.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## 📦 Estrutura de Arquivos e Dependências
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 1. Back-end (API Node.js)
 
-### `npm run build`
+| Arquivo | Dependências / Bibliotecas | Função no Arquivo |
+| :--- | :--- | :--- |
+| `server.js` / `app.js` | `express`, `cors`, `dotenv` | Inicialização do servidor HTTP, configuração de middlewares (JSON, CORS) e injeção de variáveis de ambiente. |
+| `db.js` / `connection.js` | `mysql2` (ou `mysql`) | Pool de conexões assíncronas e execução de queries no MySQL. |
+| `routes/questoes.js` | `express.Router`, `multer` | CRUD de perguntas, sorteio aleatório de questões e middleware de upload das imagens dos quadrantes/enunciados. |
+| `routes/backup.js` | `archiver`, `fs`, `path` | Compactação de arquivos SQL e da pasta de imagens em arquivo `.zip` para rotinas de backup e restauração. |
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+#### Comandos de Instalação (Back-end)
+```bash
+cd backend
+npm install express mysql2 cors dotenv multer archiver
+npm install --save-dev nodemon
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 2. Front-end (React)
 
-### `npm run eject`
+| Arquivo / Componente | Dependências / Bibliotecas | Função no Arquivo |
+| :--- | :--- | :--- |
+| `src/main.jsx` / `App.jsx` | `react`, `react-dom`, `react-router-dom` | Ponto de entrada, renderização do DOM e roteamento das páginas da aplicação. |
+| `src/pages/Iniciar.jsx` | `bootstrap`, `react-router-dom` | Tela inicial de cadastro/identificação do candidato e apresentação do teste. |
+| `src/pages/Teste.jsx` | `react` (`useState`, `useEffect`), `axios` | Execução do questionário, paginação das perguntas e lógica do algoritmo Fisher-Yates para embaralhamento das alternativas. |
+| `src/pages/Resultado.jsx` | `chart.js`, `react-chartjs-2`, `jspdf`, `html2canvas`, `qrcode` | Cálculo dos percentuais por área, plotagem do gráfico de radar/polar e exportação do diagnóstico em PDF com validação via QR Code. |
+| `src/pages/Editar.jsx` (Admin) | `bootstrap`, `axios` | Painel administrativo para cadastro, edição, exclusão de questões e upload de imagens. |
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+#### Comandos de Instalação (Front-end)
+```bash
+cd frontend
+npm install react react-dom react-router-dom axios bootstrap
+npm install chart.js react-chartjs-2 jspdf html2canvas qrcode
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## ⚙️ Configuração e Execução
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### 1. Banco de Dados (MySQL)
+1. Crie o banco de dados no seu servidor MySQL:
+   ```sql
+   CREATE DATABASE IF NOT EXISTS teste_vocacional;
+   USE teste_vocacional;
+   ```
+2. Execute o script de criação das tabelas de `usuarios`, `questoes` e `respostas`.
 
-## Learn More
+### 2. Configuração do Back-end
+1. Acesse o diretório do servidor:
+   ```bash
+   cd backend
+   ```
+2. Crie um arquivo `.env` na raiz do back-end com as seguintes variáveis:
+   ```env
+   PORT=3001
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASSWORD=sua_senha
+   DB_NAME=teste_vocacional
+   ```
+3. Inicie a API:
+   ```bash
+   npm run dev
+   # ou: node server.js
+   ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 3. Execução do Front-end
+1. Em outro terminal, acesse a pasta do front-end:
+   ```bash
+   cd frontend
+   npm run dev
+   # ou: npm start
+   ```
+2. Abra no navegador: `http://localhost:5173` (ou `http://localhost:3000`).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+## 🛠️ Detalhes das Bibliotecas Utilizadas
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- **`express`**: Framework web minimalista para construção das rotas da API REST.
+- **`mysql2`**: Driver cliente para execução de queries parametrizadas com suporte a Promises.
+- **`multer`**: Manipulação de requisições `multipart/form-data` para gravação de arquivos de imagem em disco.
+- **`archiver`**: Criação de fluxos de compactação `.zip` para download de dumps e mídia.
+- **`react-router-dom`**: Gerenciamento de navegação SPA (rotas entre Iniciar, Teste, Resultado e Admin).
+- **`chart.js` & `react-chartjs-2`**: Renderização do gráfico de radar demonstrando o equilíbrio entre as 4 áreas.
+- **`jspdf` & `html2canvas`**: Captura visual da tela de diagnóstico e conversão em documento PDF para download do usuário.
+- **`qrcode`**: Geração do código QR para validação ou compartilhamento direto do laudo vocacional.
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 💬 Contato e Conexões
 
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Dúvidas do projeto, trocas de ideia ou quiser saber mais sobre o desenvolvedor, acesse:  
+👉 [linktr.ee/profemersonsilv](https://linktr.ee/profemersonsilv)
