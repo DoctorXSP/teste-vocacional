@@ -1,128 +1,182 @@
 /* ============================================================================
-   ESTILOS GLOBAIS E RESET DE ESTRUTURA
+   ESTILIZAÇÃO GLOBAL DO DOCUMENTO (BODY E TAGS DE CÓDIGO)
    ============================================================================ */
 
-/* Configurações básicas e padronização visual aplicadas a todo o corpo do documento */
+/* Configurações básicas aplicadas a toda a página */
 body {
-  margin: 0;                               /* Zera as margens externas padrão do navegador */
+  /* Remove as margens externas padrão inseridas pelo navegador */
+  margin: 0;
+  /* Pilha de fontes nativas do sistema para garantir tipografia moderna e multiplataforma */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;                            /* Pilha de fontes nativas do sistema operacional */
-  -webkit-font-smoothing: antialiased;     /* Otimiza a renderização de bordas de fonte em navegadores WebKit/Safari */
-  -moz-osx-font-smoothing: grayscale;      /* Suavização de renderização em escala de cinza no Firefox macOS */
+    sans-serif;
+  /* Otimização de suavização de bordas de fontes para navegadores baseados em WebKit (Chrome, Safari, Edge) */
+  -webkit-font-smoothing: antialiased;
+  /* Suavização de fontes em escala de cinza no renderizador Gecko (Firefox no macOS) */
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Estilização para blocos e trechos com formatação de código-fonte */
+/* Formatação tipográfica aplicada aos blocos e elementos inline de código */
 code {
+  /* Família de fontes monoespaçadas para garantir alinhamento caractere a caractere */
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;                             /* Pilha tipográfica monoespaçada para clareza técnica */
+    monospace;
 }
 
 /* ============================================================================
-   BARRA DE MENU DE NAVEGAÇÃO
+   MENU SUPERIOR E BOTÕES DA BARRA DE NAVEGAÇÃO
    ============================================================================ */
 
-/* Barra de menu superior fixa em bloco com fundo escuro */
+/* Barra de navegação/menu superior */
 .menu {
-  padding-top: 15px;                       /* Espaçamento interno superior de 15 pixels */
-  /*padding-bottom: 5px;*/                 /* (Comentado) Espaçamento interno inferior reservado */
-  height: 40px;                            /* Fixa a altura da barra em 40 pixels */
-  width: 100%;                             /* Ocupa a totalidade da largura útil da tela */
-  display: block;                          /* Renderiza como contêiner em bloco */
-  text-align: center;                      /* Centraliza horizontalmente botões e links internos */
-  background-color: black;                 /* Define a cor de fundo como preto puro */
-  padding: 5px;                            /* Espaçamento interno complementar em todas as faces */
+  /* Espaçamento interno superior de 15px */
+  padding-top: 15px;
+  /* Espaçamento interno inferior mantido comentado como no original */
+  /*padding-bottom: 5px;*/
+  /* Altura fixa da barra em 40px */
+  height: 40px;
+  /* Ocupa a largura total (100%) da viewport/contêiner-pai */
+  width: 100%;
+  /* Define a exibição em formato de bloco */
+  display: block;
+  /* Centraliza horizontalmente o alinhamento dos elementos filhos */
+  text-align: center;
+  /* Cor de fundo preta */
+  background-color: black;
+  /* Espaçamento interno complementar de 5px em todos os lados */
+  padding: 5px;
 }
 
-/* Botões de atalho dispostos dentro da barra de menu */
+/* Botões contidos no interior da classe .menu */
 .menu .btn {
-  margin: 0 35px;                          /* Margem de 0 pixels vertical e 35 pixels nas laterais */
-  background-color: red;                   /* Define a cor de preenchimento vermelha do botão */
-  color: #FFF;                             /* Cor do texto em branco para alto contraste */
-  font-weight: 700;                        /* Define espessura em negrito acentuado */
-  padding: 3px;                            /* Espaçamento interno compacto de 3 pixels */
+  /* Margem vertical de 0 e margem horizontal com valor 35 como no original */
+  margin: 0 35;
+  /* Cor de fundo vermelha */
+  background-color: red;
+  /* Cor da tipografia em branco */
+  color: #FFF;
+  /* Espessura de fonte em negrito acentuado (700) */
+  font-weight: 700;
+  /* Espaçamento interno compacto de 3px */
+  padding: 3px;
 }
 
 /* ============================================================================
-   BOTÕES DE AÇÃO PRINCIPAL
+   BOTÃO DE AÇÃO PRINCIPAL E INTERAÇÕES
    ============================================================================ */
 
-/* Botão de destaque principal para início de fluxos do teste */
+/* Botão de destaque principal para início de ações */
 .btnPrincipal {
-  background-color: red;                   /* Fundo vermelho chamativo para conversão */
-  color: #FFF;                             /* Cor do texto em branco de alta visibilidade */
-  font-weight: 700;                        /* Peso da fonte em negrito forte */
-  padding: 3px 15px;                       /* Espaçamento interno de 3px vertical e 15px horizontal */
-  font-size: 20pt;                         /* Tamanho de fonte ampliado em 20 pontos */
-  border-radius: 5px;                      /* Arredondamento leve dos cantos em 5 pixels */
-  box-shadow: 5px 5px 5px #000;            /* Sombra projetada preta para criar relevo 3D */
-  margin-bottom: 10px;                     /* Afastamento inferior de 10 pixels */
+  /* Fundo vermelho de alta visibilidade */
+  background-color: red;
+  /* Cor do texto em branco */
+  color: #FFF;
+  /* Peso da fonte em negrito forte (700) */
+  font-weight: 700;
+  /* Espaçamento interno: 3px nas partes superior/inferior e 15px nas laterais */
+  padding: 3px 15px;
+  /* Tamanho de fonte destacado em 20 pontos */
+  font-size: 20pt;
+  /* Arredondamento dos cantos da borda em 5px */
+  border-radius: 5px;
+  /* Sombra projetada para efeito de relevo (deslocamento X de 5px, Y de 5px, desfoque de 5px e cor preta) */
+  box-shadow: 5px 5px 5px #000;
+  /* Afastamento inferior de 10px */
+  margin-bottom: 10px;
 }
 
-/* Estado de foco/interação do mouse sobre o botão principal */
-.btnPrincipal:hover {
-  background-color: #008080;               /* Altera a cor de fundo para verde-petróleo (teal) ao passar o mouse */
+/* Estado de foco/interação com mouse da regra .btnPrincipal mantendo a sintaxe original */
+.btnPrincipal :hover {
+  /* Altera a cor de fundo para verde-petróleo ao passar o cursor */
+  background-color: #008080;
 }
 
 /* ============================================================================
    SEÇÃO INSTITUCIONAL COM IMAGEM DE FUNDO
    ============================================================================ */
 
-/* Seção com enquadramento proporcional e imagem ilustrativa institucional */
+/* Seção institucional destacada com plano de fundo */
 .sectionIns {
-  width: 80%;                              /* Limita a largura em 80% do contêiner-pai */
-  margin: auto;                            /* Centraliza horizontalmente o elemento na página */
-  margin-top: 45px;                        /* Recuo superior de 45 pixels em relação ao elemento anterior */
-  text-align: center;                      /* Centraliza todos os textos e elementos filhos */
-  font-size: 16pt;                         /* Tamanho da tipografia em 16 pontos */
-  font-weight: bold;                       /* Texto formatado com peso em negrito */
-  background-image: url('./img/back.jpg');   /* Define o arquivo 'back.jpg' como plano de fundo */
-  background-size: contain;                /* Escala a imagem mantendo a proporção inteira visível sem cortes */
-  background-position: center;             /* Alinha a imagem perfeitamente ao centro do contêiner */
-  background-repeat: no-repeat;            /* Impede a duplicação em grade/mosaico da imagem */
+  /* Define a largura ocupando 80% do espaço útil */
+  width: 80%; 
+  /* Centraliza horizontalmente o bloco de forma automática */
+  margin: auto; 
+  /* Adiciona recuo superior de 45px */
+  margin-top: 45px; 
+  /* Alinhamento de texto mantido exatamente como no original */
+  text-align: 'center'; 
+  /* Tamanho da tipografia em 16 pontos */
+  font-size: 16pt;
+  /* Peso da fonte em negrito */
+  font-weight: bold;
+  /* Define a imagem 'back.jpg' como plano de fundo */
+  background-image: url('./img/back.jpg');
+  /* Ajusta a imagem inteira dentro do contêiner preservando proporções sem cortes */
+  background-size: contain; 
+  /* Posiciona a imagem de fundo centralizada nos eixos horizontal e vertical */
+  background-position: center; 
+  /* Impede a repetição/duplicação da imagem em mosaico */
+  background-repeat: no-repeat;
 }
 
 /* ============================================================================
-   ESTRUTURA DE FUNDO E TELA CHEIA
+   ESTRUTURA DE TELA CHEIA E FUNDO ROXO
    ============================================================================ */
 
-/* Contêiner que envolve todo o corpo da tela com fundo roxo padronizado */
+/* Garante que o fundo roxo ocupe toda a altura e largura da tela */
 .corpoP {
-  background-color: purple !important;     /* Aplica a cor roxa forçada com prioridade máxima */
-  min-height: 100vh;                       /* Garante que o fundo ocupe no mínimo 100% da altura da viewport */
-  width: 100%;                             /* Ocupa a largura total da página */
-  box-sizing: border-box;                  /* Inclui bordas e paddings no cálculo dimensional do contêiner */
+  /* Força a cor de fundo roxa com prioridade máxima */
+  background-color: purple !important;
+  /* Garante altura mínima cobrindo 100% da viewport (100vh) */
+  min-height: 100vh;
+  /* Ocupa a totalidade da largura */
+  width: 100%;
+  /* Inclui padding e bordas no cálculo total da largura/altura */
+  box-sizing: border-box;
 }
 
 /* ============================================================================
-   CUSTOMIZAÇÕES E ALINHAMENTOS DO MODAL BOOTSTRAP
+   SOBREPOSIÇÃO E CENTRALIZAÇÃO DE MODAL (BOOTSTRAP)
    ============================================================================ */
 
-/* Força o contêiner externo do Modal a atuar como Flexbox para centralização total */
+/* Centralização vertical e horizontal perfeita do modal */
 .modal {
-  display: flex !important;                /* Habilita o modelo Flexbox ignorando a regra de bloco nativa */
-  align-items: center !important;          /* Centraliza a caixa de diálogo verticalmente na tela */
-  justify-content: center !important;      /* Centraliza a caixa de diálogo horizontalmente na tela */
+  /* Força o contêiner do modal a adotar layout flexível */
+  display: flex !important;
+  /* Centraliza verticalmente os elementos internos */
+  align-items: center !important;
+  /* Centraliza horizontalmente os elementos internos */
+  justify-content: center !important;
 }
 
-/* Ajusta o invólucro interno (.modal-dialog) para manter o alinhamento sem margens indesejadas */
+/* Ajustes da caixa interna (.modal-dialog) do modal */
 .modal-dialog {
-  margin: auto !important;                 /* Centraliza a margem nos eixos vertical e horizontal */
-  display: flex !important;                /* Mantém o comportamento interno em modelo flexível */
-  align-items: center !important;          /* Garante o alinhamento central transversal */
-  justify-content: center !important;      /* Garante o alinhamento central longitudinal */
-  min-height: calc(100vh - 60px) !important; /* Fixa altura mínima descontando a margem de respiro */
+  /* Centraliza a margem nos eixos vertical e horizontal */
+  margin: auto !important;
+  /* Habilita comportamento flexível interno */
+  display: flex !important;
+  /* Alinha verticalmente os filhos ao centro */
+  align-items: center !important;
+  /* Alinha horizontalmente os filhos ao centro */
+  justify-content: center !important;
+  /* Garante altura mínima calculada descontando 60px da altura da tela */
+  min-height: calc(100vh - 60px) !important;
 }
 
-/* Remove molduras padrão, fundos brancos e bordas do contêiner do Bootstrap */
+/* Remove a carcaça branca e bordas extras do Bootstrap */
 .modal-content.modal-auth-custom {
-  background-color: transparent !important;/* Remove o fundo branco nativo para usar o estilo customizado */
-  border: none !important;                 /* Remove contornos e bordas pré-definidas da biblioteca */
-  box-shadow: none !important;             /* Anula sombras padrão do Bootstrap para usar sombras próprias */
+  /* Remove a cor de fundo branca padrão deixando-a transparente */
+  background-color: transparent !important;
+  /* Remove contornos e bordas nativas da biblioteca */
+  border: none !important;
+  /* Remove a sombra projetada padrão da modal */
+  box-shadow: none !important;
 }
 
-/* Personaliza a cortina escura de fundo (backdrop) preservando a atmosfera roxa da aplicação */
+/* Escurece levemente o fundo roxo por trás do modal mantendo o tom purple */
 .modal-backdrop.show {
-  opacity: 0.55 !important;                /* Define o nível de transparência da cortina em 55% */
-  background-color: #1a0026 !important;    /* Tonalidade roxa ultra-escura para harmonizar com o layout */
+  /* Define a opacidade da cortina em 55% */
+  opacity: 0.55 !important;
+  /* Aplica tom roxo ultra-escuro para manter a harmonia visual da aplicação */
+  background-color: #1a0026 !important;
 }
