@@ -20,6 +20,9 @@ import logoEtec from './img/Logo.png';
 // Importa a imagem de entrada localizada na pasta ./img/
 import imgEntrada from './img/entrada.jpg';
 
+// Importa a imagem padrão (fallback) local da pasta ./img/ para quando a imagem não for encontrada
+import imgPadrao from './img/padrao.jpg';
+
 // Importa o componente visual gerador de QR Code em formato SVG de alta resolução
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -163,6 +166,7 @@ const textosEducacionais = {
 // FUNÇÕES UTILITÁRIAS
 // ============================================================================
 
+// Função utilitária baseada no algoritmo Fisher-Yates para embaralhar os elementos de um vetor
 function embaralharArray(array) {
   const arr = [...array];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -180,7 +184,7 @@ function Teste({ usuario }) {
   // Estado que controla a exibição da tela inicial de orientações
   const [emInstrucoes, setEmInstrucoes] = useState(true);
 
-  // [NOVO] Estado que armazena a contagem exata de questões registradas no banco
+  // Estado que armazena a contagem exata de questões registradas no banco
   const [totalQuestoesBanco, setTotalQuestoesBanco] = useState(0);
 
   // Estado de controle de hover para o botão principal de Início
@@ -219,6 +223,7 @@ function Teste({ usuario }) {
   // CICLOS DE VIDA E EFEITOS (USEEFFECT)
   // ============================================================================
 
+  // Efeito disparado na montagem do componente para carregar todas as questões do banco
   useEffect(() => {
     const carregarTodasAsQuestoes = async () => {
       try {
@@ -227,12 +232,13 @@ function Teste({ usuario }) {
         const todas = response.data;
 
         if (Array.isArray(todas) && todas.length > 0) {
-          // [NOVO] Guarda o tamanho real do acervo de perguntas usando .length
+          // Guarda o tamanho real do acervo de perguntas usando .length
           setTotalQuestoesBanco(todas.length);
 
           let embaralhadas = embaralharArray(todas);
           let listaFinal10 = [];
 
+          // Garante a montagem de um conjunto de 10 perguntas mesmo se houver menos cadastradas
           while (listaFinal10.length < 10) {
             for (let q of embaralhadas) {
               if (listaFinal10.length < 10) {
@@ -253,6 +259,7 @@ function Teste({ usuario }) {
     carregarTodasAsQuestoes();
   }, []);
 
+  // Efeito que monitora o índice da questão ativa para carregar os dados e embaralhar as 4 opções
   useEffect(() => {
     if (sessaoQuestoes.length > 0 && indiceAtual < 10) {
       const questaoAtual = sessaoQuestoes[indiceAtual];
@@ -273,6 +280,7 @@ function Teste({ usuario }) {
   // FUNÇÕES DE LÓGICA E PROCESSAMENTO DO TESTE
   // ============================================================================
 
+  // Registra a pontuação de 10 pontos na área escolhida e avança o índice
   const registrarEscolha = (setPontuacao) => {
     setPontuacao(prev => prev + 10);
 
@@ -285,6 +293,7 @@ function Teste({ usuario }) {
     });
   };
 
+  // Avalia as pontuações máximas, identifica empates, carrega profissões e salva no backend
   const determinarProfissoes = useCallback(async () => {
     const valores = { biologicas, exatas, humanas, tecnologicas };
     const ordenado = Object.entries(valores).sort((a, b) => b[1] - a[1]);
@@ -345,6 +354,7 @@ function Teste({ usuario }) {
 
     setProfissoesRecomendadas(listaProfissoesCalculada);
 
+    // Se o objeto usuário estiver presente, persiste o resultado no banco MySQL
     if (usuario && usuario.id) {
       const perfilParaGravar = categoriasVencedoras.map(cat => nomesAreas[cat]).join(' / ');
       try {
@@ -363,6 +373,7 @@ function Teste({ usuario }) {
     }
   }, [biologicas, exatas, humanas, tecnologicas, usuario]);
 
+  // Efeito disparado no momento em que o teste é finalizado para processar os resultados
   useEffect(() => {
     if (finalizado) {
       determinarProfissoes();
@@ -373,6 +384,7 @@ function Teste({ usuario }) {
   // EXPORTAÇÃO E GERAÇÃO DO RELATÓRIO EM PDF
   // ============================================================================
 
+  // Gera o arquivo PDF paginado utilizando html2canvas e jsPDF
   const gerarPDF = async () => {
     if (!relatorioRef.current) return;
     setGerandoPDF(true);
@@ -419,6 +431,7 @@ function Teste({ usuario }) {
   // ============================================================================
 
   return (
+    // Contêiner principal estrutural
     <div className='corpoP'>
       {/* Barra superior de identificação */}
       <div className='barraSuperior'>
@@ -473,13 +486,15 @@ function Teste({ usuario }) {
                 flexDirection: 'column',
                 alignItems: 'center'
               }}>
-                {/* Imagem de entrada vinda de ./img/entrada.jpg */}
+                {/* Imagem de entrada vinda de ./img/entrada.jpg, com fallback para imgPadrao caso falhe */}
                 <img
                   src={imgEntrada}
                   alt="Ilustração Representativa - Teste Vocacional ETEC"
                   onError={(e) => {
+                    // Remove o manipulador para evitar loop infinito caso a própria imagem padrão falhe
                     e.target.onerror = null;
-                    e.target.src = "https://placehold.co/400x400/1a73e8/ffffff?text=ETEC+de+Embu";
+                    // Define o caminho do arquivo padrão local importado da pasta ./img/
+                    e.target.src = imgPadrao;
                   }}
                   style={{
                     width: '400px',
@@ -531,7 +546,6 @@ function Teste({ usuario }) {
                 color: '#333'
               }}>
                 <p style={{ margin: '0 0 10px 0', fontSize: '12pt', color: '#1f2937' }}>
-                  {/* [DINÂMICO] Exibe o total real de questões cadastradas via .length */}
                   Este teste foi estruturado sobre um acervo com{' '}
                   <b>
                     {totalQuestoesBanco > 0 ? `${totalQuestoesBanco} questões cadastradas` : 'dezenas de questões dinâmicas'}
@@ -614,21 +628,33 @@ function Teste({ usuario }) {
 
               {/* Contêiner com a ilustração e as alternativas */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '15px' }}>
-                {questao.imagem && (
-                  <img
-                    src={`http://localhost:3012/${questao.imagem}`}
-                    alt="Ilustração da questão"
-                    style={{
-                      width: '400px',
-                      height: '400px',
-                      objectFit: 'cover',
-                      border: '3px solid #FFF',
-                      borderRadius: '16px',
-                      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.45)',
-                      marginRight: '25px'
-                    }}
-                  />
-                )}
+                
+                {/* 
+                  Renderização da imagem da questão:
+                  - Se a questão tiver imagem cadastrada, monta o caminho da API.
+                  - Caso não exista imagem cadastrada na questão ou ocorra erro de carregamento (404/indisponível),
+                    utiliza diretamente a imagem local importada da pasta img/padrao.jpg
+                */}
+                <img
+                  src={questao.imagem ? `http://localhost:3012/${questao.imagem}` : imgPadrao}
+                  alt="Ilustração da questão"
+                  onError={(e) => {
+                    // Remove o manipulador para evitar loop caso a imagem padrão também encontre problemas
+                    e.target.onerror = null;
+                    // Substitui o endereço quebrado pelo caminho da imagem padrão local importada
+                    e.target.src = imgPadrao;
+                  }}
+                  style={{
+                    width: '400px',
+                    height: '400px',
+                    objectFit: 'cover',
+                    border: '3px solid #FFF',
+                    borderRadius: '16px',
+                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.45)',
+                    marginRight: '25px',
+                    display: 'block'
+                  }}
+                />
 
                 {/* Botões das alternativas embaralhadas */}
                 <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', width: '100%' }}>

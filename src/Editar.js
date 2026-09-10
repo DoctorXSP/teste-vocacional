@@ -115,6 +115,8 @@ const Editar = () => {
       // Extrai o objeto da questão na posição informada
       const item = lista[indice];
 
+      // Atualiza o índice corrente ativo
+      setIndiceAtual(indice);
       // Define o ID do registro no estado
       setIdAtual(item.id);
       // Preenche o enunciado da questão
@@ -127,17 +129,18 @@ const Editar = () => {
       setOpcaoC(item.opcaoC);
       // Preenche o texto da Opção D
       setOpcaoD(item.opcaoD);
-      // Preenche o caminho da imagem cadastrada
+      // Preenche o caminho da imagem cadastrada no servidor
       setImagemAtual(item.imagem);
-      // Limpa qualquer arquivo novo selecionado anteriormente
+      // Limpa qualquer arquivo novo selecionado anteriormente no input
       setNovaImagem(null);
-      // Limpa a URL de pré-visualização de imagem
+      // Limpa a URL temporária de pré-visualização para mostrar apenas a imagem oficial
       setPreviewUrl(null);
     }
   }, []); // Sem dependências dinâmicas externas, função estável
 
-  // Função assíncrona memorizada para recuperar todo o banco de questões da API
-  const carregarTodas = useCallback(async () => {
+  // Função assíncrona memorizada para recuperar todo o acervo da API
+  // Recebe opcionalmente idParaFocar para não resetar sempre para a primeira pergunta
+  const carregarTodas = useCallback(async (idParaFocar = null) => {
     try {
       // Faz requisição HTTP GET para a rota que devolve todas as questões cadastradas
       const resposta = await fetch('http://localhost:3012/todasQuestoes');
@@ -151,9 +154,22 @@ const Editar = () => {
       // Atualiza a lista geral com o acervo completo retornado do banco
       setListaQuestoes(dados);
 
-      // Se houver ao menos um registro retornado, carrega o primeiro índice (0) na tela
+      // Se houver ao menos um registro retornado
       if (dados.length > 0) {
-        carregarRegistro(0, dados);
+        let indiceAlvo = 0; // Padrão: primeiro registro
+
+        // Se um ID específico foi solicitado (ex: o que acabou de ser salvo)
+        if (idParaFocar !== null) {
+          // Procura o índice do registro que possui o mesmo ID
+          const indiceEncontrado = dados.findIndex(item => item.id === idParaFocar);
+          // Se encontrou o registro, foca nele; caso contrário mantém o primeiro
+          if (indiceEncontrado !== -1) {
+            indiceAlvo = indiceEncontrado;
+          }
+        }
+
+        // Carrega o registro no índice determinado nos campos do formulário
+        carregarRegistro(indiceAlvo, dados);
       }
     } catch (err) {
       // Em caso de falha de conexão ou no backend, informa o erro ao usuário
@@ -163,11 +179,11 @@ const Editar = () => {
 
   // Efeito que monitora o término do login para realizar o download dos dados
   useEffect(() => {
-    // Só faz a requisição das questões se o usuário já estiver logado
+    // Só faz a requisição das questões se o usuário já estiver autenticado
     if (!showLogin) {
       carregarTodas();
     }
-  }, [showLogin, carregarTodas]); // Executa toda vez que o estado showLogin mudar para falso
+  }, [showLogin, carregarTodas]); // Executa quando o estado showLogin mudar para falso
 
   // Função que avança para o registro anterior na lista
   const registroAnterior = () => {
@@ -175,8 +191,6 @@ const Editar = () => {
     if (indiceAtual > 0) {
       // Calcula o índice anterior
       const novoIndice = indiceAtual - 1;
-      // Atualiza o estado do índice ativo
-      setIndiceAtual(novoIndice);
       // Carrega os dados da questão anterior nos campos
       carregarRegistro(novoIndice, listaQuestoes);
       // Reseta qualquer mensagem de feedback na tela
@@ -190,8 +204,6 @@ const Editar = () => {
     if (indiceAtual < listaQuestoes.length - 1) {
       // Calcula o próximo índice
       const novoIndice = indiceAtual + 1;
-      // Atualiza o estado do índice ativo
-      setIndiceAtual(novoIndice);
       // Carrega os dados da próxima questão nos campos
       carregarRegistro(novoIndice, listaQuestoes);
       // Reseta qualquer mensagem de feedback na tela
@@ -210,7 +222,7 @@ const Editar = () => {
 
     // Se o arquivo for válido
     if (file) {
-      // Armazena o arquivo no estado para posterior envio
+      // Armazena o arquivo no estado para posterior envio via FormData
       setNovaImagem(file);
       // Cria e armazena uma URL temporária de objeto para exibir prévia em tempo real
       setPreviewUrl(URL.createObjectURL(file));
@@ -225,6 +237,9 @@ const Editar = () => {
   const handleSalvarEdicao = async (e) => {
     // Interrompe o recarregamento automático da página ao submeter o formulário
     e.preventDefault();
+
+    // Salva o ID do registro que está sendo alterado para focar nele após o recarregamento
+    const idSalvo = idAtual;
 
     // Cria a estrutura multipart FormData para suportar texto e envio binário de imagem
     const formData = new FormData();
@@ -241,7 +256,7 @@ const Editar = () => {
 
     try {
       // Envia a requisição PUT para o endpoint com o ID do registro atual
-      const resposta = await fetch(`http://localhost:3012/update/${idAtual}`, {
+      const resposta = await fetch(`http://localhost:3012/update/${idSalvo}`, {
         method: 'PUT',
         body: formData,
         headers: {
@@ -255,8 +270,8 @@ const Editar = () => {
       // Define a mensagem de sucesso para o operador
       setMsg('Alterações salvas com sucesso!');
 
-      // Recarrega todos os registros para sincronizar a lista com os dados do banco
-      await carregarTodas();
+      // Recarrega todos os registros focando no ID salvo por último (trazendo a nova imagem)
+      await carregarTodas(idSalvo);
 
       // Agenda a limpeza da mensagem de confirmação após 6 segundos
       setTimeout(() => setMsg(''), 6000);
@@ -295,8 +310,6 @@ const Editar = () => {
       if (novaLista.length > 0) {
         // Recalcula o novo índice para não apontar para posição inexistente
         const proximoIndice = indiceAtual >= novaLista.length ? novaLista.length - 1 : indiceAtual;
-        // Atualiza o índice corrente
-        setIndiceAtual(proximoIndice);
         // Recarrega os campos com o registro restante na nova posição
         carregarRegistro(proximoIndice, novaLista);
       } else {
@@ -418,10 +431,10 @@ const Editar = () => {
               </Form.Label>
               <Form.Control
                 type="text"
-                autoFocus                                    // Posiciona o cursor automaticamente ao abrir
+                autoFocus                                            // Posiciona o cursor automaticamente ao abrir
                 placeholder="Informe o usuário"
-                value={username}                             // Valor amarrado ao estado
-                onChange={(e) => setUsername(e.target.value)}// Atualiza o estado ao digitar
+                value={username}                                     // Valor amarrado ao estado
+                onChange={(e) => setUsername(e.target.value)}        // Atualiza o estado ao digitar
                 style={{
                   width: '100%',
                   padding: '10px 14px',
@@ -450,10 +463,10 @@ const Editar = () => {
                 Senha:
               </Form.Label>
               <Form.Control
-                type="password"                              // Mascara os caracteres digitados
+                type="password"                                      // Mascara os caracteres digitados
                 placeholder="Informe a senha"
-                value={password}                             // Valor amarrado ao estado
-                onChange={(e) => setPassword(e.target.value)}// Atualiza o estado ao digitar
+                value={password}                                     // Valor amarrado ao estado
+                onChange={(e) => setPassword(e.target.value)}        // Atualiza o estado ao digitar
                 style={{
                   width: '100%',
                   padding: '10px 14px',
@@ -584,12 +597,12 @@ const Editar = () => {
                   Questão:
                 </label>
                 <Form.Control
-                  as="textarea"                              // Renderiza como área de texto de múltiplas linhas
-                  value={questao}                            // Vinculado ao estado questao
-                  onChange={e => setQuestao(e.target.value)} // Atualiza o estado
+                  as="textarea"                                               // Renderiza como área de texto de múltiplas linhas
+                  value={questao}                                             // Vinculado ao estado questao
+                  onChange={e => setQuestao(e.target.value)}                  // Atualiza o estado
                   placeholder="Digite o enunciado da questão..."
                   style={{ flex: '1', height: 65, padding: 8, fontSize: 13 }}
-                  required                                   // Campo de preenchimento obrigatório
+                  required                                                    // Campo de preenchimento obrigatório
                 />
               </div>
 
@@ -600,11 +613,11 @@ const Editar = () => {
                 </label>
                 <Form.Control
                   type="text"
-                  value={opcaoA}                            // Vinculado ao estado opcaoA
-                  onChange={e => setOpcaoA(e.target.value)} // Atualiza o estado
+                  value={opcaoA}                                              // Vinculado ao estado opcaoA
+                  onChange={e => setOpcaoA(e.target.value)}                   // Atualiza o estado
                   placeholder="Alternativa para o perfil Biológicas"
                   style={{ flex: '1', padding: 8, fontSize: 13 }}
-                  required                                  // Campo de preenchimento obrigatório
+                  required                                                    // Campo de preenchimento obrigatório
                 />
               </div>
 
@@ -615,11 +628,11 @@ const Editar = () => {
                 </label>
                 <Form.Control
                   type="text"
-                  value={opcaoB}                            // Vinculado ao estado opcaoB
-                  onChange={e => setOpcaoB(e.target.value)} // Atualiza o estado
+                  value={opcaoB}                                              // Vinculado ao estado opcaoB
+                  onChange={e => setOpcaoB(e.target.value)}                   // Atualiza o estado
                   placeholder="Alternativa para o perfil Exatas"
                   style={{ flex: '1', padding: 8, fontSize: 13 }}
-                  required                                  // Campo de preenchimento obrigatório
+                  required                                                    // Campo de preenchimento obrigatório
                 />
               </div>
 
@@ -630,11 +643,11 @@ const Editar = () => {
                 </label>
                 <Form.Control
                   type="text"
-                  value={opcaoC}                            // Vinculado ao estado opcaoC
-                  onChange={e => setOpcaoC(e.target.value)} // Atualiza o estado
+                  value={opcaoC}                                              // Vinculado ao estado opcaoC
+                  onChange={e => setOpcaoC(e.target.value)}                   // Atualiza o estado
                   placeholder="Alternativa para o perfil Humanas"
                   style={{ flex: '1', padding: 8, fontSize: 13 }}
-                  required                                  // Campo de preenchimento obrigatório
+                  required                                                    // Campo de preenchimento obrigatório
                 />
               </div>
 
@@ -645,11 +658,11 @@ const Editar = () => {
                 </label>
                 <Form.Control
                   type="text"
-                  value={opcaoD}                            // Vinculado ao estado opcaoD
-                  onChange={e => setOpcaoD(e.target.value)} // Atualiza o estado
+                  value={opcaoD}                                              // Vinculado ao estado opcaoD
+                  onChange={e => setOpcaoD(e.target.value)}                   // Atualiza o estado
                   placeholder="Alternativa para o perfil Tecnológicas"
                   style={{ flex: '1', padding: 8, fontSize: 13 }}
-                  required                                  // Campo de preenchimento obrigatório
+                  required                                                    // Campo de preenchimento obrigatório
                 />
               </div>
 
@@ -659,9 +672,9 @@ const Editar = () => {
                   Substituir Imagem:
                 </label>
                 <Form.Control
-                  type="file"                                // Entrada de arquivos
-                  accept="image/*"                           // Restringe a seleção a formatos de imagens
-                  onChange={handleImageChange}               // Dispara a leitura do arquivo e prévia
+                  type="file"                                                 // Entrada de arquivos
+                  accept="image/*"                                            // Restringe a seleção a formatos de imagens
+                  onChange={handleImageChange}                                // Dispara a leitura do arquivo e prévia
                   style={{ flex: '1', padding: 6, fontSize: 13 }}
                 />
               </div>
@@ -679,14 +692,15 @@ const Editar = () => {
                     <div>
                       <span style={{ display: 'block', color: '#FFF', fontSize: '16px', marginBottom: '4px', fontWeight: 700 }}>Atual:</span>
                       <img
-                        src={`http://localhost:3012/${imagemAtual}`}
+                        /* Adiciona cache-buster timestamp para forçar atualização imediata da imagem no navegador */
+                        src={`http://localhost:3012/${imagemAtual}?t=${new Date().getTime()}`}
                         alt="Imagem cadastrada"
                         style={{ height: '250px', width: '250px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #FFF' }}
                       />
                     </div>
                   )}
 
-                  {/* Prévia da nova imagem escolhida pelo operador */}
+                  {/* Prévia da nova imagem escolhida pelo operador antes de enviar */}
                   {previewUrl && (
                     <div>
                       <span style={{ display: 'block', color: '#FFD600', fontSize: '16px', marginBottom: '4px', fontWeight: 700 }}>Nova Foto:</span>

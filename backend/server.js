@@ -199,19 +199,19 @@ app.post('/salvarResultado', (req, res) => {
 // 6. ROTAS CRUD DE QUESTÕES
 // ==========================================
 
-// Endpoint GET /todasQuestoes: Busca todas as perguntas cadastradas
+// Endpoint GET /todasQuestoes: Busca todas as perguntas com ordenação previsível por ID
 app.get('/todasQuestoes', (req, res) => {
-  // Query para selecionar todos os registros da tabela questoes
-  const query = 'SELECT * FROM questoes';
+  // Ordena por id ASC para garantir que a ordem seja constante antes e depois de alterações
+  const query = 'SELECT * FROM questoes ORDER BY id ASC';
 
-  // Executa a consulta
+  // Executa a consulta no banco
   db.query(query, (err, results) => {
     // Trata possíveis falhas de leitura
     if (err) {
       console.error('Erro ao carregar questões:', err);
       return res.status(500).json({ message: 'Erro ao consultar o banco de dados' });
     }
-    // Retorna os registros obtidos ou um array vazio por padrão
+    // Retorna os registros obtidos em JSON
     res.json(results || []);
   });
 });
@@ -234,69 +234,125 @@ app.post('/insert', upload.single('imagem'), (req, res) => {
   const values = [questao, opcaoA, opcaoB, opcaoC, opcaoD, imagem];
 
   // Executa a inserção no banco
-  db.query(query, values, (err) => {
+  db.query(query, values, (err, results) => {
     // Trata erros de gravação
     if (err) {
       console.error('Erro ao inserir:', err);
       return res.status(500).json({ message: 'Erro ao inserir no banco' });
     }
-    // Retorna mensagem de criação bem-sucedida
-    res.json({ message: 'Registro inserido com sucesso!' });
+    // Retorna mensagem de confirmação, o ID gerado e o caminho da imagem salva
+    res.json({
+      message: 'Registro inserido com sucesso!',
+      insertId: results.insertId,
+      imagemSalva: imagem
+    });
   });
 });
 
-// Endpoint PUT /update/:id: Modifica os dados de uma questão existente
+// Endpoint PUT /update/:id: Modifica os dados e retorna o caminho da nova imagem e ID
 app.put('/update/:id', upload.single('imagem'), (req, res) => {
-  // Extrai o id dos parâmetros da URL
+  // Extrai o ID dos parâmetros da URL
   const { id } = req.params;
-  // Extrai os campos do corpo da requisição
+  // Extrai os campos textuais do corpo da requisição
   const { questao, opcaoA, opcaoB, opcaoC, opcaoD } = req.body;
-  // Identifica se uma nova imagem foi anexada na alteração
+  // Identifica se uma nova imagem foi enviada no upload
   const novaImagem = req.file ? `src/img/${req.file.filename}` : null;
 
-  // Variável para armazenar a consulta SQL dinâmica
-  let query = '';
-  // Variável para armazenar os parâmetros da consulta
-  let values = [];
-
-  // Se o usuário subiu uma nova imagem, atualiza o campo de imagem também
+  // Se uma nova imagem foi enviada, busca a imagem antiga no banco para deletar do disco
   if (novaImagem) {
-    query = 'UPDATE questoes SET questao = ?, opcaoA = ?, opcaoB = ?, opcaoC = ?, opcaoD = ?, imagem = ? WHERE id = ?';
-    values = [questao, opcaoA, opcaoB, opcaoC, opcaoD, novaImagem, id];
-  } else {
-    // Caso não haja nova imagem, preserva a existente atualizando só os textos
-    query = 'UPDATE questoes SET questao = ?, opcaoA = ?, opcaoB = ?, opcaoC = ?, opcaoD = ? WHERE id = ?';
-    values = [questao, opcaoA, opcaoB, opcaoC, opcaoD, id];
-  }
+    // Seleciona a imagem anterior registrada no banco
+    const selectQuery = 'SELECT imagem FROM questoes WHERE id = ?';
+    db.query(selectQuery, [id], (errBusca, resultsBusca) => {
+      // Se encontrou a imagem anterior
+      if (!errBusca && resultsBusca && resultsBusca.length > 0) {
+        const imagemAntiga = resultsBusca[0].imagem;
+        // Se havia imagem salva anteriormente
+        if (imagemAntiga) {
+          // Extrai o nome do arquivo da imagem antiga
+          const nomeArquivoAntigo = path.basename(imagemAntiga);
+          // Monta o caminho absoluto no diretório de upload
+          const caminhoArquivoAntigo = path.join(uploadDir, nomeArquivoAntigo);
+          // Remove o arquivo antigo do disco se existir
+          if (fs.existsSync(caminhoArquivoAntigo)) {
+            fs.unlink(caminhoArquivoAntigo, (errUnlink) => {
+              if (errUnlink) console.warn('Aviso: Não foi possível remover a imagem antiga do disco:', errUnlink.message);
+            });
+          }
+        }
+      }
 
-  // Executa o update no banco
-  db.query(query, values, (err) => {
-    // Trata erros durante a atualização
-    if (err) {
-      console.error('Erro ao atualizar questão:', err);
-      return res.status(500).json({ message: 'Erro ao atualizar no banco de dados' });
-    }
-    // Confirma a atualização para o cliente
-    res.json({ message: 'Registro atualizado com sucesso!' });
-  });
+      // Executa o UPDATE no banco atualizando os textos e o novo caminho da imagem
+      const query = 'UPDATE questoes SET questao = ?, opcaoA = ?, opcaoB = ?, opcaoC = ?, opcaoD = ?, imagem = ? WHERE id = ?';
+      const values = [questao, opcaoA, opcaoB, opcaoC, opcaoD, novaImagem, id];
+
+      db.query(query, values, (err) => {
+        // Trata falha na atualização
+        if (err) {
+          console.error('Erro ao atualizar questão:', err);
+          return res.status(500).json({ message: 'Erro ao atualizar no banco de dados' });
+        }
+        // Retorna sucesso, confirmando o ID atualizado e o novo caminho da imagem
+        res.json({
+          message: 'Registro e imagem atualizados com sucesso!',
+          idAtualizado: Number(id),
+          imagemSalva: novaImagem
+        });
+      });
+    });
+  } else {
+    // Caso não haja nova imagem anexada, atualiza apenas as colunas de texto mantendo a foto atual
+    const query = 'UPDATE questoes SET questao = ?, opcaoA = ?, opcaoB = ?, opcaoC = ?, opcaoD = ? WHERE id = ?';
+    const values = [questao, opcaoA, opcaoB, opcaoC, opcaoD, id];
+
+    db.query(query, values, (err) => {
+      // Trata erros de persistência
+      if (err) {
+        console.error('Erro ao atualizar questão:', err);
+        return res.status(500).json({ message: 'Erro ao atualizar no banco de dados' });
+      }
+      // Confirma a atualização textual
+      res.json({
+        message: 'Registro atualizado com sucesso!',
+        idAtualizado: Number(id),
+        imagemSalva: null
+      });
+    });
+  }
 });
 
-// Endpoint DELETE /delete/:id: Remove uma questão pelo seu ID
+// Endpoint DELETE /delete/:id: Remove uma questão pelo seu ID e apaga a foto associada
 app.delete('/delete/:id', (req, res) => {
   // Captura o ID da questão a ser apagada a partir da URL
   const { id } = req.params;
-  // Cria a consulta SQL de exclusão por identificador
-  const query = 'DELETE FROM questoes WHERE id = ?';
 
-  // Executa a exclusão no banco
-  db.query(query, [id], (err) => {
-    // Trata erros de exclusão
-    if (err) {
-      console.error('Erro ao excluir questão:', err);
-      return res.status(500).json({ message: 'Erro ao excluir do banco de dados' });
+  // Busca a imagem associada antes de excluir o registro para não deixar órfãos no disco
+  const selectQuery = 'SELECT imagem FROM questoes WHERE id = ?';
+  db.query(selectQuery, [id], (errBusca, resultsBusca) => {
+    // Se encontrou o registro e há imagem associada
+    if (!errBusca && resultsBusca && resultsBusca.length > 0 && resultsBusca[0].imagem) {
+      const nomeArquivo = path.basename(resultsBusca[0].imagem);
+      const caminhoArquivo = path.join(uploadDir, nomeArquivo);
+      // Apaga o arquivo físico do disco
+      if (fs.existsSync(caminhoArquivo)) {
+        fs.unlink(caminhoArquivo, (errUnlink) => {
+          if (errUnlink) console.warn('Aviso: Não foi possível apagar o arquivo do disco:', errUnlink.message);
+        });
+      }
     }
-    // Confirma a remoção do registro
-    res.json({ message: 'Registro excluído com sucesso!' });
+
+    // Cria a consulta SQL de exclusão por identificador
+    const query = 'DELETE FROM questoes WHERE id = ?';
+
+    // Executa a exclusão no banco
+    db.query(query, [id], (err) => {
+      // Trata erros de exclusão
+      if (err) {
+        console.error('Erro ao excluir questão:', err);
+        return res.status(500).json({ message: 'Erro ao excluir do banco de dados' });
+      }
+      // Confirma a remoção do registro
+      res.json({ message: 'Registro excluído com sucesso!' });
+    });
   });
 });
 
@@ -562,14 +618,16 @@ app.post('/restaurar', uploadMemoria.single('arquivoBackup'), (req, res) => {
 
 // Endpoint GET /totalQuestoes: Retorna a quantidade exata de perguntas cadastradas no banco
 app.get('/totalQuestoes', (req, res) => {
+  // Query de contagem simples
   const query = 'SELECT COUNT(*) AS total FROM questoes';
 
+  // Executa a contagem no banco de dados
   db.query(query, (err, results) => {
     if (err) {
       console.error('Erro ao contar questões:', err);
       return res.status(500).json({ message: 'Erro ao consultar banco de dados' });
     }
-    // Retorna { total: X }
+    // Retorna o total encontrado no formato { total: X }
     res.json({ total: results[0]?.total || 0 });
   });
 });
