@@ -682,7 +682,7 @@ const Editar = () => {
               {/* Linha 7: Área de visualização comparativa da foto atual e da nova imagem */}
               <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '14px' }}>
                 {/* Rótulo lateral fixo */}
-                <div style={{ flex: '0 0 220px', textAlign: 'left', color: '#FFF', fontWeight: 'bold', fontSize: '14px' }}>
+                <div style={{ flex: '0 0 220px', textAlign: 'left', color: '#ffffff', fontWeight: 'bold', fontSize: '14px' }}>
                   Visualização:
                 </div>
                 {/* Contêiner de imagens lado a lado */}
@@ -690,12 +690,12 @@ const Editar = () => {
                   {/* Foto salva atualmente no servidor */}
                   {imagemAtual && (
                     <div>
-                      <span style={{ display: 'block', color: '#FFF', fontSize: '16px', marginBottom: '4px', fontWeight: 700 }}>Atual:</span>
+                      <span style={{ display: 'block', color: '#00ff55', fontSize: '16px', marginBottom: '4px', fontWeight: 700 }}>Atual:</span>
                       <img
                         /* Adiciona cache-buster timestamp para forçar atualização imediata da imagem no navegador */
                         src={`http://localhost:3012/${imagemAtual}?t=${new Date().getTime()}`}
                         alt="Imagem cadastrada"
-                        style={{ height: '250px', width: '250px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #FFF' }}
+                        style={{ height: '250px', width: '250px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #00ff55' }}
                       />
                     </div>
                   )}
