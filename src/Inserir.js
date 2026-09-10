@@ -2,142 +2,117 @@
 // IMPORTAÇÕES DE MÓDULOS, COMPONENTES E ESTILOS
 // ============================================================================
 
-// Importa a biblioteca React e o hook useState para gerenciar os estados do componente
+// Importa o React e o hook useState para gerenciar estados locais do formulário[cite: 11]
 import React, { useState } from 'react';
-
-// Importa os componentes visuais pré-construídos do React-Bootstrap para layout e controle de interface
+// Importa componentes visuais do pacote React-Bootstrap[cite: 11]
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
-
-// Importa o arquivo global de estilos CSS da aplicação (incluindo cores de fundo e resets)
+// Importa arquivos de estilização externa[cite: 11]
+import './estilo.css';
 import './index.css';
 
 // ============================================================================
 // COMPONENTE PRINCIPAL: INSERIR
 // ============================================================================
 
-// Declaração do componente funcional Inserir, responsável por cadastrar novas questões no banco
+// Declara o componente responsável pelo cadastramento de novas perguntas[cite: 11]
 const Inserir = () => {
-  // --------------------------------------------------------------------------
-  // ESTADOS DE AUTENTICAÇÃO ADMINISTRATIVA
-  // --------------------------------------------------------------------------
-
-  // Estado booleano que controla a visibilidade da janela modal de autenticação (inicia aberta)
+  // Estado que gerencia a exibição da janela de login administrativo[cite: 11]
   const [showLogin, setShowLogin] = useState(true);
-
-  // Estado que armazena a string do nome de usuário digitado no login
+  // Estado que armazena o nome de usuário digitado[cite: 11]
   const [username, setUsername] = useState('');
-
-  // Estado que armazena a string da senha digitada no login
+  // Estado que armazena a senha informada[cite: 11]
   const [password, setPassword] = useState('');
-
-  // Estado que guarda mensagens de advertência quando as credenciais forem rejeitadas
+  // Estado para armazenar mensagens de erro no login[cite: 11]
   const [error, setError] = useState('');
 
-  // Identificador padrão de usuário autorizado para o painel de cadastro
+  // Usuário pré-autorizado[cite: 11]
   const validUsername = 'etecembu';
-
-  // Senha padrão de acesso administrativo ao painel de cadastro
+  // Senha pré-autorizada[cite: 11]
   const validPassword = 'etec@241';
 
-  // Função responsável por validar os dados inseridos contra as credenciais estáticas
+  // Função que valida o login do administrador[cite: 11]
   const handleLogin = () => {
-    // Compara o usuário e senha informados com as constantes autorizadas
+    // Compara o que foi digitado com as credenciais válidas[cite: 11]
     if (username === validUsername && password === validPassword) {
-      // Fecha a modal de autenticação, liberando o painel de cadastro
+      // Fecha o modal de autenticação liberando a tela[cite: 11]
       setShowLogin(false);
-      // Limpa qualquer mensagem prévia de erro
+      // Limpa os erros de autenticação[cite: 11]
       setError('');
     } else {
-      // Alimenta o estado com mensagem de erro visual para o operador
+      // Alerta de falha na autenticação[cite: 11]
       setError('Usuário ou senha incorretos!');
     }
   };
 
-  // --------------------------------------------------------------------------
-  // ESTADOS DOS CAMPOS DA NOVA QUESTÃO
-  // --------------------------------------------------------------------------
-
-  // Estado que armazena o texto do enunciado da questão
+  // Estado para o texto do enunciado da questão[cite: 11]
   const [questao, setQuestao] = useState('');
-
-  // Estado que armazena a alternativa associada ao perfil Biológicas (Opção A)
+  // Estado para o texto da alternativa A (Perfil Biológicas)[cite: 11]
   const [opcaoA, setOpcaoA] = useState('');
-
-  // Estado que armazena a alternativa associada ao perfil Exatas (Opção B)
+  // Estado para o texto da alternativa B (Perfil Exatas)[cite: 11]
   const [opcaoB, setOpcaoB] = useState('');
-
-  // Estado que armazena a alternativa associada ao perfil Humanas (Opção C)
+  // Estado para o texto da alternativa C (Perfil Humanas)[cite: 11]
   const [opcaoC, setOpcaoC] = useState('');
-
-  // Estado que armazena a alternativa associada ao perfil Tecnológicas (Opção D)
+  // Estado para o texto da alternativa D (Perfil Tecnológicas)[cite: 11]
   const [opcaoD, setOpcaoD] = useState('');
-
-  // Estado que guarda o objeto binário do arquivo de imagem selecionado
+  // Estado para armazenar o arquivo binário da imagem selecionada[cite: 11]
   const [imagem, setImagem] = useState(null);
-
-  // Estado que armazena mensagens operacionais de feedback (sucesso ou falha no cadastro)
+  // Estado para armazenar mensagens de feedback na interface[cite: 11]
   const [msg, setMsg] = useState('');
-
-  // Estado que guarda a URL temporária para pré-visualização da imagem no navegador
+  // Estado que armazena a URL temporária para prévia visual da foto[cite: 11]
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  // --------------------------------------------------------------------------
-  // MANIPULAÇÃO DE ARQUIVOS E ENVIO (POST)
-  // --------------------------------------------------------------------------
-
-  // Função disparada no evento onChange do campo de upload de arquivo
+  // Disparado no momento em que o usuário escolhe uma imagem no campo de arquivo[cite: 11]
   const handleImageChange = (e) => {
-    // Captura o primeiro arquivo selecionado pelo operador no seletor
+    // Pega o primeiro arquivo anexado[cite: 11]
     const file = e.target.files[0];
-
-    // Verifica se um arquivo válido foi carregado
+    // Se houver arquivo selecionado[cite: 11]
     if (file) {
-      // Armazena a referência do arquivo binário no estado
+      // Guarda o arquivo no estado[cite: 11]
       setImagem(file);
-      // Gera uma URL temporária vinculada ao arquivo em memória para exibição em tela
+      // Cria a URL temporária para alimentar a tag img de pré-visualização[cite: 11]
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
-  // Função assíncrona executada ao enviar o formulário de inclusão
+  // Função assíncrona executada na submissão do formulário[cite: 11]
   const handleSubmit = async (event) => {
-    // Interrompe o recarregamento padrão da página disparado pelo navegador
+    // Cancela o comportamento padrão de envio da página[cite: 11]
     event.preventDefault();
 
-    // Valida se o operador anexou uma imagem antes de tentar a inclusão
+    // Valida se o usuário incluiu um arquivo de imagem[cite: 11]
     if (!imagem) {
-      // Alerta o operador e encerra a submissão
+      // Define alerta solicitando a escolha da imagem[cite: 11]
       setMsg('Selecione uma imagem antes de enviar.');
+      // Interrompe o envio[cite: 11]
       return;
     }
 
-    // Instancia um objeto FormData para encapsular texto e arquivo binário
+    // Instancia o objeto FormData para empacotar campos textuais e binários[cite: 11]
     const formData = new FormData();
-    formData.append('questao', questao); // Anexa o enunciado da questão
-    formData.append('opcaoA', opcaoA);   // Anexa o texto da alternativa Biológicas
-    formData.append('opcaoB', opcaoB);   // Anexa o texto da alternativa Exatas
-    formData.append('opcaoC', opcaoC);   // Anexa o texto da alternativa Humanas
-    formData.append('opcaoD', opcaoD);   // Anexa o texto da alternativa Tecnológicas
-    formData.append('imagem', imagem);   // Anexa o arquivo de imagem propriamente dito
+    formData.append('questao', questao);
+    formData.append('opcaoA', opcaoA);
+    formData.append('opcaoB', opcaoB);
+    formData.append('opcaoC', opcaoC);
+    formData.append('opcaoD', opcaoD);
+    formData.append('imagem', imagem);
 
-    // Bloco para captura e tratamento de falhas na comunicação com a API
     try {
-      // Dispara a requisição HTTP POST para o endpoint de cadastro no servidor local
+      // Realiza a chamada HTTP POST para a rota de cadastro no backend[cite: 11]
       const resposta = await fetch('http://localhost:3012/insert', {
-        method: 'POST', // Método de submissão
-        body: formData,  // Corpo da requisição com os dados empacotados em FormData
+        method: 'POST',
+        body: formData,
         headers: {
-          'Accept': 'application/json' // Indica expectativa de resposta em formato JSON
+          'Accept': 'application/json'
         }
       });
 
-      // Lança uma exceção se a resposta HTTP não retornar status na faixa 200-299
+      // Dispara erro caso a requisição não seja bem-sucedida[cite: 11]
       if (!resposta.ok) throw new Error('Falha ao processar inserção no servidor.');
 
-      // Alimenta o estado com aviso de confirmação de cadastro bem-sucedido
+      // Define mensagem de confirmação de cadastro[cite: 11]
       setMsg('Registro inserido com sucesso!');
 
-      // Reseta todos os campos do formulário para permitir nova inserção
+      // Limpa os campos após a conclusão bem-sucedida[cite: 11]
       setQuestao('');
       setOpcaoA('');
       setOpcaoB('');
@@ -146,42 +121,68 @@ const Inserir = () => {
       setImagem(null);
       setPreviewUrl(null);
 
-      // Agenda a limpeza automática da mensagem de feedback após 10 segundos
+      // Limpa a notificação de status após 10 segundos[cite: 11]
       setTimeout(() => setMsg(''), 10000);
     } catch (error) {
-      // Atualiza a mensagem na interface com o texto explicativo da exceção
+      // Informa ao usuário caso ocorra falha durante a gravação[cite: 11]
       setMsg(`Erro ao inserir registro! ${error.message}`);
     }
   };
 
-  // ==========================================================================
-  // RENDERIZAÇÃO DO COMPONENTE (JSX)
-  // ==========================================================================
+  // Função auxiliar para renderizar linhas com labels alinhadas aos campos de entrada[cite: 11]
+  const renderLinhaForm = (label, elemento) => (
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        marginBottom: '14px',
+        width: '100%'
+      }}
+    >
+      {/* Rótulo da linha do formulário[cite: 11] */}
+      <label
+        style={{
+          color: '#FFF',
+          fontWeight: 'bold',
+          flex: '1 1 200px',
+          maxWidth: '220px',
+          textAlign: 'left',
+          fontSize: '14px',
+          marginBottom: '5px'
+        }}
+      >
+        {label}
+      </label>
+      {/* Contêiner flexível do elemento do campo de entrada[cite: 11] */}
+      <div style={{ flex: '999 1 260px', width: '100%' }}>
+        {elemento}
+      </div>
+    </div>
+  );
 
+  // Retorno JSX do componente[cite: 11]
   return (
-    // Contêiner base estrutural com a classe de fundo roxo padronizado
+    // Div contêiner com fundo roxo[cite: 11]
     <div className='corpoP'>
-      {/* Barra de cabeçalho fixa com o título do projeto */}
+      {/* Cabeçalho superior com título do teste[cite: 11] */}
       <div className='barraSuperior'>
         <h1 className='barraTexto'>Teste de Aptidão Vocacional</h1>
       </div>
 
-      {/* -------------------------------------------------------------------- */}
-      {/* MODAL BLOQUEANTE DE LOGIN ADMINISTRATIVO                             */}
-      {/* -------------------------------------------------------------------- */}
+      {/* Janela modal para validação de credenciais de login administrativo[cite: 11] */}
       <Modal
-        show={showLogin}                      // Condiciona a exibição ao estado showLogin
-        centered                              // Centraliza a janela verticalmente na tela
-        backdrop="static"                     // Impede fechamento ao clicar fora da área útil
-        keyboard={false}                      // Desativa fechamento pelo pressionamento da tecla ESC
-        contentClassName="modal-auth-custom"  // Classe para remover estilos nativos do Bootstrap
+        show={showLogin}
+        backdrop="static"
+        keyboard={false}
+        contentClassName="modal-auth-custom"
       >
-        {/* Contêiner estilizado com cantos arredondados e cor roxa escura */}
+        {/* Contêiner de estilização do modal[cite: 11] */}
         <div
           style={{
             backgroundColor: '#4A148C',
             borderRadius: '16px',
-            padding: '32px 28px',
+            padding: '28px 22px',
             boxShadow: '0 16px 40px rgba(0, 0, 0, 0.55)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             width: '100%',
@@ -190,135 +191,68 @@ const Inserir = () => {
             boxSizing: 'border-box'
           }}
         >
-          {/* Cabeçalho centralizado com ícone e descrição */}
-          <div style={{ textAlign: 'center', marginBottom: '22px' }}>
-            <h3
-              style={{
-                color: '#ffffff',
-                fontSize: '21px',
-                fontWeight: '700',
-                margin: 0,
-                letterSpacing: '-0.3px'
-              }}
-            >
+          {/* Cabeçalho interno do card de login[cite: 11] */}
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <h3 style={{ color: '#ffffff', fontSize: '20px', fontWeight: '700', margin: 0 }}>
               🔒 Acesso Administrativo
             </h3>
-            <p
-              style={{
-                color: '#E1BEE7',
-                fontSize: '13px',
-                margin: '8px 0 0 0',
-                fontWeight: '500'
-              }}
-            >
+            <p style={{ color: '#E1BEE7', fontSize: '13px', margin: '6px 0 0 0', fontWeight: '500' }}>
               Informe suas credenciais para continuar
             </p>
           </div>
 
-          {/* Exibe o alerta em vermelho caso ocorra erro na validação */}
+          {/* Alerta de erro de autenticação[cite: 11] */}
           {error && (
-            <Alert
-              variant="danger"
-              style={{
-                fontSize: '13px',
-                fontWeight: '600',
-                padding: '10px 14px',
-                borderRadius: '8px',
-                marginBottom: '18px',
-                textAlign: 'center'
-              }}
-            >
+            <Alert variant="danger" style={{ fontSize: '13px', padding: '10px', textAlign: 'center' }}>
               {error}
             </Alert>
           )}
 
-          {/* Formulário de autenticação com interceptação do submit */}
-          <Form
-            onSubmit={(e) => {
-              e.preventDefault(); // Previne o reload padrão do navegador
-              handleLogin();      // Executa a função de autenticação
-            }}
-          >
-            {/* Grupo de entrada do nome de usuário */}
-            <Form.Group controlId="formUsername" style={{ marginBottom: '16px', textAlign: 'left' }}>
-              <Form.Label
-                style={{
-                  color: '#ffffff',
-                  fontWeight: 'bold',
-                  fontSize: '14px',
-                  marginBottom: '6px',
-                  display: 'block'
-                }}
-              >
+          {/* Formulário de autenticação[cite: 11] */}
+          <Form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+            {/* Campo Usuário[cite: 11] */}
+            <Form.Group controlId="formUsername" style={{ marginBottom: '14px', textAlign: 'left' }}>
+              <Form.Label style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>
                 Usuário:
               </Form.Label>
               <Form.Control
                 type="text"
-                autoFocus                                    // Foca o campo automaticamente ao carregar
+                autoFocus
                 placeholder="Informe o usuário"
-                value={username}                             // Valor amarrado ao estado username
-                onChange={(e) => setUsername(e.target.value)}// Atualiza o estado a cada caractere
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  fontSize: '14px',
-                  borderRadius: '8px',
-                  border: '1.5px solid rgba(255, 255, 255, 0.3)',
-                  backgroundColor: '#ffffff',
-                  color: '#212121',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                style={{ width: '100%', padding: '10px', fontSize: '14px', borderRadius: '8px', boxSizing: 'border-box' }}
               />
             </Form.Group>
 
-            {/* Grupo de entrada da senha de acesso */}
-            <Form.Group controlId="formPassword" style={{ marginBottom: '24px', textAlign: 'left' }}>
-              <Form.Label
-                style={{
-                  color: '#ffffff',
-                  fontWeight: 'bold',
-                  fontSize: '14px',
-                  marginBottom: '6px',
-                  display: 'block'
-                }}
-              >
+            {/* Campo Senha[cite: 11] */}
+            <Form.Group controlId="formPassword" style={{ marginBottom: '20px', textAlign: 'left' }}>
+              <Form.Label style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>
                 Senha:
               </Form.Label>
               <Form.Control
-                type="password"                              // Oculta visualmente os caracteres digitados
+                type="password"
                 placeholder="Informe a senha"
-                value={password}                             // Valor amarrado ao estado password
-                onChange={(e) => setPassword(e.target.value)}// Atualiza o estado a cada caractere
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  fontSize: '14px',
-                  borderRadius: '8px',
-                  border: '1.5px solid rgba(255, 255, 255, 0.3)',
-                  backgroundColor: '#ffffff',
-                  color: '#212121',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={{ width: '100%', padding: '10px', fontSize: '14px', borderRadius: '8px', boxSizing: 'border-box' }}
               />
             </Form.Group>
 
-            {/* Botão de envio para validar as credenciais informadas */}
+            {/* Botão de validação do login[cite: 11] */}
             <Button
-              type="submit"
+              type="button"
+              onClick={handleLogin}
               style={{
                 width: '100%',
-                padding: '11px',
-                fontSize: '15px',
+                padding: '12px',
+                fontSize: '16px',
                 fontWeight: 'bold',
                 backgroundColor: 'yellow',
                 borderColor: 'yellow',
                 color: 'purple',
                 borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
+                cursor: 'pointer'
               }}
             >
               Acessar
@@ -327,132 +261,127 @@ const Inserir = () => {
         </div>
       </Modal>
 
-      {/* -------------------------------------------------------------------- */}
-      {/* PAINEL DE CADASTRO (EXIBIDO APENAS APÓS SUCESSO NO LOGIN)            */}
-      {/* -------------------------------------------------------------------- */}
+      {/* Painel de formulário liberado após login com sucesso[cite: 11] */}
       {!showLogin && (
-        <section style={{ width: '85%', margin: 'auto', marginTop: '35px', textAlign: 'center' }}>
-          {/* Título da seção de cadastro em branco */}
-          <h1 style={{ color: '#FFF', marginBottom: '25px', fontWeight: 'bold' }}>Cadastro de pergunta</h1>
+        <section style={{ width: '92%', maxWidth: '850px', margin: 'auto', marginTop: '25px', textAlign: 'center' }}>
+          {/* Título da seção[cite: 11] */}
+          <h1 style={{ color: '#FFF', marginBottom: '20px', fontWeight: 'bold', fontSize: '24px' }}>
+            Cadastro de pergunta
+          </h1>
 
-          {/* Formulário com labels fixas à esquerda (220px) e campos alinhados */}
-          <Form onSubmit={handleSubmit} style={{ display: 'inline-block', width: '100%', maxWidth: '850px' }}>
-            
-            {/* Linha 1: Enunciado da questão */}
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
-              <label style={{ color: '#FFF', fontWeight: 'bold', flex: '0 0 220px', textAlign: 'left', fontSize: '15px' }}>
-                Questão:
-              </label>
+          {/* Formulário com manipulador de submissão[cite: 11] */}
+          <Form onSubmit={handleSubmit} style={{ width: '100%', boxSizing: 'border-box' }}>
+            {/* Campo para o Enunciado da questão[cite: 11] */}
+            {renderLinhaForm(
+              'Questão:',
               <Form.Control
-                as="textarea"                              // Renderiza como área de texto multi-linhas
-                value={questao}                            // Vinculado ao estado questao
-                onChange={e => setQuestao(e.target.value)} // Atualiza o estado ao digitar
+                as="textarea"
+                value={questao}
+                onChange={e => setQuestao(e.target.value)}
                 placeholder="Digite o enunciado da questão..."
-                style={{ flex: '1', height: 65, padding: 8, fontSize: 13 }}
-                required                                   // Torna o preenchimento obrigatório
+                style={{ width: '100%', minHeight: 65, padding: 8, fontSize: 13, boxSizing: 'border-box' }}
+                required
               />
-            </div>
+            )}
 
-            {/* Linha 2: Alternativa Biológicas (Opção A) */}
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
-              <label style={{ color: '#FFF', fontWeight: 'bold', flex: '0 0 220px', textAlign: 'left', fontSize: '15px' }}>
-                Opção A (Biológicas):
-              </label>
+            {/* Campo da Alternativa A (Biológicas)[cite: 11] */}
+            {renderLinhaForm(
+              'Opção A (Biológicas):',
               <Form.Control
                 type="text"
-                value={opcaoA}                            // Vinculado ao estado opcaoA
-                onChange={e => setOpcaoA(e.target.value)} // Atualiza o estado ao digitar
+                value={opcaoA}
+                onChange={e => setOpcaoA(e.target.value)}
                 placeholder="Alternativa para o perfil Biológicas"
-                style={{ flex: '1', padding: 8, fontSize: 13 }}
-                required                                  // Preenchimento obrigatório
+                style={{ width: '100%', padding: 8, fontSize: 13, boxSizing: 'border-box' }}
+                required
               />
-            </div>
+            )}
 
-            {/* Linha 3: Alternativa Exatas (Opção B) */}
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
-              <label style={{ color: '#FFF', fontWeight: 'bold', flex: '0 0 220px', textAlign: 'left', fontSize: '15px' }}>
-                Opção B (Exatas):
-              </label>
+            {/* Campo da Alternativa B (Exatas)[cite: 11] */}
+            {renderLinhaForm(
+              'Opção B (Exatas):',
               <Form.Control
                 type="text"
-                value={opcaoB}                            // Vinculado ao estado opcaoB
-                onChange={e => setOpcaoB(e.target.value)} // Atualiza o estado ao digitar
+                value={opcaoB}
+                onChange={e => setOpcaoB(e.target.value)}
                 placeholder="Alternativa para o perfil Exatas"
-                style={{ flex: '1', padding: 8, fontSize: 13 }}
-                required                                  // Preenchimento obrigatório
+                style={{ width: '100%', padding: 8, fontSize: 13, boxSizing: 'border-box' }}
+                required
               />
-            </div>
+            )}
 
-            {/* Linha 4: Alternativa Humanas (Opção C) */}
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
-              <label style={{ color: '#FFF', fontWeight: 'bold', flex: '0 0 220px', textAlign: 'left', fontSize: '15px' }}>
-                Opção C (Humanas):
-              </label>
+            {/* Campo da Alternativa C (Humanas)[cite: 11] */}
+            {renderLinhaForm(
+              'Opção C (Humanas):',
               <Form.Control
                 type="text"
-                value={opcaoC}                            // Vinculado ao estado opcaoC
-                onChange={e => setOpcaoC(e.target.value)} // Atualiza o estado ao digitar
+                value={opcaoC}
+                onChange={e => setOpcaoC(e.target.value)}
                 placeholder="Alternativa para o perfil Humanas"
-                style={{ flex: '1', padding: 8, fontSize: 13 }}
-                required                                  // Preenchimento obrigatório
+                style={{ width: '100%', padding: 8, fontSize: 13, boxSizing: 'border-box' }}
+                required
               />
-            </div>
+            )}
 
-            {/* Linha 5: Alternativa Tecnológicas (Opção D) */}
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
-              <label style={{ color: '#FFF', fontWeight: 'bold', flex: '0 0 220px', textAlign: 'left', fontSize: '15px' }}>
-                Opção D (Tecnológicas):
-              </label>
+            {/* Campo da Alternativa D (Tecnológicas)[cite: 11] */}
+            {renderLinhaForm(
+              'Opção D (Tecnológicas):',
               <Form.Control
                 type="text"
-                value={opcaoD}                            // Vinculado ao estado opcaoD
-                onChange={e => setOpcaoD(e.target.value)} // Atualiza o estado ao digitar
+                value={opcaoD}
+                onChange={e => setOpcaoD(e.target.value)}
                 placeholder="Alternativa para o perfil Tecnológicas"
-                style={{ flex: '1', padding: 8, fontSize: 13 }}
-                required                                  // Preenchimento obrigatório
+                style={{ width: '100%', padding: 8, fontSize: 13, boxSizing: 'border-box' }}
+                required
               />
-            </div>
+            )}
 
-            {/* Linha 6: Seleção do arquivo de imagem */}
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
-              <label style={{ color: '#FFF', fontWeight: 'bold', flex: '0 0 220px', textAlign: 'left', fontSize: '15px' }}>
-                Imagem:
-              </label>
+            {/* Campo do anexo de arquivo de imagem[cite: 11] */}
+            {renderLinhaForm(
+              'Imagem:',
               <Form.Control
-                type="file"                                // Entrada para seleção de arquivo do sistema
-                accept="image/*"                           // Filtra apenas extensões de imagem
-                onChange={handleImageChange}               // Aciona a leitura e prévia do arquivo
-                style={{ flex: '1', padding: 6, fontSize: 13 }}
-                required                                   // Torna a imagem obrigatória
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={{ width: '100%', padding: 6, fontSize: 13, boxSizing: 'border-box' }}
+                required
               />
-            </div>
+            )}
 
-            {/* Linha 7: Pré-visualização da imagem caso tenha sido selecionada */}
-            {previewUrl && (
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
-                <div style={{ flex: '0 0 220px' }}></div>
+            {/* Exibe a prévia da foto escolhida se previewUrl estiver definido[cite: 11] */}
+            {previewUrl && renderLinhaForm(
+              'Pré-visualização:',
+              <div style={{ textAlign: 'left' }}>
                 <img
                   src={previewUrl}
                   alt="Pré-visualização da imagem"
-                  style={{ height: '180px', width: '180px', objectFit: 'cover', borderRadius: '10px', border: '3px solid #FFF' }}
+                  style={{
+                    maxHeight: '180px',
+                    maxWidth: '100%',
+                    width: 'auto',
+                    objectFit: 'cover',
+                    borderRadius: '10px',
+                    border: '3px solid #FFF'
+                  }}
                 />
               </div>
             )}
 
-            {/* Linha 8: Botão de submissão do cadastro */}
-            <div style={{ display: 'flex', alignItems: 'center', marginTop: '20px' }}>
-              <div style={{ flex: '0 0 220px' }}></div>
+            {/* Botão de envio do formulário[cite: 11] */}
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
               <Button
                 variant="primary"
                 type="submit"
                 style={{
-                  fontSize: '18px',
+                  fontSize: '17px',
                   padding: '10px 40px',
                   backgroundColor: 'yellow',
                   borderColor: 'yellow',
                   color: 'purple',
                   fontWeight: 'bold',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  width: '100%',
+                  maxWidth: '240px'
                 }}
               >
                 Inserir
@@ -460,10 +389,10 @@ const Inserir = () => {
             </div>
           </Form>
 
-          {/* Alerta visual com feedback do resultado da requisição */}
+          {/* Exibe caixa de notificação se houver mensagem definida[cite: 11] */}
           {msg && (
             <Alert
-              variant={msg.includes('Erro') ? 'danger' : 'info'} // Alterna entre vermelho e azul conforme o retorno
+              variant={msg.includes('Erro') ? 'danger' : 'info'}
               style={{ marginTop: '20px', fontWeight: 'bold', maxWidth: '850px', margin: '20px auto 0 auto' }}
             >
               {msg}
@@ -475,9 +404,5 @@ const Inserir = () => {
   );
 };
 
-// ============================================================================
-// EXPORTAÇÃO DO COMPONENTE
-// ============================================================================
-
-// Exporta o componente Inserir como padrão para importação nas rotas do App.js
+// Exporta o componente Inserir[cite: 11]
 export default Inserir;

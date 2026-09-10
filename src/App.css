@@ -1,38 +1,105 @@
+/* ============================================================================
+   ESTILIZAÇÃO GERAL E RESPONSIVA DO COMPONENTE APP
+   ============================================================================ */
+
+/* Define a classe principal do contêiner da aplicação */
 .App {
+  /* Centraliza horizontalmente o alinhamento de texto padrão */
   text-align: center;
+  /* Garante que o contêiner ocupe 100% da largura disponível */
+  width: 100%;
+  /* Garante que o contêiner ocupe no mínimo 100% da altura visível da tela */
+  min-height: 100vh;
+  /* Inclui padding e bordas no cálculo total de largura e altura */
+  box-sizing: border-box;
 }
 
+/* Estilização da imagem de logo */
 .App-logo {
+  /* Define a altura relativa a 40% da menor dimensão da viewport */
   height: 40vmin;
+  /* Limita a largura máxima da logo a 90% para evitar transbordamento */
+  max-width: 90%;
+  /* Desativa eventos de clique ou foco do ponteiro sobre a imagem */
   pointer-events: none;
 }
 
+/* Aplica animação apenas se o usuário não configurou preferência por redução de movimento */
 @media (prefers-reduced-motion: no-preference) {
+  /* Aplica a animação de rotação contínua de forma linear a cada 20 segundos */
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
 }
 
+/* Estilização da seção de cabeçalho do App */
 .App-header {
+  /* Define a cor de fundo cinza-escuro */
   background-color: #282c34;
+  /* Define a altura mínima cobrindo toda a viewport */
   min-height: 100vh;
+  /* Habilita o layout flexbox */
   display: flex;
+  /* Organiza os filhos verticalmente em coluna */
   flex-direction: column;
+  /* Alinha os itens horizontalmente ao centro */
   align-items: center;
+  /* Centraliza os itens verticalmente ao longo do eixo principal */
   justify-content: center;
+  /* Ajusta o tamanho da fonte dinamicamente com base no tamanho da tela */
   font-size: calc(10px + 2vmin);
+  /* Cor do texto em branco */
   color: white;
+  /* Espaçamento interno de 20 pixels */
+  padding: 20px;
+  /* Garante cálculo de dimensões considerando padding e borda */
+  box-sizing: border-box;
 }
 
+/* Estilização dos hiperlinks */
 .App-link {
+  /* Define a cor azul claro para o link */
   color: #61dafb;
+  /* Remove o sublinhado padrão dos links */
+  text-decoration: none;
+  /* Aplica peso de fonte em negrito */
+  font-weight: bold;
 }
 
+/* Efeito ao passar o cursor sobre o hiperlink */
+.App-link:hover {
+  /* Reativa o sublinhado para indicar interatividade */
+  text-decoration: underline;
+}
+
+/* Definição dos quadros-chave da animação de rotação da logo */
 @keyframes App-logo-spin {
+  /* Ângulo inicial da rotação */
   from {
     transform: rotate(0deg);
   }
+  /* Ângulo final completando uma volta inteira */
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* ============================================================================
+   ADAPTAÇÕES ESPECÍFICAS PARA TELAS MENORES / SMARTPHONES
+   ============================================================================ */
+
+/* Regras de mídia aplicadas a dispositivos com largura de até 768px */
+@media (max-width: 768px) {
+  /* Ajusta o cabeçalho para telas móveis */
+  .App-header {
+    /* Define tamanho de fonte fixo e legível */
+    font-size: 16px;
+    /* Ajusta espaçamentos internos superior, laterais e inferior */
+    padding: 60px 15px 20px 15px;
+  }
+
+  /* Reduz o tamanho da logo em smartphones */
+  .App-logo {
+    height: 30vmin;
   }
 }

@@ -2,181 +2,387 @@
    ESTILIZAÇÃO GLOBAL DO DOCUMENTO (BODY E TAGS DE CÓDIGO)
    ============================================================================ */
 
-/* Configurações básicas aplicadas a toda a página */
+/* Regras gerais para a tag body */
 body {
-  /* Remove as margens externas padrão inseridas pelo navegador */
+  /* Remove margens padrão do navegador */
   margin: 0;
-  /* Pilha de fontes nativas do sistema para garantir tipografia moderna e multiplataforma */
+  /* Define pilha de fontes do sistema para renderização nativa */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
-  /* Otimização de suavização de bordas de fontes para navegadores baseados em WebKit (Chrome, Safari, Edge) */
+  /* Suavização de fontes para navegadores WebKit/Safari */
   -webkit-font-smoothing: antialiased;
-  /* Suavização de fontes em escala de cinza no renderizador Gecko (Firefox no macOS) */
+  /* Suavização de fontes em escala de cinza para Firefox */
   -moz-osx-font-smoothing: grayscale;
+  /* Oculta barra de rolagem horizontal evitando quebras de layout */
+  overflow-x: hidden;
+  /* Define a cor de fundo roxa com máxima prioridade */
+  background-color: purple !important;
 }
 
-/* Formatação tipográfica aplicada aos blocos e elementos inline de código */
+/* Tipografia de trechos de código */
 code {
-  /* Família de fontes monoespaçadas para garantir alinhamento caractere a caractere */
+  /* Fontes monoespaçadas para exibição de comandos e código fonte */
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
 
 /* ============================================================================
-   MENU SUPERIOR E BOTÕES DA BARRA DE NAVEGAÇÃO
+   ESTRUTURA GERAL DO MENU E NAVEGAÇÃO
    ============================================================================ */
 
-/* Barra de navegação/menu superior */
+/* Contêiner de envolvimento do menu */
+.menu-wrapper {
+  /* Largura completa */
+  width: 100%;
+  /* Posicionamento relativo */
+  position: relative;
+}
+
+/* Barra de navegação principal */
 .menu {
-  /* Espaçamento interno superior de 15px */
-  padding-top: 15px;
-  /* Espaçamento interno inferior mantido comentado como no original */
-  /*padding-bottom: 5px;*/
-  /* Altura fixa da barra em 40px */
-  height: 40px;
-  /* Ocupa a largura total (100%) da viewport/contêiner-pai */
+  /* Largura total */
   width: 100%;
-  /* Define a exibição em formato de bloco */
-  display: block;
-  /* Centraliza horizontalmente o alinhamento dos elementos filhos */
-  text-align: center;
-  /* Cor de fundo preta */
+  /* Fundo preto */
   background-color: black;
-  /* Espaçamento interno complementar de 5px em todos os lados */
-  padding: 5px;
-}
-
-/* Botões contidos no interior da classe .menu */
-.menu .btn {
-  /* Margem vertical de 0 e margem horizontal com valor 35 como no original */
-  margin: 0 35;
-  /* Cor de fundo vermelha */
-  background-color: red;
-  /* Cor da tipografia em branco */
-  color: #FFF;
-  /* Espessura de fonte em negrito acentuado (700) */
-  font-weight: 700;
-  /* Espaçamento interno compacto de 3px */
-  padding: 3px;
-}
-
-/* ============================================================================
-   BOTÃO DE AÇÃO PRINCIPAL E INTERAÇÕES
-   ============================================================================ */
-
-/* Botão de destaque principal para início de ações */
-.btnPrincipal {
-  /* Fundo vermelho de alta visibilidade */
-  background-color: red;
-  /* Cor do texto em branco */
-  color: #FFF;
-  /* Peso da fonte em negrito forte (700) */
-  font-weight: 700;
-  /* Espaçamento interno: 3px nas partes superior/inferior e 15px nas laterais */
-  padding: 3px 15px;
-  /* Tamanho de fonte destacado em 20 pontos */
-  font-size: 20pt;
-  /* Arredondamento dos cantos da borda em 5px */
-  border-radius: 5px;
-  /* Sombra projetada para efeito de relevo (deslocamento X de 5px, Y de 5px, desfoque de 5px e cor preta) */
-  box-shadow: 5px 5px 5px #000;
-  /* Afastamento inferior de 10px */
-  margin-bottom: 10px;
-}
-
-/* Estado de foco/interação com mouse da regra .btnPrincipal mantendo a sintaxe original */
-.btnPrincipal :hover {
-  /* Altera a cor de fundo para verde-petróleo ao passar o cursor */
-  background-color: #008080;
-}
-
-/* ============================================================================
-   SEÇÃO INSTITUCIONAL COM IMAGEM DE FUNDO
-   ============================================================================ */
-
-/* Seção institucional destacada com plano de fundo */
-.sectionIns {
-  /* Define a largura ocupando 80% do espaço útil */
-  width: 80%; 
-  /* Centraliza horizontalmente o bloco de forma automática */
-  margin: auto; 
-  /* Adiciona recuo superior de 45px */
-  margin-top: 45px; 
-  /* Alinhamento de texto mantido exatamente como no original */
-  text-align: 'center'; 
-  /* Tamanho da tipografia em 16 pontos */
-  font-size: 16pt;
-  /* Peso da fonte em negrito */
-  font-weight: bold;
-  /* Define a imagem 'back.jpg' como plano de fundo */
-  background-image: url('./img/back.jpg');
-  /* Ajusta a imagem inteira dentro do contêiner preservando proporções sem cortes */
-  background-size: contain; 
-  /* Posiciona a imagem de fundo centralizada nos eixos horizontal e vertical */
-  background-position: center; 
-  /* Impede a repetição/duplicação da imagem em mosaico */
-  background-repeat: no-repeat;
-}
-
-/* ============================================================================
-   ESTRUTURA DE TELA CHEIA E FUNDO ROXO
-   ============================================================================ */
-
-/* Garante que o fundo roxo ocupe toda a altura e largura da tela */
-.corpoP {
-  /* Força a cor de fundo roxa com prioridade máxima */
-  background-color: purple !important;
-  /* Garante altura mínima cobrindo 100% da viewport (100vh) */
-  min-height: 100vh;
-  /* Ocupa a totalidade da largura */
-  width: 100%;
-  /* Inclui padding e bordas no cálculo total da largura/altura */
+  /* Centraliza os botões */
+  text-align: center;
+  /* Mantém cálculo correto de caixas */
   box-sizing: border-box;
 }
 
+/* Estilo individual dos botões internos do menu */
+.menu .btn {
+  /* Margens entre botões */
+  margin: 4px 8px;
+  /* Fundo vermelho */
+  background-color: red;
+  /* Cor do texto em branco */
+  color: #FFF;
+  /* Peso da fonte em negrito */
+  font-weight: 700;
+  /* Espaçamento interno */
+  padding: 6px 14px;
+  /* Sem borda nativa */
+  border: none;
+  /* Cursor tipo ponteiro */
+  cursor: pointer;
+  /* Cantos suavemente arredondados */
+  border-radius: 4px;
+  /* Tamanho de fonte compacto */
+  font-size: 13px;
+  /* Exibição em bloco alinhado na linha */
+  display: inline-block;
+  /* Transição suave de opacidade */
+  transition: opacity 0.2s ease;
+}
+
+/* Efeito ao passar o cursor sobre os botões do menu */
+.menu .btn:hover {
+  /* Reduz levemente a opacidade ao passar o cursor */
+  opacity: 0.85;
+}
+
+/* Botão de destaque principal para início de ações */
+.btnPrincipal {
+  /* Fundo vermelho chamativo */
+  background-color: red;
+  /* Texto em branco */
+  color: #FFF;
+  /* Negrito acentuado */
+  font-weight: 700;
+  /* Espaçamento interno amplo */
+  padding: 8px 22px;
+  /* Tamanho da fonte destacado */
+  font-size: 18pt;
+  /* Cantos arredondados */
+  border-radius: 5px;
+  /* Sombra sólida projetada para baixo e direita */
+  box-shadow: 5px 5px 5px #000;
+  /* Margem inferior */
+  margin-bottom: 10px;
+  /* Sem borda nativa */
+  border: none;
+  /* Cursor tipo clique */
+  cursor: pointer;
+  /* Limita a largura máxima a 90% */
+  max-width: 90%;
+}
+
+/* Efeito hover do botão principal */
+.btnPrincipal:hover {
+  /* Altera a cor de fundo para verde-azulado no hover */
+  background-color: #008080;
+}
+
+/* Seção institucional destacada com plano de fundo */
+.sectionIns {
+  /* Ocupa 80% do contêiner */
+  width: 80%; 
+  /* Centraliza nas laterais */
+  margin: auto; 
+  /* Espaçamento acima */
+  margin-top: 45px; 
+  /* Alinhamento de texto central */
+  text-align: center; 
+  /* Tamanho de texto */
+  font-size: 16pt;
+  /* Negrito */
+  font-weight: bold;
+  /* Imagem de fundo */
+  background-image: url('./img/back.jpg');
+  /* Ajusta imagem dentro dos limites da div */
+  background-size: contain; 
+  /* Centraliza imagem de fundo */
+  background-position: center; 
+  /* Não repete a imagem */
+  background-repeat: no-repeat;
+}
+
+/* Estrutura de tela cheia e fundo roxo */
+.corpoP {
+  /* Garante o fundo roxo com prioridade absoluta */
+  background-color: purple !important;
+  /* Altura mínima cobrindo toda a tela visível */
+  min-height: 100vh;
+  /* Ocupa 100% da largura */
+  width: 100%;
+  /* Inclui padding no dimensionamento */
+  box-sizing: border-box;
+  /* Espaçamento inferior para respiração */
+  padding-bottom: 30px;
+}
+
 /* ============================================================================
-   SOBREPOSIÇÃO E CENTRALIZAÇÃO DE MODAL (BOOTSTRAP)
+   BOTÃO HAMBÚRGUER (PRIORIDADE TOTAL SOBRE MODAIS E CAMADAS)
    ============================================================================ */
 
-/* Centralização vertical e horizontal perfeita do modal */
+/* Estilização do botão que abre o menu no celular */
+.btnHamburger {
+  /* Oculto por padrão no Desktop */
+  display: none;
+  /* Fixado no viewport */
+  position: fixed;
+  /* Distância do topo */
+  top: 12px;
+  /* Distância da esquerda */
+  left: 12px;
+  /* Camada mais alta para sobrepor modais e conteúdos */
+  z-index: 1065 !important;
+  /* Fundo preto */
+  background-color: black;
+  /* Borda sutil translúcida */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* Cursor clicável */
+  cursor: pointer;
+  /* Espaçamento interno */
+  padding: 8px;
+  /* Cantos arredondados */
+  border-radius: 6px;
+  /* Organização flexível interna em coluna */
+  flex-direction: column;
+  /* Distribui as barras horizontalmente com espaço igual */
+  justify-content: space-around;
+  /* Largura fixa do botão */
+  width: 42px;
+  /* Altura fixa do botão */
+  height: 38px;
+  /* Modelo de caixa border-box */
+  box-sizing: border-box;
+}
+
+/* Barras internas do ícone hambúrguer */
+.btnHamburger span {
+  /* Comportamento de bloco */
+  display: block;
+  /* Largura de 100% da caixa útil */
+  width: 100%;
+  /* Espessura de 3px */
+  height: 3px;
+  /* Cor branca das listras */
+  background-color: #ffffff;
+  /* Arredondamento das pontas das listras */
+  border-radius: 2px;
+}
+
+/* ============================================================================
+   REGRAS ESPECÍFICAS DE DESKTOP (COMPUTADOR)
+   ============================================================================ */
+
+/* Regras aplicadas para telas a partir de 769px */
+@media (min-width: 769px) {
+  /* Menu escondido até interação de aproximação do mouse */
+  .menu {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10000;
+    padding: 8px 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Classe ativada via JavaScript quando o mouse sobe no topo da tela */
+  .menuDesktopAtivo {
+    display: block !important;
+  }
+
+  /* Aplica espaçamento superior para o modal não colar na borda do desktop */
+  .modal {
+    padding-top: 30px !important;
+  }
+
+  /* Zera a margem superior da caixa de diálogo no desktop */
+  .modal-dialog {
+    margin-top: 0 !important;
+  }
+}
+
+/* ============================================================================
+   REGRAS ESPECÍFICAS DE SMARTPHONE (DISPOSITIVOS MÓVEIS)
+   ============================================================================ */
+
+/* Regras aplicadas para telas com largura máxima de 768px */
+@media (max-width: 768px) {
+  /* Torna o botão hambúrguer visível no smartphone */
+  .btnHamburger {
+    display: flex !important;
+  }
+
+  /* Menu móvel recolhido por padrão */
+  .menu {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 60px 16px 20px 16px;
+    z-index: 1060 !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  }
+
+  /* Classe adicionada quando o usuário clica no botão hambúrguer */
+  .menu.menuMobileAtivo {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Botões adaptados para formato vertical no celular */
+  .menu .btn {
+    margin: 5px 0;
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  /* Adaptação de largura da seção institucional em telas pequenas */
+  .sectionIns {
+    width: 95%;
+    font-size: 12pt;
+    margin-top: 20px;
+  }
+
+  /* Botão principal redimensionado para smartphone */
+  .btnPrincipal {
+    font-size: 15pt;
+    padding: 10px 20px;
+    width: 90%;
+  }
+
+  /* Recuo de 70px no topo do modal para não cobrir o botão hambúrguer */
+  .modal {
+    padding-top: 70px !important;
+  }
+
+  /* Zera a margem do diálogo interno */
+  .modal-dialog {
+    margin-top: 0 !important;
+  }
+}
+
+/* ============================================================================
+   ESTRUTURA GERAL DOS MODAIS (ESTILO BASE E FUNDO ROXO)
+   ============================================================================ */
+
+/* Sobrescreve estilos da janela modal do Bootstrap */
 .modal {
-  /* Força o contêiner do modal a adotar layout flexível */
-  display: flex !important;
-  /* Centraliza verticalmente os elementos internos */
-  align-items: center !important;
-  /* Centraliza horizontalmente os elementos internos */
-  justify-content: center !important;
+  /* Força a renderização em bloco */
+  display: block !important;
+  /* Garante rolagem vertical caso o conteúdo exceda a tela */
+  overflow-y: auto !important;
+  /* Define prioridade de camada z-index */
+  z-index: 1050 !important;
+  /* Espaçamento inferior */
+  padding-bottom: 20px !important;
+  /* Espaçamento lateral esquerdo */
+  padding-left: 15px !important;
+  /* Espaçamento lateral direito */
+  padding-right: 15px !important;
+  /* Fundo roxo sólido para combinar com o layout */
+  background-color: purple !important;
 }
 
-/* Ajustes da caixa interna (.modal-dialog) do modal */
+/* Diálogo estrutural da modal */
 .modal-dialog {
-  /* Centraliza a margem nos eixos vertical e horizontal */
-  margin: auto !important;
-  /* Habilita comportamento flexível interno */
-  display: flex !important;
-  /* Alinha verticalmente os filhos ao centro */
-  align-items: center !important;
-  /* Alinha horizontalmente os filhos ao centro */
-  justify-content: center !important;
-  /* Garante altura mínima calculada descontando 60px da altura da tela */
-  min-height: calc(100vh - 60px) !important;
-}
-
-/* Remove a carcaça branca e bordas extras do Bootstrap */
-.modal-content.modal-auth-custom {
-  /* Remove a cor de fundo branca padrão deixando-a transparente */
+  /* Remove margem inferior */
+  margin-bottom: 0 !important;
+  /* Centraliza na horizontal */
+  margin-left: auto !important;
+  margin-right: auto !important;
+  /* Garante exibição em bloco */
+  display: block !important;
+  /* Zera a altura mínima forçada */
+  min-height: auto !important;
+  /* Limita a largura máxima da caixa a 420px */
+  max-width: 420px !important;
+  /* Ocupa a largura total até o limite máximo */
+  width: 100% !important;
+  /* Mantém eventos de ponteiro/clique ativos */
+  pointer-events: auto !important;
+  /* Remove fundos adicionais */
   background-color: transparent !important;
-  /* Remove contornos e bordas nativas da biblioteca */
-  border: none !important;
-  /* Remove a sombra projetada padrão da modal */
-  box-shadow: none !important;
 }
 
-/* Escurece levemente o fundo roxo por trás do modal mantendo o tom purple */
+/* Conteúdo customizado de autenticação */
+.modal-content.modal-auth-custom {
+  /* Torna o fundo do card Bootstrap transparente para exibir a customização interna */
+  background-color: transparent !important;
+  /* Remove bordas nativas */
+  border: none !important;
+  /* Remove sombras padrão do Bootstrap */
+  box-shadow: none !important;
+  /* Ocupa 100% do diálogo */
+  width: 100% !important;
+  /* Garante clique liberado */
+  pointer-events: auto !important;
+}
+
+/* Garante a reatividade a toques e cliques em formulários em dispositivos touch */
+.modal-auth-custom form,
+.modal-auth-custom button,
+.modal-auth-custom input {
+  /* Posicionamento relativo */
+  position: relative;
+  /* Garante camada acima do diálogo */
+  z-index: 1052 !important;
+  /* Permite cliques e interações */
+  pointer-events: auto !important;
+  /* Remove o delay de toque comum em telas móveis */
+  touch-action: manipulation;
+}
+
+/* Cortina de fundo fixada em roxo sólido */
 .modal-backdrop.show {
-  /* Define a opacidade da cortina em 55% */
-  opacity: 0.55 !important;
-  /* Aplica tom roxo ultra-escuro para manter a harmonia visual da aplicação */
-  background-color: #1a0026 !important;
+  /* Opacidade completa */
+  opacity: 1 !important;
+  /* Fundo roxo sólido */
+  background-color: purple !important;
+  /* Camada posicionado atrás do conteúdo da modal */
+  z-index: 1040 !important;
 }

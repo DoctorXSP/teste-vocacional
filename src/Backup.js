@@ -2,111 +2,85 @@
 // IMPORTAÇÕES DE MÓDULOS E BIBLIOTECAS
 // ============================================================================
 
-// Importa o React e os hooks useState (controle de estados) e useRef (referência direta a nós do DOM)
+// Importa os hooks useState e useRef do React
 import React, { useState, useRef } from 'react';
-
-// Importa os componentes visuais utilitários do pacote react-bootstrap
+// Importa componentes visuais do pacote React-Bootstrap
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
-
-// Importa a folha de estilo CSS personalizada global da aplicação
+// Importa estilos customizados do projeto
+import './estilo.css';
 import './index.css';
 
 // ============================================================================
 // COMPONENTE PRINCIPAL: BACKUP
 // ============================================================================
 
-// Declara o componente funcional Backup
+// Declara o componente funcional de Backup e Restauração
 const Backup = () => {
-  // --------------------------------------------------------------------------
-  // ESTADOS DE AUTENTICAÇÃO E ACESSO ADMINISTRATIVO
-  // --------------------------------------------------------------------------
-
-  // Estado que controla se a janela modal de login está visível (inicia travada como true)
+  // Estado que exibe ou oculta a janela modal de autenticação restrita
   const [showLogin, setShowLogin] = useState(true);
-
-  // Estado que armazena o texto digitado no campo de usuário
+  // Estado para armazenar o valor digitado no campo de login
   const [username, setUsername] = useState('');
-
-  // Estado que armazena o texto digitado no campo de senha
+  // Estado para armazenar o valor digitado no campo de senha
   const [password, setPassword] = useState('');
-
-  // Estado que armazena mensagens de erro na validação de credenciais
+  // Estado para exibir mensagens de erro durante a autenticação
   const [error, setError] = useState('');
 
-  // Define o usuário esperado para liberar o acesso ao painel
+  // Credencial estática esperada para usuário administrativo
   const validUsername = 'etecembu';
-
-  // Define a senha esperada para autenticação no painel
+  // Credencial estática esperada para senha administrativa
   const validPassword = 'etec@241';
 
-  // Função disparada para validar o usuário e senha informados
+  // Função que valida os dados informados no login
   const handleLogin = () => {
-    // Compara se o usuário e a senha conferem exatamente com as credenciais fixas
+    // Compara o usuário e senha com as constantes pré-definidas
     if (username === validUsername && password === validPassword) {
-      // Fecha a janela modal de login se corretas
+      // Se corretos, fecha a janela de login liberando a tela
       setShowLogin(false);
-      // Limpa qualquer mensagem prévia de erro de login
+      // Limpa qualquer mensagem prévia de erro
       setError('');
     } else {
-      // Define a mensagem de falha caso as credenciais estejam erradas
+      // Em caso de divergência, define mensagem de falha
       setError('Usuário ou senha incorretos!');
     }
   };
 
-  // --------------------------------------------------------------------------
-  // ESTADOS DE OPERAÇÃO (DOWNLOAD, RESTAURAÇÃO E MENSAGENS)
-  // --------------------------------------------------------------------------
-
-  // Estado que indica se o backup está sendo gerado e baixado (para loading/disable)
+  // Estado indicador se o download do arquivo de backup está em andamento
   const [baixando, setBaixando] = useState(false);
-
-  // Estado que indica se a restauração está em andamento no servidor
+  // Estado indicador se a restauração do sistema está em andamento
   const [restaurando, setRestaurando] = useState(false);
-
-  // Estado que armazena o arquivo .zip selecionado pelo usuário no input de arquivo
+  // Estado para armazenar o arquivo .zip selecionado pelo usuário
   const [arquivoZip, setArquivoZip] = useState(null);
-
-  // Estado que guarda a mensagem de feedback operacional exibida em tela
+  // Estado para armazenar o texto da notificação/feedback na tela
   const [msg, setMsg] = useState('');
-
-  // Estado que define a cor/estilo do Alert ('success', 'danger', 'info', etc.)
+  // Estado para definir a variante visual do Alert ('info', 'success', 'danger')
   const [msgTipo, setMsgTipo] = useState('info');
-
-  // Estado que controla a exibição da janela modal de confirmação de restauração
+  // Estado que controla a abertura do modal de confirmação antes da restauração
   const [showConfirmRestaurar, setShowConfirmRestaurar] = useState(false);
-
-  // Referência vinculada diretamente ao input de seleção de arquivo para permitir reset de valor
+  // Cria uma referência direta ao input do tipo arquivo para manipulação de seu valor
   const fileInputRef = useRef(null);
 
-  // --------------------------------------------------------------------------
-  // LÓGICA DE DOWNLOAD DO PACOTE DE BACKUP (.ZIP)
-  // --------------------------------------------------------------------------
-
-  // Função assíncrona responsável por solicitar e baixar o pacote .zip (SQL + Imagens)
+  // Função assíncrona responsável por baixar o arquivo zip gerado pelo backend
   const handleDownloadBackup = async () => {
-    // Ativa o estado de carregamento do botão de download
+    // Ativa o estado de carregamento do download
     setBaixando(true);
-    // Limpa alertas anteriores na tela
+    // Limpa alertas anteriores
     setMsg('');
 
     try {
-      // Envia uma requisição HTTP GET para o endpoint de backup do servidor Node.js
+      // Faz a requisição HTTP GET para a rota de backup do servidor Node
       const resposta = await fetch('http://localhost:3012/backup');
-
-      // Se a resposta HTTP não for bem-sucedida (status fora da faixa 200-299), lança uma exceção
+      // Se a resposta retornar código de erro HTTP, dispara exceção
       if (!resposta.ok) throw new Error('Falha ao gerar o arquivo de backup no servidor.');
 
-      // Define um nome padrão para o arquivo caso o cabeçalho não traga o nome original
+      // Define um nome padrão para o arquivo caso o cabeçalho não forneça
       let nomeArquivo = 'TesteVocacional_Completo.zip';
-
-      // Recupera o cabeçalho Content-Disposition da resposta do servidor
+      // Lê o cabeçalho Content-Disposition da resposta HTTP
       const disposition = resposta.headers.get('Content-Disposition');
-
-      // Verifica se o cabeçalho existe e possui a propriedade filename definida
+      // Verifica se há especificação de filename no cabeçalho
       if (disposition && disposition.includes('filename=')) {
-        // Expressão regular para extrair o nome do arquivo delimitado com ou sem aspas
+        // Expressão regular para extrair o nome exato do arquivo enviado
         const correspondencia = disposition.match(/filename="?([^"]+)"?/);
-        // Se capturou o nome com sucesso, atualiza a variável nomeArquivo
+        // Se encontrou o grupo correspondente, atualiza o nome do arquivo
         if (correspondencia && correspondencia[1]) {
           nomeArquivo = correspondencia[1];
         }
@@ -114,175 +88,134 @@ const Backup = () => {
 
       // Converte o corpo da resposta em um objeto binário Blob
       const blob = await resposta.blob();
-
-      // Cria uma URL temporária vinculada ao Blob carregado na memória do navegador
+      // Cria uma URL local temporária na memória apontando para o Blob
       const urlBlob = window.URL.createObjectURL(blob);
-
-      // Cria dinamicamente uma tag âncora <a> invisível no documento
+      // Cria programaticamente um elemento de âncora <a>
       const link = document.createElement('a');
-
-      // Define o link de destino como a URL temporária do Blob
+      // Atribui a URL do blob ao href do link
       link.href = urlBlob;
-
-      // Atribui o nome do arquivo para o atributo download da tag
+      // Define o atributo de download com o nome do arquivo final
       link.download = nomeArquivo;
-
-      // Anexa temporariamente o link ao corpo da página HTML
+      // Adiciona o elemento temporariamente ao DOM
       document.body.appendChild(link);
-
-      // Simula o clique no link para acionar a janela de download nativa do navegador
+      // Simula o clique para iniciar o download no navegador
       link.click();
-
-      // Remove a tag do documento após o clique
+      // Remove o elemento âncora após a execução do clique
       document.body.removeChild(link);
-
-      // Libera o recurso da memória alocado para a URL temporária do Blob
+      // Libera o recurso da memória alocado para a URL do Blob
       window.URL.revokeObjectURL(urlBlob);
 
-      // Define o estilo de alerta como sucesso (verde)
+      // Define a cor de sucesso para o alerta
       setMsgTipo('success');
-
-      // Exibe mensagem informando que o download foi concluído
+      // Exibe a mensagem de sucesso na interface
       setMsg(`Backup completo baixado com sucesso! Arquivo: ${nomeArquivo}`);
     } catch (err) {
-      // Define o estilo de alerta como perigo/erro (vermelho)
+      // Em caso de falha na requisição, define tipo de perigo/erro
       setMsgTipo('danger');
-
-      // Informa o texto do erro capturado na exceção
+      // Exibe a mensagem descritiva do erro capturado
       setMsg(`Erro ao baixar backup: ${err.message}`);
     } finally {
-      // Finaliza o estado de download, reabilitando os botões
+      // Desativa o indicador de download independente do resultado
       setBaixando(false);
     }
   };
 
-  // --------------------------------------------------------------------------
-  // LÓGICA DE SELEÇÃO E VALIDAÇÃO DO ARQUIVO .ZIP
-  // --------------------------------------------------------------------------
-
-  // Função acionada quando o usuário escolhe um arquivo no seletor de arquivos
+  // Função disparada quando um arquivo é selecionado no input de restauração
   const handleFileChange = (e) => {
-    // Obtém o primeiro arquivo da lista selecionada
+    // Obtém o primeiro arquivo da lista do input
     const file = e.target.files[0];
-
-    // Se houver um arquivo selecionado
+    // Se um arquivo foi selecionado
     if (file) {
-      // Valida se o arquivo termina obrigatoriamente com a extensão .zip
+      // Valida se o arquivo possui a extensão esperada (.zip)
       if (!file.name.endsWith('.zip')) {
-        // Define o alerta em vermelho
+        // Alerta de erro caso não seja .zip
         setMsgTipo('danger');
-        // Define a mensagem de advertência sobre a extensão incorreta
         setMsg('Por favor, selecione um arquivo válido com extensão .zip contendo o banco e as imagens.');
-        // Reseta o estado do arquivo para nulo
+        // Limpa o estado do arquivo
         setArquivoZip(null);
-        // Interrompe a execução
         return;
       }
-
-      // Armazena o arquivo .zip válido no estado
+      // Se for válido, armazena no estado
       setArquivoZip(file);
-
-      // Limpa qualquer mensagem de erro prévia
+      // Limpa alertas
       setMsg('');
     }
   };
 
-  // --------------------------------------------------------------------------
-  // LÓGICA DE RESTAURAÇÃO DO PACOTE NO SERVIDOR
-  // --------------------------------------------------------------------------
-
-  // Função assíncrona que envia o arquivo .zip via POST multipart/form-data para restaurar os dados
+  // Função assíncrona que envia o arquivo zip para o backend restaurar dados e imagens
   const executarRestauracao = async () => {
     // Fecha a janela modal de confirmação
     setShowConfirmRestaurar(false);
 
-    // Validação de segurança: verifica se há um arquivo .zip anexado
+    // Valida se há um arquivo carregado
     if (!arquivoZip) {
-      // Define o alerta em vermelho caso falte o arquivo
       setMsgTipo('danger');
-      // Exibe o aviso para o operador selecionar o arquivo
       setMsg('Selecione um arquivo .zip antes de iniciar a recuperação.');
-      // Interrompe o processamento
       return;
     }
 
-    // Ativa o estado de carregamento da restauração
+    // Marca o estado de restauração como ativo
     setRestaurando(true);
-
-    // Limpa as mensagens em exibição
+    // Limpa mensagens anteriores
     setMsg('');
 
-    // Cria uma nova instância de FormData para empacotar o arquivo binário
+    // Cria um objeto FormData para envio de multipart/form-data
     const formData = new FormData();
-
-    // Anexa o arquivo .zip com o campo esperado pelo multer no backend ('arquivoBackup')
+    // Anexa o arquivo .zip com o campo esperado pelo multer no backend
     formData.append('arquivoBackup', arquivoZip);
 
     try {
-      // Envia a requisição POST assíncrona para o endpoint de restauração
+      // Envia a requisição POST para a rota de restauração
       const resposta = await fetch('http://localhost:3012/restaurar', {
-        method: 'POST', // Método de envio HTTP
-        body: formData   // Corpo da requisição com o arquivo binário anexado
+        method: 'POST',
+        body: formData
       });
 
-      // Converte a resposta do backend para formato JSON
+      // Converte a resposta em formato JSON
       const dados = await resposta.json();
-
-      // Se o status da requisição indicar erro, lança exceção com a mensagem da API
+      // Dispara erro se a resposta HTTP não for bem-sucedida
       if (!resposta.ok) throw new Error(dados.message || 'Falha ao restaurar dados.');
 
-      // Define o alerta de retorno como sucesso (verde)
+      // Alerta de sucesso
       setMsgTipo('success');
-
-      // Exibe a mensagem de sucesso retornada pelo backend ou texto alternativo
+      // Apresenta mensagem retornada pelo servidor
       setMsg(dados.message || 'Dados e imagens restaurados com sucesso!');
-
-      // Reseta o arquivo selecionado no estado
+      // Reseta a referência do arquivo no estado
       setArquivoZip(null);
-
-      // Limpa visualmente o valor do input do formulário via referência
+      // Limpa o valor físico do input para permitir novos uploads
       if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (err) {
-      // Define o alerta em estilo de perigo (vermelho)
+      // Exibe mensagem de erro caso o processo falhe
       setMsgTipo('danger');
-
-      // Exibe os detalhes da falha durante a restauração
       setMsg(`Erro na recuperação: ${err.message}`);
     } finally {
-      // Finaliza o estado de restauração, reativando os botões
+      // Desativa o indicador de restauração
       setRestaurando(false);
     }
   };
 
-  // ==========================================================================
-  // RENDERIZAÇÃO VISUAL DO COMPONENTE (JSX)
-  // ==========================================================================
-
+  // Retorno da renderização visual
   return (
-    // Contêiner base estrutural da página
+    // Contêiner principal com classe de estilo
     <div className='corpoP'>
-      {/* Barra de cabeçalho fixa superior */}
+      {/* Barra superior institucional */}
       <div className='barraSuperior'>
-        {/* Título principal do cabeçalho da aplicação */}
         <h1 className='barraTexto'>Teste de Aptidão Vocacional</h1>
       </div>
 
-      {/* -------------------------------------------------------------------- */}
-      {/* MODAL 1: AUTENTICAÇÃO ADMINISTRATIVA OBRIGATÓRIA                     */}
-      {/* -------------------------------------------------------------------- */}
+      {/* Modal estático para autenticação de administrador */}
       <Modal
-        show={showLogin}                      // Exibição amarrada ao estado showLogin
-        centered                              // Posiciona no centro vertical da tela
-        backdrop="static"                     // Impede fechamento ao clicar fora da modal
-        keyboard={false}                      // Desabilita fechamento via tecla ESC
-        contentClassName="modal-auth-custom"  // Classe CSS utilitária
+        show={showLogin}
+        backdrop="static"
+        keyboard={false}
+        contentClassName="modal-auth-custom"
       >
-        {/* Caixa de diálogo estilizada com fundo roxo e bordas arredondadas */}
+        {/* Contêiner de estilização do card do formulário de login */}
         <div
           style={{
             backgroundColor: '#4A148C',
             borderRadius: '16px',
-            padding: '32px 28px',
+            padding: '28px 22px',
             boxShadow: '0 16px 40px rgba(0, 0, 0, 0.55)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             width: '100%',
@@ -291,104 +224,68 @@ const Backup = () => {
             boxSizing: 'border-box'
           }}
         >
-          {/* Cabeçalho textual da janela de login */}
-          <div style={{ textAlign: 'center', marginBottom: '22px' }}>
-            <h3 style={{ color: '#ffffff', fontSize: '21px', fontWeight: '700', margin: 0 }}>
+          {/* Cabeçalho do modal com título e subtítulo */}
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <h3 style={{ color: '#ffffff', fontSize: '20px', fontWeight: '700', margin: 0 }}>
               🔒 Acesso Administrativo
             </h3>
-            <p style={{ color: '#E1BEE7', fontSize: '13px', margin: '8px 0 0 0', fontWeight: '500' }}>
+            <p style={{ color: '#E1BEE7', fontSize: '13px', margin: '6px 0 0 0', fontWeight: '500' }}>
               Informe suas credenciais para gerenciar backups
             </p>
           </div>
 
-          {/* Alerta de erro de autenticação caso as credenciais estejam erradas */}
+          {/* Exibição condicional de mensagem de erro de autenticação */}
           {error && (
-            <Alert
-              variant="danger"
-              style={{
-                fontSize: '13px',
-                fontWeight: '600',
-                padding: '10px 14px',
-                borderRadius: '8px',
-                marginBottom: '18px',
-                textAlign: 'center'
-              }}
-            >
+            <Alert variant="danger" style={{ fontSize: '13px', padding: '10px', textAlign: 'center' }}>
               {error}
             </Alert>
           )}
 
-          {/* Formulário de autenticação */}
-          <Form
-            onSubmit={(e) => {
-              e.preventDefault(); // Previne o reload padrão do navegador ao submeter
-              handleLogin();      // Executa o método de verificação de login
-            }}
-          >
-            {/* Campo de entrada para o nome de usuário */}
-            <Form.Group controlId="formUsername" style={{ marginBottom: '16px', textAlign: 'left' }}>
-              <Form.Label style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '14px', marginBottom: '6px', display: 'block' }}>
+          {/* Formulário com interceptação de submissão pelo Enter */}
+          <Form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+            {/* Campo para inserção do usuário */}
+            <Form.Group controlId="formUsername" style={{ marginBottom: '14px', textAlign: 'left' }}>
+              <Form.Label style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>
                 Usuário:
               </Form.Label>
               <Form.Control
                 type="text"
-                autoFocus                                    // Foca automaticamente no campo ao abrir
+                autoFocus
                 placeholder="Informe o usuário"
-                value={username}                             // Valor amarrado ao estado username
-                onChange={(e) => setUsername(e.target.value)}// Atualiza o estado conforme digitação
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  fontSize: '14px',
-                  borderRadius: '8px',
-                  border: '1.5px solid rgba(255, 255, 255, 0.3)',
-                  backgroundColor: '#ffffff',
-                  color: '#212121',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                style={{ width: '100%', padding: '10px', fontSize: '14px', borderRadius: '8px', boxSizing: 'border-box' }}
               />
             </Form.Group>
 
-            {/* Campo de entrada para a senha */}
-            <Form.Group controlId="formPassword" style={{ marginBottom: '24px', textAlign: 'left' }}>
-              <Form.Label style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '14px', marginBottom: '6px', display: 'block' }}>
+            {/* Campo para inserção da senha */}
+            <Form.Group controlId="formPassword" style={{ marginBottom: '20px', textAlign: 'left' }}>
+              <Form.Label style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>
                 Senha:
               </Form.Label>
               <Form.Control
-                type="password"                              // Oculta os caracteres digitados
+                type="password"
                 placeholder="Informe a senha"
-                value={password}                             // Valor amarrado ao estado password
-                onChange={(e) => setPassword(e.target.value)}// Atualiza o estado conforme digitação
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  fontSize: '14px',
-                  borderRadius: '8px',
-                  border: '1.5px solid rgba(255, 255, 255, 0.3)',
-                  backgroundColor: '#ffffff',
-                  color: '#212121',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={{ width: '100%', padding: '10px', fontSize: '14px', borderRadius: '8px', boxSizing: 'border-box' }}
               />
             </Form.Group>
 
-            {/* Botão de envio para validar as credenciais */}
+            {/* Botão de envio para validar credenciais */}
             <Button
-              type="submit"
+              type="button"
+              onClick={handleLogin}
               style={{
                 width: '100%',
-                padding: '11px',
-                fontSize: '15px',
+                padding: '12px',
+                fontSize: '16px',
                 fontWeight: 'bold',
                 backgroundColor: 'yellow',
                 borderColor: 'yellow',
                 color: 'purple',
                 borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
+                cursor: 'pointer'
               }}
             >
               Acessar
@@ -397,88 +294,75 @@ const Backup = () => {
         </div>
       </Modal>
 
-      {/* -------------------------------------------------------------------- */}
-      {/* MODAL 2: CONFIRMAÇÃO CRÍTICA DE RESTAURAÇÃO                          */}
-      {/* -------------------------------------------------------------------- */}
-      <Modal
-        show={showConfirmRestaurar}                   // Controlado pelo estado showConfirmRestaurar
-        onHide={() => setShowConfirmRestaurar(false)} // Fecha a modal ao cancelar
-        centered                                      // Centraliza no meio da tela
-      >
-        {/* Cabeçalho da modal com cor vermelha de advertência */}
+      {/* Modal de diálogo de confirmação crítica de restauração */}
+      <Modal show={showConfirmRestaurar} onHide={() => setShowConfirmRestaurar(false)} centered>
+        {/* Cabeçalho de alerta vermelho */}
         <Modal.Header closeButton style={{ backgroundColor: '#d32f2f', color: '#FFF' }}>
           <Modal.Title style={{ fontSize: '18px', fontWeight: 'bold' }}>⚠️ Atenção: Recuperação Completa</Modal.Title>
         </Modal.Header>
-        {/* Corpo com a mensagem de alerta sobre a sobrescrita dos dados */}
+        {/* Corpo explicativo com as consequências da operação */}
         <Modal.Body style={{ padding: '20px', fontSize: '15px', color: '#333' }}>
           A restauração <b>substituirá</b> os registros do banco de dados e sobrescreverá as imagens existentes pelos arquivos do pacote <b>{arquivoZip?.name}</b>.<br /><br />
           Deseja prosseguir com a operação?
         </Modal.Body>
-        {/* Rodapé com botões de cancelamento e confirmação definitiva */}
+        {/* Botões de decisão */}
         <Modal.Footer>
-          {/* Botão para desistir e fechar a modal */}
+          {/* Cancela a operação e fecha a janela */}
           <Button variant="secondary" onClick={() => setShowConfirmRestaurar(false)}>
             Cancelar
           </Button>
-          {/* Botão vermelho que dispara a rotina executarRestauracao */}
-          <Button
-            variant="danger"
-            onClick={executarRestauracao}
-            style={{ fontWeight: 'bold' }}
-          >
+          {/* Confirma e executa a chamada ao endpoint de restauração */}
+          <Button variant="danger" onClick={executarRestauracao} style={{ fontWeight: 'bold' }}>
             Sim, Restaurar Backup Completo
           </Button>
         </Modal.Footer>
       </Modal>
 
-      {/* -------------------------------------------------------------------- */}
-      {/* PAINEL ADMINISTRATIVO (RENDERIZADO APENAS APÓS SUCESSO NO LOGIN)     */}
-      {/* -------------------------------------------------------------------- */}
+      {/* Painel exibido apenas se o usuário estiver devidamente autenticado */}
       {!showLogin && (
-        <section style={{ width: '85%', maxWidth: '900px', margin: 'auto', marginTop: '30px', textAlign: 'center' }}>
-          {/* Título de boas-vindas da seção de backup */}
-          <h1 style={{ color: '#FFF', marginBottom: '25px', fontWeight: 'bold' }}>
+        <section style={{ width: '92%', maxWidth: '900px', margin: 'auto', marginTop: '25px', textAlign: 'center' }}>
+          {/* Título da seção principal */}
+          <h1 style={{ color: '#FFF', marginBottom: '20px', fontWeight: 'bold', fontSize: '24px' }}>
             Backup e Recuperação Geral (Banco + Imagens)
           </h1>
 
-          {/* Cartão contêiner translúcido envolvendo as seções */}
+          {/* Cartão contêiner translúcido */}
           <div
             style={{
               backgroundColor: 'rgba(255, 255, 255, 0.12)',
               borderRadius: '16px',
-              padding: '30px',
+              padding: '20px',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.35)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
-              marginBottom: '30px'
+              marginBottom: '25px',
+              boxSizing: 'border-box'
             }}
           >
-            {/* SEÇÃO 1: EXPORTAR BACKUP */}
+            {/* Bloco correspondente à geração e download do arquivo zip */}
             <div
               style={{
                 backgroundColor: '#ffffff',
                 borderRadius: '12px',
-                padding: '24px',
-                marginBottom: '25px',
+                padding: '20px',
+                marginBottom: '20px',
                 boxShadow: '0 4px 14px rgba(0, 0, 0, 0.2)',
                 textAlign: 'left'
               }}
             >
-              {/* Título da seção de download */}
-              <h3 style={{ color: '#4A148C', fontSize: '19px', fontWeight: 'bold', marginBottom: '8px' }}>
+              <h3 style={{ color: '#4A148C', fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>
                 💾 1. Gerar Pacote Completo de Backup (.zip)
               </h3>
-              {/* Descrição dos itens englobados no pacote .zip */}
-              <p style={{ color: '#555', fontSize: '14px', marginBottom: '18px', lineHeight: '1.4' }}>
+              <p style={{ color: '#555', fontSize: '14px', marginBottom: '16px', lineHeight: '1.4' }}>
                 Gera um arquivo comprimido <code>.zip</code> contendo o script <code>database.sql</code> (dados e estrutura das tabelas) e todo o catálogo de imagens salvas em <code>src/img</code>.
               </p>
 
-              {/* Botão de disparo do download do backup com feedback visual */}
+              {/* Botão que dispara o download */}
               <Button
                 onClick={handleDownloadBackup}
-                disabled={baixando}                                         // Desabilita enquanto o arquivo está sendo gerado
+                disabled={baixando}
                 style={{
-                  fontSize: '16px',
-                  padding: '12px 28px',
+                  fontSize: '15px',
+                  padding: '12px 24px',
                   backgroundColor: 'yellow',
                   borderColor: '#fbc02d',
                   color: 'purple',
@@ -486,72 +370,75 @@ const Backup = () => {
                   cursor: baixando ? 'not-allowed' : 'pointer',
                   boxShadow: '0 5px 0 #d4a017, 0 8px 15px rgba(0, 0, 0, 0.25)',
                   borderTop: '1px solid #fff',
-                  transition: 'all 0.1s ease'
+                  width: '100%',
+                  maxWidth: '320px'
                 }}
               >
+                {/* Texto dinâmico de acordo com o estado de download */}
                 {baixando ? '⏳ Empacotando Backup...' : '📦 Baixar Backup Completo (.zip)'}
               </Button>
             </div>
 
-            {/* SEÇÃO 2: RESTAURAR BACKUP */}
+            {/* Bloco correspondente à restauração do banco e arquivos */}
             <div
               style={{
                 backgroundColor: '#ffffff',
                 borderRadius: '12px',
-                padding: '24px',
+                padding: '20px',
                 boxShadow: '0 4px 14px rgba(0, 0, 0, 0.2)',
                 textAlign: 'left'
               }}
             >
-              {/* Título da seção de restauração */}
-              <h3 style={{ color: '#4A148C', fontSize: '19px', fontWeight: 'bold', marginBottom: '8px' }}>
+              <h3 style={{ color: '#4A148C', fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>
                 🔄 2. Restaurar Pacote Completo (.zip)
               </h3>
-              {/* Descrição dos efeitos colaterais da importação */}
-              <p style={{ color: '#555', fontSize: '14px', marginBottom: '18px', lineHeight: '1.4' }}>
+              <p style={{ color: '#555', fontSize: '14px', marginBottom: '16px', lineHeight: '1.4' }}>
                 Selecione um arquivo <code>.zip</code> gerado pelo sistema para reescrever as tabelas no MySQL e reestabelecer os arquivos de imagem no servidor.
               </p>
 
-              {/* Contêiner em flexbox alinhando o campo de arquivo e o botão */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
-                {/* Campo input para seleção do arquivo .zip local */}
+              {/* Linha com campo de upload e botão de ação */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                {/* Input de seleção de arquivo zip */}
                 <Form.Control
-                  ref={fileInputRef}                    // Vincula a referência do DOM para manipulação
-                  type="file"                           // Tipo do controle: arquivo
-                  accept=".zip"                         // Restringe a seleção a arquivos .zip
-                  onChange={handleFileChange}           // Executa a validação ao selecionar
-                  disabled={restaurando}                // Bloqueia durante a restauração
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".zip"
+                  onChange={handleFileChange}
+                  disabled={restaurando}
                   style={{
-                    flex: '1',
-                    minWidth: '260px',
+                    flex: '1 1 240px',
+                    width: '100%',
                     padding: '10px',
                     fontSize: '14px',
                     borderRadius: '8px',
-                    border: '1.5px dashed #4A148C'
+                    border: '1.5px dashed #4A148C',
+                    boxSizing: 'border-box'
                   }}
                 />
 
-                {/* Botão que abre a janela modal de confirmação */}
+                {/* Botão para abrir modal de confirmação */}
                 <Button
                   onClick={() => setShowConfirmRestaurar(true)}
-                  disabled={!arquivoZip || restaurando} // Só habilita se houver .zip e não estiver restaurando
+                  disabled={!arquivoZip || restaurando}
                   style={{
-                    fontSize: '16px',
-                    padding: '11px 26px',
+                    fontSize: '15px',
+                    padding: '11px 22px',
                     backgroundColor: arquivoZip ? '#34A853' : '#a5d6a7',
                     borderColor: '#2e7d32',
                     color: '#ffffff',
                     fontWeight: 'bold',
                     cursor: (!arquivoZip || restaurando) ? 'not-allowed' : 'pointer',
                     boxShadow: arquivoZip ? '0 5px 0 #1b5e20, 0 8px 15px rgba(0, 0, 0, 0.25)' : 'none',
-                    transition: 'all 0.1s ease'
+                    flex: '1 1 200px',
+                    width: '100%'
                   }}
                 >
+                  {/* Texto dinâmico de acordo com o estado da operação */}
                   {restaurando ? '⏳ Restaurando...' : '♻️ Restaurar Backup'}
                 </Button>
               </div>
 
-              {/* Exibe o nome e tamanho em megabytes do arquivo selecionado */}
+              {/* Informações detalhadas do arquivo selecionado */}
               {arquivoZip && (
                 <span style={{ display: 'block', marginTop: '10px', color: '#2e7d32', fontSize: '13px', fontWeight: '600' }}>
                   ✓ Arquivo selecionado: {arquivoZip.name} ({(arquivoZip.size / (1024 * 1024)).toFixed(2)} MB)
@@ -560,19 +447,19 @@ const Backup = () => {
             </div>
           </div>
 
-          {/* Bloco de alerta geral para mensagens operacionais de sucesso ou falha */}
+          {/* Alerta de notificação de sucesso ou falha */}
           {msg && (
             <Alert
-              variant={msgTipo}     // Tipo dinâmico do alerta ('success', 'danger', etc.)
+              variant={msgTipo}
               style={{
-                fontSize: '15px',
+                fontSize: '14px',
                 fontWeight: 'bold',
                 maxWidth: '900px',
                 margin: '20px auto 0 auto',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
               }}
             >
-              {msg}                 {/* Texto descritivo da mensagem */}
+              {msg}
             </Alert>
           )}
         </section>
@@ -581,9 +468,5 @@ const Backup = () => {
   );
 };
 
-// ============================================================================
-// EXPORTAÇÃO DO COMPONENTE
-// ============================================================================
-
-// Exporta o componente Backup por padrão para uso em roteadores ou outros componentes
+// Exporta o componente Backup
 export default Backup;

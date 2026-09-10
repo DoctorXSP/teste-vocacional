@@ -2,260 +2,191 @@
 // IMPORTAÇÕES DE PACOTES E MÓDULOS EXTERNOS
 // ============================================================================
 
-// Importa o React e os hooks para ciclo de vida (useEffect), memoização (useCallback) e estados (useState)
+// Importa os hooks do React para controle de estado, ciclo de vida e memorização de funções
 import React, { useState, useEffect, useCallback } from 'react';
-
-// Importa os componentes gráficos pré-construídos do Bootstrap para janelas modais, botões, campos e avisos
+// Importa componentes visuais do pacote React-Bootstrap
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
-
-// Importa a folha de estilos CSS global da aplicação
+// Importa as folhas de estilo customizadas
+import './estilo.css';
 import './index.css';
 
 // ============================================================================
 // COMPONENTE PRINCIPAL: EDITAR
 // ============================================================================
 
-// Declaração do componente funcional Editar
+// Componente para visualização, navegação, edição e remoção de questões
 const Editar = () => {
-  // --------------------------------------------------------------------------
-  // ESTADOS DE AUTENTICAÇÃO E ACESSO RESTRITO
-  // --------------------------------------------------------------------------
-
-  // Estado que determina se a modal de autenticação inicial deve estar aberta (inicia travada como true)
+  // Estado que gerencia a exibição da janela modal de autenticação
   const [showLogin, setShowLogin] = useState(true);
-
-  // Estado que registra o texto digitado no campo de identificação de usuário
+  // Estado que armazena o texto do campo de usuário
   const [username, setUsername] = useState('');
-
-  // Estado que registra o texto digitado no campo de senha de acesso
+  // Estado que armazena o texto do campo de senha
   const [password, setPassword] = useState('');
-
-  // Estado que armazena mensagens de advertência caso o login falhe
+  // Estado para armazenar mensagens de erro no login
   const [error, setError] = useState('');
 
-  // Usuário pré-definido no código para liberar acesso ao painel de edição
+  // Usuário padrão com acesso autorizado
   const validUsername = 'etecembu';
-
-  // Senha pré-definida no código para liberar acesso ao painel de edição
+  // Senha padrão autorizada
   const validPassword = 'etec@241';
 
-  // Função que faz o confronto das credenciais inseridas com os dados estáticos
+  // Função responsável por autenticar o usuário
   const handleLogin = () => {
-    // Verifica se usuário e senha coincidem exatamente com o padrão definido
+    // Compara as credenciais inseridas com as válidas
     if (username === validUsername && password === validPassword) {
-      // Fecha a janela modal de login e libera a visão do painel
+      // Fecha a janela de login
       setShowLogin(false);
-      // Limpa qualquer mensagem de erro que estivesse ativa
+      // Remove erros anteriores
       setError('');
     } else {
-      // Exibe mensagem de credenciais inválidas para o operador
+      // Exibe aviso de credenciais inválidas
       setError('Usuário ou senha incorretos!');
     }
   };
 
-  // --------------------------------------------------------------------------
-  // ESTADOS DE CONTROLE DE DADOS DAS QUESTÕES
-  // --------------------------------------------------------------------------
-
-  // Armazena a lista com todas as perguntas vindas do banco de dados MySQL
+  // Estado que armazena o array completo de questões vindas do backend
   const [listaQuestoes, setListaQuestoes] = useState([]);
-
-  // Armazena o ponteiro/posição da questão que está sendo exibida no momento
+  // Estado que indica o índice da questão atualmente exibida na tela
   const [indiceAtual, setIndiceAtual] = useState(0);
 
-  // --------------------------------------------------------------------------
-  // ESTADOS DOS CAMPOS DO REGISTRO EM EDIÇÃO
-  // --------------------------------------------------------------------------
-
-  // Guarda o identificador (ID) primário do registro carregado na tela
+  // Estados dos campos do formulário para o registro ativo
   const [idAtual, setIdAtual] = useState(null);
-
-  // Guarda o enunciado da questão carregado para edição
   const [questao, setQuestao] = useState('');
-
-  // Guarda o texto da Opção A (perfil de Biológicas)
   const [opcaoA, setOpcaoA] = useState('');
-
-  // Guarda o texto da Opção B (perfil de Exatas)
   const [opcaoB, setOpcaoB] = useState('');
-
-  // Guarda o texto da Opção C (perfil de Humanas)
   const [opcaoC, setOpcaoC] = useState('');
-
-  // Guarda o texto da Opção D (perfil de Tecnológicas)
   const [opcaoD, setOpcaoD] = useState('');
-
-  // Guarda o caminho relativo da imagem já salva no servidor
   const [imagemAtual, setImagemAtual] = useState(null);
-
-  // Guarda o novo arquivo de imagem selecionado pelo usuário no input de arquivo
   const [novaImagem, setNovaImagem] = useState(null);
-
-  // Guarda a URL temporária criada para pré-visualizar a nova foto antes do envio
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  // --------------------------------------------------------------------------
-  // ESTADOS DE ALERTA E JANELAS AUXILIARES
-  // --------------------------------------------------------------------------
-
-  // Guarda mensagens textuais de retorno para avisar o usuário (sucesso, erro, etc.)
+  // Estado para feedback geral ao usuário (sucesso/erro)
   const [msg, setMsg] = useState('');
-
-  // Controla se a modal de confirmação de exclusão deve ser exibida na tela
+  // Estado que gerencia a exibição da janela de confirmação de exclusão
   const [showModalExcluir, setShowModalExcluir] = useState(false);
 
-  // --------------------------------------------------------------------------
-  // FUNÇÕES DE CARREGAMENTO E NAVEGAÇÃO
-  // --------------------------------------------------------------------------
-
-  // Função memorizada com useCallback para preencher os estados com a questão do índice indicado
+  // Função memorizada para carregar dados de um índice específico da lista nos inputs
   const carregarRegistro = useCallback((indice, lista) => {
-    // Checa se a lista existe, tem itens e se o índice solicitado está dentro dos limites válidos
+    // Verifica se a lista possui elementos e se o índice está dentro dos limites válidos
     if (lista && lista.length > 0 && indice >= 0 && indice < lista.length) {
-      // Extrai o objeto da questão na posição informada
+      // Obtém o registro no índice desejado
       const item = lista[indice];
-
-      // Atualiza o índice corrente ativo
+      // Atualiza o índice corrente
       setIndiceAtual(indice);
-      // Define o ID do registro no estado
+      // Atualiza o identificador único
       setIdAtual(item.id);
-      // Preenche o enunciado da questão
+      // Popula o enunciado
       setQuestao(item.questao);
-      // Preenche o texto da Opção A
+      // Popula as opções de alternativas
       setOpcaoA(item.opcaoA);
-      // Preenche o texto da Opção B
       setOpcaoB(item.opcaoB);
-      // Preenche o texto da Opção C
       setOpcaoC(item.opcaoC);
-      // Preenche o texto da Opção D
       setOpcaoD(item.opcaoD);
-      // Preenche o caminho da imagem cadastrada no servidor
+      // Define a foto atual armazenada no servidor
       setImagemAtual(item.imagem);
-      // Limpa qualquer arquivo novo selecionado anteriormente no input
+      // Reseta qualquer nova imagem selecionada previamente
       setNovaImagem(null);
-      // Limpa a URL temporária de pré-visualização para mostrar apenas a imagem oficial
+      // Reseta o preview local da imagem
       setPreviewUrl(null);
     }
-  }, []); // Sem dependências dinâmicas externas, função estável
+  }, []);
 
-  // Função assíncrona memorizada para recuperar todo o acervo da API
-  // Recebe opcionalmente idParaFocar para não resetar sempre para a primeira pergunta
+  // Função memorizada que busca todas as questões da API no backend
   const carregarTodas = useCallback(async (idParaFocar = null) => {
     try {
-      // Faz requisição HTTP GET para a rota que devolve todas as questões cadastradas
+      // Faz requisição GET ao backend
       const resposta = await fetch('http://localhost:3012/todasQuestoes');
-
-      // Dispara erro caso o status HTTP não seja de sucesso
+      // Lança erro caso a resposta não seja 200 OK
       if (!resposta.ok) throw new Error('Erro ao buscar lista de questões');
 
-      // Converte o corpo da resposta para objeto JSON
+      // Converte o corpo da resposta em JSON
       const dados = await resposta.json();
-
-      // Atualiza a lista geral com o acervo completo retornado do banco
+      // Armazena a lista no estado
       setListaQuestoes(dados);
 
-      // Se houver ao menos um registro retornado
+      // Se existirem questões cadastradas
       if (dados.length > 0) {
-        let indiceAlvo = 0; // Padrão: primeiro registro
-
-        // Se um ID específico foi solicitado (ex: o que acabou de ser salvo)
+        let indiceAlvo = 0;
+        // Caso tenhamos solicitado o foco em um ID específico (após edição)
         if (idParaFocar !== null) {
-          // Procura o índice do registro que possui o mesmo ID
+          // Busca a posição do ID na nova lista
           const indiceEncontrado = dados.findIndex(item => item.id === idParaFocar);
-          // Se encontrou o registro, foca nele; caso contrário mantém o primeiro
+          // Se encontrou, define como o novo alvo
           if (indiceEncontrado !== -1) {
             indiceAlvo = indiceEncontrado;
           }
         }
-
-        // Carrega o registro no índice determinado nos campos do formulário
+        // Carrega o registro no formulário
         carregarRegistro(indiceAlvo, dados);
       }
     } catch (err) {
-      // Em caso de falha de conexão ou no backend, informa o erro ao usuário
+      // Atualiza a mensagem de erro
       setMsg(`Erro ao carregar registros: ${err.message}`);
     }
-  }, [carregarRegistro]); // Depende da estabilidade de carregarRegistro
+  }, [carregarRegistro]);
 
-  // Efeito que monitora o término do login para realizar o download dos dados
+  // Efeito disparado quando o modal de login é superado com sucesso
   useEffect(() => {
-    // Só faz a requisição das questões se o usuário já estiver autenticado
+    // Se logado, busca os dados no servidor
     if (!showLogin) {
       carregarTodas();
     }
-  }, [showLogin, carregarTodas]); // Executa quando o estado showLogin mudar para falso
+  }, [showLogin, carregarTodas]);
 
-  // Função que avança para o registro anterior na lista
+  // Função para navegar até a questão anterior
   const registroAnterior = () => {
-    // Só permite voltar se não estiver no primeiro elemento (índice maior que 0)
+    // Garante que não recuará além do índice zero
     if (indiceAtual > 0) {
-      // Calcula o índice anterior
       const novoIndice = indiceAtual - 1;
-      // Carrega os dados da questão anterior nos campos
       carregarRegistro(novoIndice, listaQuestoes);
-      // Reseta qualquer mensagem de feedback na tela
       setMsg('');
     }
   };
 
-  // Função que avança para o próximo registro na lista
+  // Função para navegar até a próxima questão
   const proximoRegistro = () => {
-    // Só permite avançar se o índice for menor que o último item da lista
+    // Garante que não avançará além do último elemento
     if (indiceAtual < listaQuestoes.length - 1) {
-      // Calcula o próximo índice
       const novoIndice = indiceAtual + 1;
-      // Carrega os dados da próxima questão nos campos
       carregarRegistro(novoIndice, listaQuestoes);
-      // Reseta qualquer mensagem de feedback na tela
       setMsg('');
     }
   };
 
-  // --------------------------------------------------------------------------
-  // MANIPULAÇÃO DE ARQUIVOS E IMAGENS
-  // --------------------------------------------------------------------------
-
-  // Função acionada quando o operador escolhe um novo arquivo de imagem
+  // Função que lida com a seleção de uma nova imagem pelo input de arquivo
   const handleImageChange = (e) => {
-    // Captura o primeiro arquivo selecionado no input
+    // Pega o arquivo do input
     const file = e.target.files[0];
-
-    // Se o arquivo for válido
     if (file) {
-      // Armazena o arquivo no estado para posterior envio via FormData
+      // Guarda o arquivo binário no estado
       setNovaImagem(file);
-      // Cria e armazena uma URL temporária de objeto para exibir prévia em tempo real
+      // Cria uma URL em memória para exibir o preview imediatamente
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
-  // --------------------------------------------------------------------------
-  // OPERAÇÕES CRUD (UPDATE E DELETE)
-  // --------------------------------------------------------------------------
-
-  // Função assíncrona responsável por enviar as modificações via PUT com FormData
+  // Função assíncrona para submeter as alterações feitas no formulário
   const handleSalvarEdicao = async (e) => {
-    // Interrompe o recarregamento automático da página ao submeter o formulário
+    // Evita o recarregamento tradicional da página
     e.preventDefault();
-
-    // Salva o ID do registro que está sendo alterado para focar nele após o recarregamento
+    // Armazena temporariamente o ID ativo
     const idSalvo = idAtual;
 
-    // Cria a estrutura multipart FormData para suportar texto e envio binário de imagem
+    // Constrói o objeto FormData para permitir upload de arquivos e texto
     const formData = new FormData();
-    formData.append('questao', questao); // Anexa o enunciado modificado
-    formData.append('opcaoA', opcaoA);   // Anexa o texto da Opção A
-    formData.append('opcaoB', opcaoB);   // Anexa o texto da Opção B
-    formData.append('opcaoC', opcaoC);   // Anexa o texto da Opção C
-    formData.append('opcaoD', opcaoD);   // Anexa o texto da Opção D
+    formData.append('questao', questao);
+    formData.append('opcaoA', opcaoA);
+    formData.append('opcaoB', opcaoB);
+    formData.append('opcaoC', opcaoC);
+    formData.append('opcaoD', opcaoD);
 
-    // Se o operador escolheu um novo arquivo, anexa a imagem no campo 'imagem'
+    // Se o usuário selecionou uma nova imagem, anexa no payload
     if (novaImagem) {
       formData.append('imagem', novaImagem);
     }
 
     try {
-      // Envia a requisição PUT para o endpoint com o ID do registro atual
+      // Dispara a requisição HTTP PUT para atualizar o registro
       const resposta = await fetch(`http://localhost:3012/update/${idSalvo}`, {
         method: 'PUT',
         body: formData,
@@ -264,30 +195,27 @@ const Editar = () => {
         }
       });
 
-      // Lança erro caso o backend não confirme a atualização com sucesso
+      // Valida se o status da resposta é de sucesso
       if (!resposta.ok) throw new Error('Falha ao atualizar registro no servidor');
 
-      // Define a mensagem de sucesso para o operador
+      // Informa o usuário sobre o sucesso
       setMsg('Alterações salvas com sucesso!');
-
-      // Recarrega todos os registros focando no ID salvo por último (trazendo a nova imagem)
+      // Recarrega todos os registros e mantém o foco no item recém-alterado
       await carregarTodas(idSalvo);
-
-      // Agenda a limpeza da mensagem de confirmação após 6 segundos
+      // Agenda a limpeza automática da mensagem de feedback após 6 segundos
       setTimeout(() => setMsg(''), 6000);
     } catch (err) {
-      // Exibe a mensagem de falha ao salvar
+      // Apresenta a mensagem de erro
       setMsg(`Erro ao salvar: ${err.message}`);
     }
   };
 
-  // Função assíncrona que confirma e executa a exclusão definitiva do registro ativo
+  // Função assíncrona que confirma e executa a deleção do registro
   const confirmarExclusao = async () => {
-    // Fecha a janela modal de confirmação de exclusão
+    // Fecha o modal de confirmação
     setShowModalExcluir(false);
-
     try {
-      // Envia a requisição HTTP DELETE contendo o ID do registro a ser apagado
+      // Envia a requisição HTTP DELETE para o endpoint
       const resposta = await fetch(`http://localhost:3012/delete/${idAtual}`, {
         method: 'DELETE',
         headers: {
@@ -295,25 +223,23 @@ const Editar = () => {
         }
       });
 
-      // Lança erro se a exclusão for rejeitada pelo servidor
+      // Valida retorno da requisição
       if (!resposta.ok) throw new Error('Falha ao excluir registro do banco');
 
-      // Informa o sucesso da exclusão
+      // Mensagem de sucesso
       setMsg('Registro excluído com sucesso!');
-
-      // Remove localmente a questão apagada da lista filtrando pelo ID
+      // Filtra o array removendo o item excluído da memória local
       const novaLista = listaQuestoes.filter(item => item.id !== idAtual);
-      // Atualiza o estado da lista
       setListaQuestoes(novaLista);
 
-      // Se ainda sobrarem registros após a remoção
+      // Se ainda restarem elementos após a remoção
       if (novaLista.length > 0) {
-        // Recalcula o novo índice para não apontar para posição inexistente
+        // Ajusta o índice para não estourar os limites da lista
         const proximoIndice = indiceAtual >= novaLista.length ? novaLista.length - 1 : indiceAtual;
-        // Recarrega os campos com o registro restante na nova posição
+        // Carrega o registro adjacente
         carregarRegistro(proximoIndice, novaLista);
       } else {
-        // Se a lista ficou vazia, limpa todos os campos da interface
+        // Se a lista ficou vazia, limpa todos os campos
         setIdAtual(null);
         setQuestao('');
         setOpcaoA('');
@@ -323,42 +249,67 @@ const Editar = () => {
         setImagemAtual(null);
       }
 
-      // Agenda a remoção da mensagem após 6 segundos
+      // Agenda a limpeza da mensagem de notificação
       setTimeout(() => setMsg(''), 6000);
     } catch (err) {
-      // Informa o erro de exclusão ao operador
+      // Exibe mensagem de erro caso ocorra falha
       setMsg(`Erro ao excluir: ${err.message}`);
     }
   };
 
-  // ==========================================================================
-  // RENDERIZAÇÃO VISUAL DO COMPONENTE (JSX)
-  // ==========================================================================
+  // Função auxiliar para renderizar linhas com label e campo de formulário com estilo consistente
+  const renderLinhaForm = (label, elemento) => (
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        marginBottom: '14px',
+        width: '100%'
+      }}
+    >
+      {/* Label da linha */}
+      <label
+        style={{
+          color: '#FFF',
+          fontWeight: 'bold',
+          flex: '1 1 200px',
+          maxWidth: '220px',
+          textAlign: 'left',
+          fontSize: '14px',
+          marginBottom: '5px'
+        }}
+      >
+        {label}
+      </label>
+      {/* Contêiner do campo de entrada */}
+      <div style={{ flex: '999 1 260px', width: '100%' }}>
+        {elemento}
+      </div>
+    </div>
+  );
 
+  // Retorno JSX do componente
   return (
-    // Contêiner principal envolvendo todo o layout do componente com fundo padrão roxo
+    // Contêiner com estilo padrão do projeto
     <div className='corpoP'>
-      {/* Barra superior institucional da aplicação */}
+      {/* Barra superior de cabeçalho */}
       <div className='barraSuperior'>
         <h1 className='barraTexto'>Teste de Aptidão Vocacional</h1>
       </div>
 
-      {/* -------------------------------------------------------------------- */}
-      {/* MODAL DE LOGIN ADMINISTRATIVO BLOQUEANTE                             */}
-      {/* -------------------------------------------------------------------- */}
+      {/* Janela modal para login administrativo */}
       <Modal
-        show={showLogin}                      // Exibição condicionada ao estado de autenticação
-        centered                              // Centraliza a janela verticalmente
-        backdrop="static"                     // Impede que clique fora feche a tela
-        keyboard={false}                      // Desativa a tecla Esc
-        contentClassName="modal-auth-custom"  // Classe de personalização visual
+        show={showLogin}
+        backdrop="static"
+        keyboard={false}
+        contentClassName="modal-auth-custom"
       >
-        {/* Caixa interna customizada com fundo roxo escuro e cantos arredondados */}
         <div
           style={{
             backgroundColor: '#4A148C',
             borderRadius: '16px',
-            padding: '32px 28px',
+            padding: '28px 22px',
             boxShadow: '0 16px 40px rgba(0, 0, 0, 0.55)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             width: '100%',
@@ -367,135 +318,68 @@ const Editar = () => {
             boxSizing: 'border-box'
           }}
         >
-          {/* Cabeçalho centralizado com ícone e instrução */}
-          <div style={{ textAlign: 'center', marginBottom: '22px' }}>
-            <h3
-              style={{
-                color: '#ffffff',
-                fontSize: '21px',
-                fontWeight: '700',
-                margin: 0,
-                letterSpacing: '-0.3px'
-              }}
-            >
+          {/* Cabeçalho do card de autenticação */}
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <h3 style={{ color: '#ffffff', fontSize: '20px', fontWeight: '700', margin: 0 }}>
               🔒 Acesso Administrativo
             </h3>
-            <p
-              style={{
-                color: '#E1BEE7',
-                fontSize: '13px',
-                margin: '8px 0 0 0',
-                fontWeight: '500'
-              }}
-            >
+            <p style={{ color: '#E1BEE7', fontSize: '13px', margin: '6px 0 0 0', fontWeight: '500' }}>
               Informe suas credenciais para continuar
             </p>
           </div>
 
-          {/* Exibição condicional de mensagem de erro de autenticação */}
+          {/* Exibe erro se houver falha na tentativa de login */}
           {error && (
-            <Alert
-              variant="danger"
-              style={{
-                fontSize: '13px',
-                fontWeight: '600',
-                padding: '10px 14px',
-                borderRadius: '8px',
-                marginBottom: '18px',
-                textAlign: 'center'
-              }}
-            >
+            <Alert variant="danger" style={{ fontSize: '13px', padding: '10px', textAlign: 'center' }}>
               {error}
             </Alert>
           )}
 
-          {/* Formulário de autenticação com tratamento do evento Enter */}
-          <Form
-            onSubmit={(e) => {
-              e.preventDefault(); // Evita o recarregamento padrão da página
-              handleLogin();      // Aciona a validação de credenciais
-            }}
-          >
-            {/* Campo para inserção do usuário */}
-            <Form.Group controlId="formUsername" style={{ marginBottom: '16px', textAlign: 'left' }}>
-              <Form.Label
-                style={{
-                  color: '#ffffff',
-                  fontWeight: 'bold',
-                  fontSize: '14px',
-                  marginBottom: '6px',
-                  display: 'block'
-                }}
-              >
+          {/* Formulário com validação */}
+          <Form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+            {/* Campo Usuário */}
+            <Form.Group controlId="formUsername" style={{ marginBottom: '14px', textAlign: 'left' }}>
+              <Form.Label style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>
                 Usuário:
               </Form.Label>
               <Form.Control
                 type="text"
-                autoFocus                                            // Posiciona o cursor automaticamente ao abrir
+                autoFocus
                 placeholder="Informe o usuário"
-                value={username}                                     // Valor amarrado ao estado
-                onChange={(e) => setUsername(e.target.value)}        // Atualiza o estado ao digitar
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  fontSize: '14px',
-                  borderRadius: '8px',
-                  border: '1.5px solid rgba(255, 255, 255, 0.3)',
-                  backgroundColor: '#ffffff',
-                  color: '#212121',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                style={{ width: '100%', padding: '10px', fontSize: '14px', borderRadius: '8px', boxSizing: 'border-box' }}
               />
             </Form.Group>
 
-            {/* Campo para inserção da senha */}
-            <Form.Group controlId="formPassword" style={{ marginBottom: '24px', textAlign: 'left' }}>
-              <Form.Label
-                style={{
-                  color: '#ffffff',
-                  fontWeight: 'bold',
-                  fontSize: '14px',
-                  marginBottom: '6px',
-                  display: 'block'
-                }}
-              >
+            {/* Campo Senha */}
+            <Form.Group controlId="formPassword" style={{ marginBottom: '20px', textAlign: 'left' }}>
+              <Form.Label style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>
                 Senha:
               </Form.Label>
               <Form.Control
-                type="password"                                      // Mascara os caracteres digitados
+                type="password"
                 placeholder="Informe a senha"
-                value={password}                                     // Valor amarrado ao estado
-                onChange={(e) => setPassword(e.target.value)}        // Atualiza o estado ao digitar
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  fontSize: '14px',
-                  borderRadius: '8px',
-                  border: '1.5px solid rgba(255, 255, 255, 0.3)',
-                  backgroundColor: '#ffffff',
-                  color: '#212121',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={{ width: '100%', padding: '10px', fontSize: '14px', borderRadius: '8px', boxSizing: 'border-box' }}
               />
             </Form.Group>
 
-            {/* Botão de envio para validação do formulário */}
+            {/* Botão de envio */}
             <Button
-              type="submit"
+              type="button"
+              onClick={handleLogin}
               style={{
                 width: '100%',
-                padding: '11px',
-                fontSize: '15px',
+                padding: '12px',
+                fontSize: '16px',
                 fontWeight: 'bold',
                 backgroundColor: 'yellow',
                 borderColor: 'yellow',
                 color: 'purple',
                 borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
+                cursor: 'pointer'
               }}
             >
               Acessar
@@ -504,19 +388,17 @@ const Editar = () => {
         </div>
       </Modal>
 
-      {/* -------------------------------------------------------------------- */}
-      {/* MODAL DE CONFIRMAÇÃO DE EXCLUSÃO DE PERGUNTA                         */}
-      {/* -------------------------------------------------------------------- */}
+      {/* Modal para confirmação de remoção de pergunta */}
       <Modal show={showModalExcluir} onHide={() => setShowModalExcluir(false)} centered>
-        {/* Cabeçalho da modal com cor vermelha indicando ação destrutiva */}
+        {/* Cabeçalho do modal */}
         <Modal.Header closeButton style={{ backgroundColor: '#d32f2f', color: '#FFF' }}>
           <Modal.Title style={{ fontSize: '18px', fontWeight: 'bold' }}>Confirmação de Exclusão</Modal.Title>
         </Modal.Header>
-        {/* Corpo com a advertência e identificador da pergunta a deletar */}
+        {/* Mensagem alertando o ID que será removido */}
         <Modal.Body style={{ padding: '20px', fontSize: '15px' }}>
           Tem certeza de que deseja <b>deletar permanentemente</b> esta pergunta (ID: {idAtual}) do banco de dados?
         </Modal.Body>
-        {/* Rodapé com botões de cancelamento e exclusão definitiva */}
+        {/* Botões para cancelar ou efetivar deleção */}
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModalExcluir(false)}>
             Cancelar
@@ -527,207 +409,182 @@ const Editar = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* -------------------------------------------------------------------- */}
-      {/* PAINEL PRINCIPAL DE EDIÇÃO (EXIBIDO APÓS O LOGIN)                   */}
-      {/* -------------------------------------------------------------------- */}
+      {/* Painel do gerenciador de perguntas (visível após login) */}
       {!showLogin && (
-        <section style={{ width: '85%', margin: 'auto', marginTop: '25px', textAlign: 'center' }}>
-          {/* Título principal da página de edição */}
-          <h1 style={{ color: '#FFF', marginBottom: '15px', fontWeight: 'bold' }}>Edição de Perguntas</h1>
+        <section style={{ width: '92%', maxWidth: '850px', margin: 'auto', marginTop: '20px', textAlign: 'center' }}>
+          {/* Título da seção */}
+          <h1 style={{ color: '#FFF', marginBottom: '15px', fontWeight: 'bold', fontSize: '24px' }}>
+            Edição de Perguntas
+          </h1>
 
-          {/* Barra de Navegação entre Registros e Controles de Ação */}
+          {/* Barra de paginação/navegação entre registros se houver itens */}
           {listaQuestoes.length > 0 && (
             <div style={{
               display: 'flex',
+              flexWrap: 'wrap',
               alignItems: 'center',
               justifyContent: 'space-between',
+              gap: '10px',
               maxWidth: '850px',
               margin: '0 auto 20px auto',
               backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              padding: '10px 20px',
+              padding: '10px 14px',
               borderRadius: '8px'
             }}>
-              {/* Contêiner com os botões de navegação anterior/próximo */}
-              <div style={{ minWidth: '180px', textAlign: 'left' }}>
-                {/* O botão Anterior só é renderizado a partir do 2º registro */}
+              {/* Botões de navegação Anterior e Próximo */}
+              <div>
                 {indiceAtual > 0 && (
-                  <Button
-                    variant="light"
-                    onClick={registroAnterior}
-                    style={{ fontWeight: 'bold', marginRight: '10px' }}
-                  >
+                  <Button variant="light" onClick={registroAnterior} style={{ fontWeight: 'bold', marginRight: '8px', fontSize: '13px' }}>
                     ◀ Anterior
                   </Button>
                 )}
-                {/* O botão Próximo só é renderizado enquanto não for o último registro */}
                 {indiceAtual < listaQuestoes.length - 1 && (
-                  <Button
-                    variant="light"
-                    onClick={proximoRegistro}
-                    style={{ fontWeight: 'bold' }}
-                  >
+                  <Button variant="light" onClick={proximoRegistro} style={{ fontWeight: 'bold', fontSize: '13px' }}>
                     Próximo ▶
                   </Button>
                 )}
               </div>
 
-              {/* Informação do número do registro atual em relação ao total e o ID no banco */}
-              <span style={{ color: '#FFF', fontWeight: 'bold', fontSize: '16px' }}>
+              {/* Contador de posição atual na listagem */}
+              <span style={{ color: '#FFF', fontWeight: 'bold', fontSize: '14px' }}>
                 Registro {indiceAtual + 1} de {listaQuestoes.length} (ID: {idAtual})
               </span>
 
-              {/* Botão para disparar a janela de confirmação de exclusão */}
-              <Button
-                variant="danger"
-                onClick={() => setShowModalExcluir(true)}
-                style={{ fontWeight: 'bold' }}
-              >
+              {/* Botão para solicitar a exclusão da questão ativa */}
+              <Button variant="danger" onClick={() => setShowModalExcluir(true)} style={{ fontWeight: 'bold', fontSize: '13px' }}>
                 🗑️ Deletar Pergunta
               </Button>
             </div>
           )}
 
-          {/* Formulário com labels fixas à esquerda (220px) e inputs alinhados */}
+          {/* Renderização condicional do formulário de edição */}
           {listaQuestoes.length > 0 ? (
-            <Form onSubmit={handleSalvarEdicao} style={{ display: 'inline-block', width: '100%', maxWidth: '850px' }}>
-              
-              {/* Linha 1: Enunciado da questão */}
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
-                <label style={{ color: '#FFF', fontWeight: 'bold', flex: '0 0 220px', textAlign: 'left', fontSize: '15px' }}>
-                  Questão:
-                </label>
+            <Form onSubmit={handleSalvarEdicao} style={{ width: '100%', boxSizing: 'border-box' }}>
+              {/* Campo para o Enunciado da questão */}
+              {renderLinhaForm(
+                'Questão:',
                 <Form.Control
-                  as="textarea"                                               // Renderiza como área de texto de múltiplas linhas
-                  value={questao}                                             // Vinculado ao estado questao
-                  onChange={e => setQuestao(e.target.value)}                  // Atualiza o estado
+                  as="textarea"
+                  value={questao}
+                  onChange={e => setQuestao(e.target.value)}
                   placeholder="Digite o enunciado da questão..."
-                  style={{ flex: '1', height: 65, padding: 8, fontSize: 13 }}
-                  required                                                    // Campo de preenchimento obrigatório
+                  style={{ width: '100%', minHeight: 65, padding: 8, fontSize: 13, boxSizing: 'border-box' }}
+                  required
                 />
-              </div>
+              )}
 
-              {/* Linha 2: Opção A (perfil Biológicas) */}
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
-                <label style={{ color: '#FFF', fontWeight: 'bold', flex: '0 0 220px', textAlign: 'left', fontSize: '15px' }}>
-                  Opção A (Biológicas):
-                </label>
+              {/* Campo para Alternativa A (Biológicas) */}
+              {renderLinhaForm(
+                'Opção A (Biológicas):',
                 <Form.Control
                   type="text"
-                  value={opcaoA}                                              // Vinculado ao estado opcaoA
-                  onChange={e => setOpcaoA(e.target.value)}                   // Atualiza o estado
+                  value={opcaoA}
+                  onChange={e => setOpcaoA(e.target.value)}
                   placeholder="Alternativa para o perfil Biológicas"
-                  style={{ flex: '1', padding: 8, fontSize: 13 }}
-                  required                                                    // Campo de preenchimento obrigatório
+                  style={{ width: '100%', padding: 8, fontSize: 13, boxSizing: 'border-box' }}
+                  required
                 />
-              </div>
+              )}
 
-              {/* Linha 3: Opção B (perfil Exatas) */}
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
-                <label style={{ color: '#FFF', fontWeight: 'bold', flex: '0 0 220px', textAlign: 'left', fontSize: '15px' }}>
-                  Opção B (Exatas):
-                </label>
+              {/* Campo para Alternativa B (Exatas) */}
+              {renderLinhaForm(
+                'Opção B (Exatas):',
                 <Form.Control
                   type="text"
-                  value={opcaoB}                                              // Vinculado ao estado opcaoB
-                  onChange={e => setOpcaoB(e.target.value)}                   // Atualiza o estado
+                  value={opcaoB}
+                  onChange={e => setOpcaoB(e.target.value)}
                   placeholder="Alternativa para o perfil Exatas"
-                  style={{ flex: '1', padding: 8, fontSize: 13 }}
-                  required                                                    // Campo de preenchimento obrigatório
+                  style={{ width: '100%', padding: 8, fontSize: 13, boxSizing: 'border-box' }}
+                  required
                 />
-              </div>
+              )}
 
-              {/* Linha 4: Opção C (perfil Humanas) */}
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
-                <label style={{ color: '#FFF', fontWeight: 'bold', flex: '0 0 220px', textAlign: 'left', fontSize: '15px' }}>
-                  Opção C (Humanas):
-                </label>
+              {/* Campo para Alternativa C (Humanas) */}
+              {renderLinhaForm(
+                'Opção C (Humanas):',
                 <Form.Control
                   type="text"
-                  value={opcaoC}                                              // Vinculado ao estado opcaoC
-                  onChange={e => setOpcaoC(e.target.value)}                   // Atualiza o estado
+                  value={opcaoC}
+                  onChange={e => setOpcaoC(e.target.value)}
                   placeholder="Alternativa para o perfil Humanas"
-                  style={{ flex: '1', padding: 8, fontSize: 13 }}
-                  required                                                    // Campo de preenchimento obrigatório
+                  style={{ width: '100%', padding: 8, fontSize: 13, boxSizing: 'border-box' }}
+                  required
                 />
-              </div>
+              )}
 
-              {/* Linha 5: Opção D (perfil Tecnológicas) */}
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
-                <label style={{ color: '#FFF', fontWeight: 'bold', flex: '0 0 220px', textAlign: 'left', fontSize: '15px' }}>
-                  Opção D (Tecnológicas):
-                </label>
+              {/* Campo para Alternativa D (Tecnológicas) */}
+              {renderLinhaForm(
+                'Opção D (Tecnológicas):',
                 <Form.Control
                   type="text"
-                  value={opcaoD}                                              // Vinculado ao estado opcaoD
-                  onChange={e => setOpcaoD(e.target.value)}                   // Atualiza o estado
+                  value={opcaoD}
+                  onChange={e => setOpcaoD(e.target.value)}
                   placeholder="Alternativa para o perfil Tecnológicas"
-                  style={{ flex: '1', padding: 8, fontSize: 13 }}
-                  required                                                    // Campo de preenchimento obrigatório
+                  style={{ width: '100%', padding: 8, fontSize: 13, boxSizing: 'border-box' }}
+                  required
                 />
-              </div>
+              )}
 
-              {/* Linha 6: Campo para substituição de arquivo de imagem */}
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
-                <label style={{ color: '#FFF', fontWeight: 'bold', flex: '0 0 220px', textAlign: 'left', fontSize: '15px' }}>
-                  Substituir Imagem:
-                </label>
+              {/* Campo para envio opcional de nova imagem de ilustração */}
+              {renderLinhaForm(
+                'Substituir Imagem:',
                 <Form.Control
-                  type="file"                                                 // Entrada de arquivos
-                  accept="image/*"                                            // Restringe a seleção a formatos de imagens
-                  onChange={handleImageChange}                                // Dispara a leitura do arquivo e prévia
-                  style={{ flex: '1', padding: 6, fontSize: 13 }}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  style={{ width: '100%', padding: 6, fontSize: 13, boxSizing: 'border-box' }}
                 />
-              </div>
+              )}
 
-              {/* Linha 7: Área de visualização comparativa da foto atual e da nova imagem */}
-              <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '14px' }}>
-                {/* Rótulo lateral fixo */}
-                <div style={{ flex: '0 0 220px', textAlign: 'left', color: '#ffffff', fontWeight: 'bold', fontSize: '14px' }}>
-                  Visualização:
-                </div>
-                {/* Contêiner de imagens lado a lado */}
-                <div style={{ flex: '1', display: 'flex', gap: '20px', textAlign: 'left' }}>
-                  {/* Foto salva atualmente no servidor */}
+              {/* Seção comparativa visual: imagem atual vs nova imagem selecionada */}
+              {renderLinhaForm(
+                'Visualização:',
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', textAlign: 'left' }}>
+                  {/* Prévia da imagem cadastrada no servidor (com timestamp para evitar cache) */}
                   {imagemAtual && (
                     <div>
-                      <span style={{ display: 'block', color: '#00ff55', fontSize: '16px', marginBottom: '4px', fontWeight: 700 }}>Atual:</span>
+                      <span style={{ display: 'block', color: '#00ff55', fontSize: '14px', marginBottom: '4px', fontWeight: 700 }}>
+                        Atual:
+                      </span>
                       <img
-                        /* Adiciona cache-buster timestamp para forçar atualização imediata da imagem no navegador */
                         src={`http://localhost:3012/${imagemAtual}?t=${new Date().getTime()}`}
                         alt="Imagem cadastrada"
-                        style={{ height: '250px', width: '250px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #00ff55' }}
+                        style={{ height: '180px', width: '180px', maxWidth: '100%', objectFit: 'cover', borderRadius: '8px', border: '2px solid #00ff55' }}
                       />
                     </div>
                   )}
 
-                  {/* Prévia da nova imagem escolhida pelo operador antes de enviar */}
+                  {/* Prévia da nova imagem escolhida antes de salvar */}
                   {previewUrl && (
                     <div>
-                      <span style={{ display: 'block', color: '#FFD600', fontSize: '16px', marginBottom: '4px', fontWeight: 700 }}>Nova Foto:</span>
+                      <span style={{ display: 'block', color: '#FFD600', fontSize: '14px', marginBottom: '4px', fontWeight: 700 }}>
+                        Nova Foto:
+                      </span>
                       <img
                         src={previewUrl}
                         alt="Prévia da nova imagem"
-                        style={{ height: '250px', width: '250px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #FFD600' }}
+                        style={{ height: '180px', width: '180px', maxWidth: '100%', objectFit: 'cover', borderRadius: '8px', border: '2px solid #FFD600' }}
                       />
                     </div>
                   )}
                 </div>
-              </div>
+              )}
 
-              {/* Linha 8: Botão para enviar e salvar as alterações */}
-              <div style={{ display: 'flex', alignItems: 'center', marginTop: '20px' }}>
-                <div style={{ flex: '0 0 220px' }}></div>
+              {/* Botão para submissão do formulário */}
+              <div style={{ textAlign: 'center', marginTop: '20px' }}>
                 <Button
                   variant="primary"
                   type="submit"
                   style={{
-                    fontSize: '18px',
+                    fontSize: '17px',
                     padding: '10px 40px',
                     backgroundColor: 'yellow',
                     borderColor: 'yellow',
                     color: 'purple',
                     fontWeight: 'bold',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    width: '100%',
+                    maxWidth: '240px'
                   }}
                 >
                   Salvar Alterações
@@ -735,11 +592,11 @@ const Editar = () => {
               </div>
             </Form>
           ) : (
-            // Mensagem caso o banco de questões esteja completamente sem registros
+            // Mensagem exibida caso não haja nenhuma pergunta cadastrada
             <p style={{ color: '#FFF', marginTop: '30px' }}>Nenhum registro encontrado no banco de dados.</p>
           )}
 
-          {/* Mensagem de alerta com feedback dinâmico para operações de edição e exclusão */}
+          {/* Caixa de alerta para notificações de sucesso ou erro */}
           {msg && (
             <Alert
               variant={msg.includes('Erro') ? 'danger' : 'info'}
@@ -754,9 +611,5 @@ const Editar = () => {
   );
 };
 
-// ============================================================================
-// EXPORTAÇÃO DO COMPONENTE
-// ============================================================================
-
-// Exporta o componente Editar como padrão para uso no roteamento do React
+// Exporta o componente Editar
 export default Editar;

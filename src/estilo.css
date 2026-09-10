@@ -2,49 +2,168 @@
    ESTILOS GERAIS DE CABEÇALHO E ESTRUTURA DO APLICATIVO
    ============================================================================ */
 
-/* Estilização da barra superior fixa/destacada no topo da interface */
+/* Barra superior fixa/destacada no topo da interface */
 .barraSuperior {
-    width: 100%;                  /* Faz a barra ocupar 100% da largura útil da tela */
-    display: block;                /* Renderiza como elemento em bloco tradicional */
-    background-color: #008080;     /* Define a tonalidade verde-petróleo (teal) como cor de fundo */
-    height: 80px;                  /* Fixa a altura da barra superior em 80 pixels */
-    text-align: center;            /* Centraliza horizontalmente o conteúdo de texto interno */
-    margin-top: -35px;             /* Margem negativa superior para compensar espaçamentos nativos do topo */
-    margin-bottom: 15px;           /* Adiciona espaçamento inferior de 15 pixels para afastar o conteúdo seguinte */
+    /* Ocupa a largura total da janela ou contêiner pai */
+    width: 100%;
+    /* Utiliza modelo de caixa flexível */
+    display: flex;
+    /* Centraliza o conteúdo horizontalmente no eixo principal */
+    justify-content: center;
+    /* Centraliza o conteúdo verticalmente no eixo cruzado */
+    align-items: center;
+    /* Cor de fundo verde-azulado (teal) */
+    background-color: #008080;
+    /* Altura mínima garantida para a barra */
+    min-height: 80px;
+    /* Alinhamento de texto centralizado */
+    text-align: center;
+    /* Zera a margem superior */
+    margin-top: 0;
+    /* Espaçamento inferior de 20px antes do conteúdo subsequente */
+    margin-bottom: 20px;
+    /* Preenchimento interno vertical de 12px e horizontal de 20px */
+    padding: 12px 20px;
+    /* Inclui bordas e padding no cálculo da largura total */
+    box-sizing: border-box;
 }
 
 /* Tipografia e estética do título inserido dentro da barra superior */
 .barraTexto {
-    text-align: center;            /* Garante o alinhamento centralizado do texto */
-    color: #FFF;                   /* Define a cor da fonte como branca pura para alto contraste */
-    font-size: 40pt;               /* Aplica tamanho de fonte de 40 pontos para grande visibilidade */
+    /* Alinha o texto ao centro */
+    text-align: center;
+    /* Cor do texto em branco */
+    color: #FFF;
+    /* Tamanho de fonte destacado em 32 pontos */
+    font-size: 32pt;
+    /* Zera as margens padrão do cabeçalho */
+    margin: 0;
+    /* Altura de linha proporcional para manter o texto compacto */
+    line-height: 1.15;
+    /* Quebra palavras longas caso ultrapassem a largura em telas estreitas */
+    word-break: break-word;
 }
 
-/* Contêiner genérico flexível para alinhamento e centralização de blocos de conteúdo */
-.corpo {
-    display: flex;                 /* Habilita o modelo de layout flexível (Flexbox) */
-    justify-content: center;       /* Centraliza horizontalmente os elementos-filhos no eixo principal */
-    align-items: center;           /* Alinha verticalmente os elementos-filhos ao centro no eixo transversal */
+/* ============================================================================
+   QUADRO BRANCO PRINCIPAL (80% DESKTOP / 100% SMARTPHONE / BORDER-RADIUS: 15PX)
+   ============================================================================ */
+
+/* Caixa principal que engloba os conteúdos centrais */
+.quadroConteudo {
+    /* Fundo branco puro */
+    background-color: #ffffff;
+    /* Largura definida em 60% da tela */
+    width: 60%;
+    /* Centraliza horizontalmente e aplica margem de 30px na base */
+    margin: 0 auto 30px auto;
+    /* Espaçamento interno vertical de 30px e horizontal de 24px */
+    padding: 30px 24px;
+    /* Cantos arredondados fixados em 15px */
+    border-radius: 15px;
+    /* Sombra escura suave para dar elevação */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    /* Garante cálculo de dimensão considerando padding */
+    box-sizing: border-box;
+    /* Habilita flexbox para organizar elementos internos */
+    display: flex;
+    /* Dispõe os itens verticalmente em coluna */
+    flex-direction: column;
+    /* Centraliza os elementos filhos horizontalmente */
+    align-items: center;
 }
 
-/* Formatação dos parágrafos de texto inseridos dentro da classe .corpo */
-.corpo p {
-    display: block;                /* Garante comportamento visual de bloco ao parágrafo */
-    width: 50%;                    /* Limita a largura do bloco de texto à metade (50%) do contêiner-pai */
-    text-align: justify;           /* Justifica as margens esquerda e direita do texto para leitura uniforme */
-    font-size: 14pt;               /* Define a tipografia no tamanho de 14 pontos */
-}
-
-/* Seção principal para áreas com imagem de fundo e destaques institucionais */
+/* Seção institucional com background estilizado */
 .sectionIns {
-    width: 80%;                            /* Define a largura do bloco em 80% do elemento pai */
-    margin: auto;                          /* Centraliza o bloco automaticamente nas laterais */
-    margin-top: 45px;                      /* Adiciona um recuo superior de 45 pixels */
-    text-align: center;                    /* Centraliza todos os textos e itens internos */
-    font-size: 16pt;                       /* Aplica tamanho padrão de 16 pontos para a tipografia interna */
-    font-weight: bold;                     /* Define peso de fonte em negrito para todos os textos */
-    background-image: url('./img/back.jpg'); /* Carrega a imagem 'back.jpg' como fundo do elemento */
-    background-size: cover;                /* Redimensiona a imagem para preencher todo o contêiner sem distorcer */
-    background-position: center;           /* Centraliza o ponto focal da imagem de fundo */
-    background-repeat: no-repeat;          /* Evita a repetição e duplicação da imagem em mosaico */
+    /* Largura ocupando 80% do espaço */
+    width: 80%;
+    /* Centraliza o bloco na horizontal */
+    margin: auto;
+    /* Margem superior de 45px */
+    margin-top: 45px;
+    /* Centraliza o texto */
+    text-align: center;
+    /* Tamanho de fonte em 16 pontos */
+    font-size: 16pt;
+    /* Aplica negrito aos textos */
+    font-weight: bold;
+    /* Define imagem de fundo decorativa */
+    background-image: url('./img/back.jpg');
+    /* Faz a imagem cobrir todo o espaço do contêiner */
+    background-size: cover;
+    /* Posiciona a imagem no centro */
+    background-position: center;
+    /* Impede a repetição da imagem */
+    background-repeat: no-repeat;
+}
+
+/* ============================================================================
+   CONTÊINER DA TABELA RESPONSIVA (70% DESKTOP / 100% SMARTPHONE)
+   ============================================================================ */
+
+/* Estilização padrão para Desktop: 70% da tela e centralizada */
+.tabela-container {
+    /* Fundo branco para a caixa da tabela */
+    background-color: #ffffff;
+    /* Arredondamento dos cantos do contêiner */
+    border-radius: 12px;
+    /* Sombra para destacar a tabela do fundo */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    /* Ocupa exatamente 70% da tela no computador */
+    width: 70%;
+    /* Centraliza horizontalmente e dá margem inferior */
+    margin: 0 auto 35px auto;
+    /* Habilita rolagem horizontal se a tabela ultrapassar o limite */
+    overflow-x: auto;
+    /* Habilita rolagem vertical quando houver muitos registros */
+    overflow-y: auto;
+    /* Altura máxima da tabela antes de ativar a rolagem vertical */
+    max-height: 65vh;
+    /* Garante que o padding não estoure a largura total */
+    box-sizing: border-box;
+    /* Suaviza a rolagem por toque em dispositivos móveis */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================================================
+   ADAPTAÇÕES RESPONSIVAS PARA SMARTPHONE
+   ============================================================================ */
+
+/* Regras de estilo aplicadas quando a tela for de até 768px */
+@media (max-width: 768px) {
+    /* Adapta a barra superior para celulares */
+    .barraSuperior {
+        /* Reduz a altura mínima da barra */
+        min-height: 65px;
+        /* Padding com recuo de 60px à esquerda para o botão hambúrguer */
+        padding: 12px 12px 12px 60px;
+    }
+
+    /* Reduz o tamanho da fonte do título no celular */
+    .barraTexto {
+        font-size: 17pt;
+    }
+
+    /* Ajusta o quadro de conteúdo para telas de smartphones */
+    .quadroConteudo {
+        /* Ocupa 100% da largura útil do display */
+        width: 100%;
+        /* Mantém as bordas arredondadas de 15px */
+        border-radius: 15px;
+        /* Reduz os espaçamentos internos para aproveitar o espaço */
+        padding: 20px 14px;
+        /* Margem superior reduzida */
+        margin-top: 5px;
+        /* Margem inferior de 20px */
+        margin-bottom: 20px;
+    }
+
+    /* Adapta a tabela para 100% da largura útil no smartphone com rolagem dupla */
+    .tabela-container {
+        /* Ocupa 100% da largura no celular */
+        width: 100%;
+        /* Ajusta a margem central */
+        margin: 0 auto 25px auto;
+        /* Limite de altura vertical ajustado para telas menores */
+        max-height: 60vh;
+    }
 }

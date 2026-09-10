@@ -2,43 +2,41 @@
 // IMPORTAÇÕES DE MÓDULOS E PLUGINS DO CHART.JS E REACT
 // ============================================================================
 
-// Importa a biblioteca base do React para construção do componente funcional
+// Importa a biblioteca base do React[cite: 7]
 import React from 'react';
-
-// Importa o componente visual de Radar provido pelo wrapper react-chartjs-2
+// Importa o componente Radar encapsulado para React da react-chartjs-2[cite: 7]
 import { Radar } from 'react-chartjs-2';
-
-// Importa os elementos e módulos matemáticos essenciais do Chart.js para gráficos de teia radial
+// Importa os elementos estruturais essenciais da biblioteca Chart.js[cite: 7]
 import {
-    Chart,              // Instância central de configuração do Chart.js
-    RadialLinearScale,  // Escala linear radial responsável pelos eixos em teia circular
-    PointElement,       // Renderizador dos marcadores/pontos nos vértices
-    LineElement,        // Renderizador das linhas que interligam os pontos
-    Filler,             // Módulo responsável por pintar a área fechada interna do polígono
-    Tooltip,            // Caixa de diálogo flutuante ao passar o cursor sobre as notas
-    Legend              // Módulo gerador de legendas descritivas
+    Chart,
+    RadialLinearScale,
+    PointElement,
+    LineElement,
+    Filler,
+    Tooltip,
+    Legend
 } from 'chart.js';
 
 // ============================================================================
 // REGISTRO DE PLUGINS E ESCALAS
 // ============================================================================
 
-// Registra todos os módulos utilitários diretamente no núcleo do Chart.js
+// Registra os módulos importados no ciclo de renderização global do Chart.js[cite: 7]
 Chart.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
 // ============================================================================
 // PALETA DE CORES TEMÁTICA
 // ============================================================================
 
-// Dicionário com as cores base e de preenchimento (com canal alpha de transparência) para cada eixo
+// Define as cores sólidas e de preenchimento translúcido para cada perfil vocacional[cite: 7]
 const CORES_GOOGLE = {
-    // Biológicas: Tom verde oficial com preenchimento em 35% de opacidade
+    // Tom verde representativo da área de Ciências Biológicas[cite: 7]
     biologicas:   { base: '#34A853', fill: 'rgba(52, 168, 83, 0.35)' },
-    // Exatas: Tom azul institucional com preenchimento em 35% de opacidade
+    // Tom azul representativo da área de Ciências Exatas[cite: 7]
     exatas:       { base: '#4285F4', fill: 'rgba(66, 133, 244, 0.35)' },
-    // Humanas: Tom amarelo com preenchimento em 35% de opacidade
+    // Tom amarelo representativo da área de Ciências Humanas[cite: 7]
     humanas:      { base: '#FBBC05', fill: 'rgba(251, 188, 5, 0.35)' },
-    // Tecnológicas: Tom vermelho com preenchimento em 35% de opacidade
+    // Tom vermelho representativo da área de Ciências Tecnológicas[cite: 7]
     tecnologicas: { base: '#EA4335', fill: 'rgba(234, 67, 53, 0.35)' }
 };
 
@@ -46,265 +44,252 @@ const CORES_GOOGLE = {
 // COMPONENTE PRINCIPAL: GRAFICORADAR
 // ============================================================================
 
-// Declaração do componente funcional que recebe as quatro pontuações vocacionais como propriedades
+// Declara o componente funcional recebendo as quatro pontuações vocacionais como propriedades[cite: 7]
 const GraficoRadar = ({ biologicas, exatas, humanas, tecnologicas }) => {
-    // ------------------------------------------------------------------------
-    // CONSTRUÇÃO E ESTRUTURAÇÃO DO DATASET
-    // ------------------------------------------------------------------------
-
-    // Estrutura de dados consumida pelo motor de renderização do Chart.js
+    // Objeto contendo os dados e parâmetros de estilo a serem desenhados no canvas[cite: 7]
     const data = {
-        // Nomes formais dos 4 eixos radiais posicionados ao redor do alvo
+        // Nomes de cada vértice da teia radar[cite: 7]
         labels: ['Biológicas', 'Exatas', 'Humanas', 'Tecnológicas'],
-        // Coleção de conjuntos de dados plotados na teia
+        // Definição do conjunto de dados da série gráfica[cite: 7]
         datasets: [
             {
-                // Rótulo de identificação do conjunto de pontos
+                // Rótulo descritivo do conjunto de pontos[cite: 7]
                 label: 'Pontuação alcançada',
-                // Vetor numérico contendo as notas apuradas em cada área avaliada
+                // Vetor com os valores numéricos recebidos via props[cite: 7]
                 data: [biologicas, exatas, humanas, tecnologicas],
-                // Função de callback dinâmica para gerar o preenchimento em gradiente cônico
+                // Função de retorno de cor dinâmica que desenha um gradiente cônico[cite: 7]
                 backgroundColor: (context) => {
-                    // Extrai o objeto gráfico do contexto da chamada
+                    // Obtém a instância do objeto chart[cite: 7]
                     const chart = context.chart;
-                    // Desestrutura o contexto 2D do elemento Canvas e suas dimensões calculadas
+                    // Desestrutura o contexto 2D e as coordenadas da área do gráfico[cite: 7]
                     const { ctx, chartArea } = chart;
-                    // Se o layout do gráfico ainda não terminou de calcular o canvas, retorna nulo
+                    // Retorna nulo caso a área gráfica ainda não esteja calculada[cite: 7]
                     if (!chartArea) return null;
 
-                    // Calcula o ponto de ancoragem horizontal central do alvo
+                    // Calcula a coordenada horizontal do centro da área útil[cite: 7]
                     const centerX = (chartArea.left + chartArea.right) / 2;
-                    // Calcula o ponto de ancoragem vertical central do alvo
+                    // Calcula a coordenada vertical do centro da área útil[cite: 7]
                     const centerY = (chartArea.top + chartArea.bottom) / 2;
 
-                    // Inicializa o gradiente cônico com rotação iniciando no topo (-90 graus ou -PI/2)
+                    // Cria gradiente cônico rotacionado para iniciar no topo (-90 graus)[cite: 7]
                     const conicGrad = ctx.createConicGradient(-Math.PI / 2, centerX, centerY);
-                    // Ponto 0/4 (0 graus - topo): Aplica a cor translúcida de Biológicas
+                    // Adiciona parada de cor para Biológicas (0% do círculo)[cite: 7]
                     conicGrad.addColorStop(0 / 4, CORES_GOOGLE.biologicas.fill);
-                    // Ponto 1/4 (90 graus - direita): Aplica a cor translúcida de Exatas
+                    // Adiciona parada de cor para Exatas (25% do círculo)[cite: 7]
                     conicGrad.addColorStop(1 / 4, CORES_GOOGLE.exatas.fill);
-                    // Ponto 2/4 (180 graus - base): Aplica a cor translúcida de Humanas
+                    // Adiciona parada de cor para Humanas (50% do círculo)[cite: 7]
                     conicGrad.addColorStop(2 / 4, CORES_GOOGLE.humanas.fill);
-                    // Ponto 3/4 (270 graus - esquerda): Aplica a cor translúcida de Tecnológicas
+                    // Adiciona parada de cor para Tecnológicas (75% do círculo)[cite: 7]
                     conicGrad.addColorStop(3 / 4, CORES_GOOGLE.tecnologicas.fill);
-                    // Ponto 1 (360 graus - topo): Fecha o ciclo angular retornando ao verde de Biológicas
+                    // Fecha o ciclo do gradiente voltando à cor de Biológicas (100% do círculo)[cite: 7]
                     conicGrad.addColorStop(1, CORES_GOOGLE.biologicas.fill);
 
-                    // Retorna o gradiente pronto para compor o preenchimento do polígono
+                    // Retorna o gradiente configurado[cite: 7]
                     return conicGrad;
                 },
-                // Cor da linha de borda perimetral que interliga os pontos
+                // Cor da linha de contorno do polígono[cite: 7]
                 borderColor: '#1a73e8',
-                // Espessura do traço perimetral em pixels
+                // Espessura do traçado da borda[cite: 7]
                 borderWidth: 2.2,
-                // Vetor definindo a cor de preenchimento de cada vértice conforme sua respectiva área
+                // Cores dos pontos baseadas em cada categoria temática[cite: 7]
                 pointBackgroundColor: [
                     CORES_GOOGLE.biologicas.base,
                     CORES_GOOGLE.exatas.base,
                     CORES_GOOGLE.humanas.base,
                     CORES_GOOGLE.tecnologicas.base
                 ],
-                // Cor da borda externa dos pontos (branca para criar separação visual)
+                // Borda externa dos pontos em branco para contraste[cite: 7]
                 pointBorderColor: '#ffffff',
-                // Espessura da borda dos marcadores em pixels
+                // Largura do contorno de cada ponto[cite: 7]
                 pointBorderWidth: 2,
-                // Raio do marcador no estado estático
-                pointRadius: 6,
-                // Raio do marcador ampliado quando o cursor passa por cima (hover)
-                pointHoverRadius: 8,
-                // Cor de fundo do marcador durante a interação de foco
+                // Raio inicial de exibição dos pontos[cite: 7]
+                pointRadius: 5,
+                // Raio do ponto ampliado ao passar o mouse por cima[cite: 7]
+                pointHoverRadius: 7,
+                // Cor de fundo do ponto ao passar o mouse[cite: 7]
                 pointHoverBackgroundColor: '#ffffff',
-                // Espessura da borda externa do ponto durante a sobreposição do cursor
+                // Espessura da borda do ponto no evento hover[cite: 7]
                 pointHoverBorderWidth: 3,
-                // Tensão da curva spline que interliga os vértices (0.12 para curvatura sutil)
+                // Suavização das curvas do polígono[cite: 7]
                 tension: 0.12
             }
         ]
     };
 
-    // ------------------------------------------------------------------------
-    // OPÇÕES DE CONFIGURAÇÃO DO CHART.JS
-    // ------------------------------------------------------------------------
-
-    // Configuração de escalas, plugins, responsividade e layout interno
+    // Configurações de exibição, escalas e plugins do gráfico[cite: 7]
     const options = {
-        // Redimensiona o gráfico automaticamente ao alterar a largura do dispositivo
+        // Habilita dimensionamento adaptável ao contêiner pai[cite: 7]
         responsive: true,
-        // Permite que o gráfico preencha a altura estipulada pelo elemento pai
+        // Permite altura personalizada sem prender à proporção rígida[cite: 7]
         maintainAspectRatio: false,
-        // Margens internas de respiro para que textos e ícones não sofram cortes
+        // Define o layout e margens internas do gráfico[cite: 7]
         layout: {
+            // Preenchimento interno para não truncar rótulos ou ícones[cite: 7]
             padding: {
-                top: 48,    // Espaçamento superior
-                bottom: 35, // Espaçamento inferior
-                left: 45,   // Espaçamento à esquerda
-                right: 45   // Espaçamento à direita
+                top: 40,
+                bottom: 30,
+                left: 30,
+                right: 30
             }
         },
-        // Configuração dos plugins integrados
+        // Configuração dos plugins visuais[cite: 7]
         plugins: {
-            // Desativa a legenda convencional para manter o layout limpo
+            // Oculta a legenda tradicional já que o título é autoexplicativo[cite: 7]
             legend: { display: false },
-            // Customização da caixa de dica de contexto (tooltip)
+            // Configurações do balão flutuante com dados (tooltip)[cite: 7]
             tooltip: {
-                // Define tom escuro azulado translúcido para a caixa de aviso
+                // Cor de fundo escura translúcida[cite: 7]
                 backgroundColor: 'rgba(20, 40, 70, 0.92)',
-                // Configuração tipográfica do título do balão flutuante
-                titleFont: { size: 14, weight: 'bold' },
-                // Configuração tipográfica do texto descritivo
-                bodyFont: { size: 13 },
-                // Espaçamento interno da caixa flutuante em pixels
+                // Tipografia do título do tooltip[cite: 7]
+                titleFont: { size: 13, weight: 'bold' },
+                // Tipografia do corpo de texto do tooltip[cite: 7]
+                bodyFont: { size: 12 },
+                // Espaçamento interno do balão[cite: 7]
                 padding: 10,
-                // Arredondamento dos cantos do balão de informação
+                // Arredondamento das bordas da caixa de dicas[cite: 7]
                 cornerRadius: 8,
-                // Formatação textual customizada exibida no corpo do tooltip
+                // Customização do formato dos valores no tooltip[cite: 7]
                 callbacks: {
+                    // Concatena a pontuação com a escala de 100 pontos[cite: 7]
                     label: (context) => ` ${context.raw} pontos / 100`
                 }
             }
         },
-        // Definições detalhadas da escala radial ('r')
+        // Configuração dos eixos da escala radial[cite: 7]
         scales: {
+            // Configura o eixo radial 'r' do radar[cite: 7]
             r: {
-                // Pontuação mínima exibida na escala
+                // Valor numérico mínimo da escala[cite: 7]
                 min: 0,
-                // Pontuação limite máxima admitida no eixo
+                // Valor numérico máximo da escala (limite superior)[cite: 7]
                 max: 100,
-                // Linhas perpendiculares que partem do centro em cruz
+                // Configuração das linhas diagonais angulares[cite: 7]
                 angleLines: {
-                    display: true,                          // Habilita a visualização das retas angulares
-                    color: 'rgba(26, 115, 232, 0.32)',      // Tonalidade azul suave das retas
-                    lineWidth: 1.5                          // Espessura do traçado em pixels
+                    display: true,
+                    color: 'rgba(26, 115, 232, 0.32)',
+                    lineWidth: 1.5
                 },
-                // Linhas circulares concêntricas que delimitam os níveis da escala
+                // Configura as linhas da grade circular concêntrica[cite: 7]
                 grid: {
-                    circular: true,                         // Desenha anéis circulares concêntricos perfeitos
-                    color: 'rgba(26, 115, 232, 0.20)',      // Cor azul translúcida dos anéis
-                    lineWidth: 1.2                          // Espessura dos círculos em pixels
+                    circular: true,
+                    color: 'rgba(26, 115, 232, 0.20)',
+                    lineWidth: 1.2
                 },
-                // Numerações de marcação ao longo dos eixos
+                // Configura as marcas numéricas da escala[cite: 7]
                 ticks: {
-                    stepSize: 20,                           // Intervalo de progressão de 20 em 20 pontos
-                    backdropColor: 'transparent',            // Torna o fundo do texto dos números transparente
-                    color: '#1a56a6',                       // Cor da tipografia dos números da escala
-                    font: { size: 11, weight: '600' }       // Estilo e espessura da fonte dos marcadores numéricos
+                    // Intervalo de progressão de 20 em 20 pontos[cite: 7]
+                    stepSize: 20,
+                    // Remove fundo dos números[cite: 7]
+                    backdropColor: 'transparent',
+                    // Cor do texto dos números na escala[cite: 7]
+                    color: '#1a56a6',
+                    // Estilo de fonte dos números[cite: 7]
+                    font: { size: 10, weight: '600' }
                 },
-                // Textos descritivos das áreas situados nas extremidades externas
+                // Configuração dos textos das categorias em cada extremidade[cite: 7]
                 pointLabels: {
-                    // Mapeia as cores temáticas para cada um dos textos externos
+                    // Cores individuais para cada texto[cite: 7]
                     color: [
                         CORES_GOOGLE.biologicas.base,
                         CORES_GOOGLE.exatas.base,
                         CORES_GOOGLE.humanas.base,
                         CORES_GOOGLE.tecnologicas.base
                     ],
-                    // Tipografia aplicada aos rótulos dos eixos
+                    // Tipografia dos rótulos angulares[cite: 7]
                     font: {
-                        size: 14,
+                        size: 12,
                         weight: 'bold',
                         family: "'Segoe UI', Roboto, sans-serif"
                     },
-                    // Afastamento em pixels entre a última circunferência e o texto
-                    padding: 12
+                    // Distância entre os rótulos e os círculos da teia[cite: 7]
+                    padding: 10
                 }
             }
         }
     };
 
-    // ------------------------------------------------------------------------
-    // RENDERIZAÇÃO DO COMPONENTE VISUAL (JSX)
-    // ------------------------------------------------------------------------
-
+    // Renderização do JSX[cite: 7]
     return (
-        // Contêiner em formato de cartão com cantos arredondados e sombra sutil
+        // Caixa contêiner branca com bordas arredondadas e sombra suave[cite: 7]
         <div
             style={{
                 width: '100%',
                 maxWidth: '460px',
-                margin: '0',
-                alignSelf: 'flex-start',
+                margin: '10px auto',
                 backgroundColor: '#ffffff',
                 borderRadius: '14px',
-                padding: '16px',
+                padding: '14px',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
                 boxSizing: 'border-box',
                 position: 'relative'
             }}
         >
-            {/* Cabeçalho textual do card de visualização gráfica */}
+            {/* Título descritivo do componente */}
             <h3
                 style={{
                     textAlign: 'center',
                     color: '#202124',
-                    fontSize: '16px',
+                    fontSize: '15px',
                     fontWeight: '700',
-                    margin: '0 0 4px 0',
+                    margin: '0 0 6px 0',
                     letterSpacing: '-0.3px'
                 }}
             >
                 Radar de Aptidões Vocacionais
             </h3>
 
-            {/* Contêiner de posicionamento relativo que abriga o Canvas e a camada absoluta de ícones */}
-            <div style={{ position: 'relative', width: '100%', height: '380px' }}>
-                
-                {/* Elemento Canvas gerenciado pelo Chart.js para o gráfico de teia com prioridade de sobreposição */}
+            {/* Contêiner de altura fixa para abrigar a renderização do Canvas e SVGs sobrepostos */}
+            <div style={{ position: 'relative', width: '100%', height: '340px' }}>
+                {/* Camada superior que renderiza o gráfico interativo Chart.js[cite: 7] */}
                 <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 10 }}>
                     <Radar data={data} options={options} />
                 </div>
 
-                {/* Camada sobreposta transparente com os ícones vetoriais de cada área */}
+                {/* Camada subjacente que exibe os ícones ilustrativos de cada vértice[cite: 7] */}
                 <div
                     style={{
                         position: 'absolute',
-                        top: 15,
+                        top: 0,
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        pointerEvents: 'none', // Permite que os eventos do mouse passem direto para o canvas
-                        zIndex: 1               // Nível de camada posicionado abaixo das janelas flutuantes do canvas
+                        pointerEvents: 'none',
+                        zIndex: 1
                     }}
                 >
-                    {/* 1. Ícone da vertente de Biológicas (Posicionado no topo central) */}
+                    {/* Ícone ilustrativo de Biológicas (Folha) posicionado no topo[cite: 7] */}
                     <div
                         title="Biológicas"
                         style={{
                             position: 'absolute',
-                            top: '19px',
-                            left: 'calc(50% + 20px)',
+                            top: '12px',
+                            left: '50%',
                             transform: 'translateX(-50%)',
                             display: 'flex',
-                            flexDirection: 'column',
                             alignItems: 'center'
                         }}
                     >
-                        {/* Vetor SVG estilizado representando folha / vida orgânica (44x44) */}
-                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke={CORES_GOOGLE.biologicas.base} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke={CORES_GOOGLE.biologicas.base} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
                             <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
                         </svg>
                     </div>
 
-                    {/* 2. Ícone da vertente de Exatas (Posicionado na lateral direita) */}
+                    {/* Ícone ilustrativo de Exatas (Calculadora) posicionado à direita[cite: 7] */}
                     <div
                         title="Exatas"
                         style={{
                             position: 'absolute',
-                            top: '44%',
-                            right: '55px',
-                            transform: 'translateY(-100%)',
+                            top: '48%',
+                            right: '12px',
+                            transform: 'translateY(-50%)',
                             display: 'flex',
-                            flexDirection: 'column',
                             alignItems: 'center'
                         }}
                     >
-                        {/* Vetor SVG estilizado de uma calculadora digital (44x44) */}
-                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke={CORES_GOOGLE.exatas.base} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                            {/* Moldura externa do corpo da calculadora */}
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke={CORES_GOOGLE.exatas.base} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                             <rect x="4" y="2" width="16" height="20" rx="3" />
-                            {/* Visor digital superior */}
                             <line x1="8" y1="6" x2="16" y2="6" />
-                            {/* Teclado e teclas numéricas */}
                             <line x1="16" y1="14" x2="16" y2="18" />
                             <path d="M16 10h.01" />
                             <path d="M12 10h.01" />
@@ -316,19 +301,19 @@ const GraficoRadar = ({ biologicas, exatas, humanas, tecnologicas }) => {
                         </svg>
                     </div>
 
-                    {/* 3. Ícone da vertente de Humanas (Posicionado na base inferior) */}
+                    {/* Ícone ilustrativo de Humanas (Pessoas) posicionado na base[cite: 7] */}
                     <div
                         title="Humanas"
                         style={{
                             position: 'absolute',
-                            bottom: '45px',
-                            left: 'calc(50% - 5px)',
+                            bottom: '12px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
                             display: 'flex',
                             alignItems: 'center'
                         }}
                     >
-                        {/* Vetor SVG representando grupo social / pessoas (44x44) */}
-                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke={CORES_GOOGLE.humanas.base} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke={CORES_GOOGLE.humanas.base} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
                             <circle cx="9" cy="7" r="4"/>
                             <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
@@ -336,21 +321,19 @@ const GraficoRadar = ({ biologicas, exatas, humanas, tecnologicas }) => {
                         </svg>
                     </div>
 
-                    {/* 4. Ícone da vertente de Tecnológicas (Posicionado na lateral esquerda) */}
+                    {/* Ícone ilustrativo de Tecnológicas (Chip/Processador) posicionado à esquerda[cite: 7] */}
                     <div
                         title="Tecnológicas"
                         style={{
                             position: 'absolute',
-                            top: '44%',
-                            left: '75px',
-                            transform: 'translateY(-100%)',
+                            top: '48%',
+                            left: '12px',
+                            transform: 'translateY(-50%)',
                             display: 'flex',
-                            flexDirection: 'column',
                             alignItems: 'center'
                         }}
                     >
-                        {/* Vetor SVG representando microprocessador / circuito integrado (44x44) */}
-                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke={CORES_GOOGLE.tecnologicas.base} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke={CORES_GOOGLE.tecnologicas.base} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                             <rect x="4" y="4" width="16" height="16" rx="2"/>
                             <rect x="9" y="9" width="6" height="6"/>
                             <path d="M9 1v3"/>
@@ -363,16 +346,11 @@ const GraficoRadar = ({ biologicas, exatas, humanas, tecnologicas }) => {
                             <path d="M1 14h3"/>
                         </svg>
                     </div>
-
                 </div>
             </div>
         </div>
     );
 };
 
-// ============================================================================
-// EXPORTAÇÃO DO COMPONENTE
-// ============================================================================
-
-// Exporta o componente GraficoRadar como padrão para ser integrado no relatório vocacional
+// Exporta o componente GraficoRadar para inclusão em telas de resultado[cite: 7]
 export default GraficoRadar;
