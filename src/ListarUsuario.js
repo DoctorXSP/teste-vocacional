@@ -2,11 +2,11 @@
 // IMPORTAÇÕES DE MÓDULOS, HOOKS E COMPONENTES
 // ============================================================================
 
-// Importa o React e hooks essenciais para manipulação de estados, efeitos e memorização[cite: 14]
+// Importa o React e hooks essenciais para manipulação de estados, efeitos e memorização
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-// Importa componentes estruturais e visuais do React-Bootstrap[cite: 14]
+// Importa componentes estruturais e visuais do React-Bootstrap
 import { Modal, Button, Form, Alert, Table } from 'react-bootstrap';
-// Importa as folhas de estilos do projeto[cite: 14]
+// Importa as folhas de estilos do projeto
 import './estilo.css';
 import './index.css';
 
@@ -14,15 +14,15 @@ import './index.css';
 // CONSTANTES E PALETA DE CORES
 // ============================================================================
 
-// Define a paleta padrão de cores para cada eixo avaliado no teste vocacional[cite: 14]
+// Define a paleta padrão de cores para cada eixo avaliado no teste vocacional
 const CORES_AREAS = {
-  // Cor verde institucional representativa da área de Biológicas[cite: 14]
+  // Cor verde institucional representativa da área de Biológicas
   biologicas: '#34A853',
-  // Cor azul institucional representativa da área de Exatas[cite: 14]
+  // Cor azul institucional representativa da área de Exatas
   exatas: '#4285F4',
-  // Cor amarela/âmbar representativa da área de Humanas[cite: 14]
+  // Cor amarela/âmbar representativa da área de Humanas
   humanas: '#FBBC05',
-  // Cor vermelha institucional representativa da área de Tecnologia[cite: 14]
+  // Cor vermelha institucional representativa da área de Tecnologia
   tecnologicas: '#EA4335'
 };
 
@@ -30,98 +30,98 @@ const CORES_AREAS = {
 // COMPONENTE PRINCIPAL: LISTARUSUARIO
 // ============================================================================
 
-// Declara o componente funcional responsável pelo relatório de participantes[cite: 14]
+// Declara o componente funcional responsável pelo relatório de participantes
 const ListarUsuario = () => {
-  // Estado que define a visibilidade da janela modal de autenticação restrita[cite: 14]
+  // Estado que define a visibilidade da janela modal de autenticação restrita
   const [showLogin, setShowLogin] = useState(true);
-  // Estado para armazenar o nome de usuário digitado no login[cite: 14]
+  // Estado para armazenar o nome de usuário digitado no login
   const [username, setUsername] = useState('');
-  // Estado para armazenar a senha digitada no login[cite: 14]
+  // Estado para armazenar a senha digitada no login
   const [password, setPassword] = useState('');
-  // Estado para mensagens de feedback em caso de credenciais incorretas[cite: 14]
+  // Estado para mensagens de feedback em caso de credenciais incorretas
   const [error, setError] = useState('');
 
-  // Usuário padrão com privilégio de acesso[cite: 14]
+  // Usuário padrão com privilégio de acesso
   const validUsername = 'etecembu';
-  // Senha padrão configurada para o painel[cite: 14]
+  // Senha padrão configurada para o painel
   const validPassword = 'etec@241';
 
-  // Função responsável pela validação do login administrativo[cite: 14]
+  // Função responsável pela validação do login administrativo
   const handleLogin = () => {
-    // Compara os campos preenchidos com os valores válidos[cite: 14]
+    // Compara os campos preenchidos com os valores válidos
     if (username === validUsername && password === validPassword) {
-      // Fecha a janela de autenticação[cite: 14]
+      // Fecha a janela de autenticação
       setShowLogin(false);
-      // Limpa mensagem de erro prévia[cite: 14]
+      // Limpa mensagem de erro prévia
       setError('');
     } else {
-      // Exibe mensagem de erro na interface do modal[cite: 14]
+      // Exibe mensagem de erro na interface do modal
       setError('Usuário ou senha incorretos!');
     }
   };
 
-  // Estado que armazena a lista de candidatos retornada pelo backend[cite: 14]
+  // Estado que armazena a lista de candidatos retornada pelo backend
   const [usuarios, setUsuarios] = useState([]);
-  // Estado que indica se a consulta assíncrona está em execução[cite: 14]
+  // Estado que indica se a consulta assíncrona está em execução
   const [carregando, setCarregando] = useState(false);
-  // Estado para mensagens de erro ao se comunicar com a API[cite: 14]
+  // Estado para mensagens de erro ao se comunicar com a API
   const [msg, setMsg] = useState('');
-  // Estado que armazena o termo digitado no filtro de busca por nome[cite: 14]
+  // Estado que armazena o termo digitado no filtro de busca por nome
   const [buscaNome, setBuscaNome] = useState('');
-  // Estado que armazena o nome da coluna usada para ordenação ativa da tabela[cite: 14]
+  // Estado que armazena o nome da coluna usada para ordenação ativa da tabela
   const [colunaOrdenacao, setColunaOrdenacao] = useState('id');
-  // Estado que define se a ordenação atual é ascendente ('asc') ou descendente ('desc')[cite: 14]
+  // Estado que define se a ordenação atual é ascendente ('asc') ou descendente ('desc')
   const [direcaoOrdenacao, setDirecaoOrdenacao] = useState('desc');
 
-  // Função assíncrona memorizada para consultar a lista de usuários no banco de dados[cite: 14]
+  // Função assíncrona memorizada para consultar a lista de usuários no banco de dados
   const carregarUsuarios = useCallback(async () => {
-    // Sinaliza início do carregamento de dados[cite: 14]
+    // Sinaliza início do carregamento de dados
     setCarregando(true);
     try {
-      // Realiza a requisição GET para o endpoint de usuários[cite: 14]
+      // Realiza a requisição GET para o endpoint de usuários
       const resposta = await fetch('http://localhost:3012/usuarios');
-      // Lança exceção caso a resposta do servidor não seja 200 OK[cite: 14]
+      // Lança exceção caso a resposta do servidor não seja 200 OK
       if (!resposta.ok) throw new Error('Falha ao buscar usuários do servidor');
-      // Converte o corpo da resposta em objeto JSON[cite: 14]
+      // Converte o corpo da resposta em objeto JSON
       const dados = await resposta.json();
-      // Armazena a listagem no estado[cite: 14]
+      // Armazena a listagem no estado
       setUsuarios(dados);
     } catch (err) {
-      // Armazena o erro capturado para exibição[cite: 14]
+      // Armazena o erro capturado para exibição
       setMsg(`Erro ao carregar lista: ${err.message}`);
     } finally {
-      // Finaliza o status de carregamento independente do desfecho[cite: 14]
+      // Finaliza o status de carregamento independente do desfecho
       setCarregando(false);
     }
-  }, []); // Sem dependências mutáveis para preservar a referência[cite: 14]
+  }, []); // Sem dependências mutáveis para preservar a referência
 
-  // Efeito disparado para buscar dados assim que a autenticação é bem-sucedida[cite: 14]
+  // Efeito disparado para buscar dados assim que a autenticação é bem-sucedida
   useEffect(() => {
-    // Se o modal de login foi ultrapassado[cite: 14]
+    // Se o modal de login foi ultrapassado
     if (!showLogin) {
-      // Executa a busca inicial da base de dados[cite: 14]
+      // Executa a busca inicial da base de dados
       carregarUsuarios();
     }
-  }, [showLogin, carregarUsuarios]); // Reexecuta caso showLogin mude[cite: 14]
+  }, [showLogin, carregarUsuarios]); // Reexecuta caso showLogin mude
 
-  // Função que altera a coluna ativa ou inverte o sentido da ordenação[cite: 14]
+  // Função que altera a coluna ativa ou inverte o sentido da ordenação
   const manipularOrdenacao = (coluna) => {
-    // Se clicou na coluna que já estava ativa[cite: 14]
+    // Se clicou na coluna que já estava ativa
     if (colunaOrdenacao === coluna) {
-      // Inverte o sentido entre ascendente e descendente[cite: 14]
+      // Inverte o sentido entre ascendente e descendente
       setDirecaoOrdenacao(prev => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
-      // Se clicou em uma nova coluna, define ela e inicia com ordem ascendente[cite: 14]
+      // Se clicou em uma nova coluna, define ela e inicia com ordem ascendente
       setColunaOrdenacao(coluna);
       setDirecaoOrdenacao('asc');
     }
   };
 
-  // Função auxiliar para renderizar setas indicadoras de ordenação no cabeçalho[cite: 14]
+  // Função auxiliar para renderizar setas indicadoras de ordenação no cabeçalho
   const renderIconeOrdenacao = (coluna) => {
-    // Se não for a coluna ativa no momento, renderiza ícone neutro e apagado[cite: 14]
+    // Se não for a coluna ativa no momento, renderiza ícone neutro e apagado
     if (colunaOrdenacao !== coluna) return <span style={{ opacity: 0.35, marginLeft: '4px', fontSize: '11px' }}>↕</span>;
-    // Retorna seta indicando o sentido selecionado[cite: 14]
+    // Retorna seta indicando o sentido selecionado
     return (
       <span style={{ color: 'yellow', fontWeight: 'bold', marginLeft: '4px', fontSize: '11px' }}>
         {direcaoOrdenacao === 'asc' ? '▲' : '▼'}
@@ -129,62 +129,164 @@ const ListarUsuario = () => {
     );
   };
 
-  // Hook useMemo para filtrar e ordenar a lista de participantes sem recomputações desnecessárias[cite: 14]
+  // Função que identifica o perfil predominante (usando o campo do banco ou calculando pelas notas)
+  const obterPerfilDoUsuario = (user) => {
+    if (user.perfilPredominante && String(user.perfilPredominante).trim() !== '') {
+      return user.perfilPredominante;
+    }
+
+    const bio = Number(user.biologicas) || 0;
+    const exa = Number(user.exatas) || 0;
+    const hum = Number(user.humanas) || 0;
+    const tec = Number(user.tecnologicas) || 0;
+
+    // Se todas as notas forem 0 ou ausentes
+    if (bio === 0 && exa === 0 && hum === 0 && tec === 0) {
+      return 'Sem Teste';
+    }
+
+    const areas = [
+      { nome: 'Tecnológicas', valor: tec },
+      { nome: 'Biológicas', valor: bio },
+      { nome: 'Exatas', valor: exa },
+      { nome: 'Humanas', valor: hum }
+    ];
+
+    const maiorNota = Math.max(...areas.map(a => a.valor));
+    const maiores = areas.filter(a => a.valor === maiorNota);
+
+    // Se houver mais de uma área na liderança, temos empate
+    if (maiores.length > 1) {
+      return maiores.map(m => m.nome).join(' / ');
+    }
+
+    return maiores[0].nome;
+  };
+
+  // Função que define as cores e contornos específicos de cada balão
+  const obterEstiloBadge = (perfil) => {
+    if (!perfil || perfil === 'Sem Teste') {
+      return {
+        backgroundColor: '#F1F3F4',
+        color: '#5F6368',
+        border: '1px solid #DADCE0'
+      };
+    }
+
+    // Normaliza o texto removendo acentos e convertendo para minúsculas
+    const textoLimpo = perfil
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+
+    // Empate: ocre na fonte e bege escuro no em torno
+    if (textoLimpo.includes('/') || textoLimpo.includes('empate')) {
+      return {
+        backgroundColor: '#D7CCC8',
+        color: '#5D4037',
+        border: '1px solid #BCAAA4'
+      };
+    }
+
+    // Tecnológicas: vermelho na fonte e vermelho mais claro no em torno
+    if (textoLimpo.includes('tecnol') || textoLimpo.includes('ti')) {
+      return {
+        backgroundColor: '#FCE8E6',
+        color: '#D93025',
+        border: '1px solid #FAD2CF'
+      };
+    }
+
+    // Biológicas: verde na fonte e verde mais claro no em torno
+    if (textoLimpo.includes('biol')) {
+      return {
+        backgroundColor: '#E6F4EA',
+        color: '#137333',
+        border: '1px solid #CEEAD6'
+      };
+    }
+
+    // Exatas: azul na fonte e azul mais claro no em torno
+    if (textoLimpo.includes('exat')) {
+      return {
+        backgroundColor: '#E8F0FE',
+        color: '#1A73E8',
+        border: '1px solid #D2E3FC'
+      };
+    }
+
+    // Humanas: amarelo canário vívido na fonte e amarelo mais claro no em torno
+    if (textoLimpo.includes('human')) {
+      return {
+        backgroundColor: '#FEF9C3',
+        color: '#CA8A04',
+        border: '1px solid #FDE047'
+      };
+    }
+
+    return {
+      backgroundColor: '#F1F3F4',
+      color: '#5F6368',
+      border: '1px solid #DADCE0'
+    };
+  };
+
+  // Hook useMemo para filtrar e ordenar a lista de participantes sem recomputações desnecessárias
   const usuariosFiltradosEOrdenados = useMemo(() => {
-    // Aplica o filtro baseado no nome digitado no campo de pesquisa[cite: 14]
+    // Aplica o filtro baseado no nome digitado no campo de pesquisa
     let resultado = usuarios.filter(user => {
-      // Normaliza o nome do usuário para minúsculas[cite: 14]
+      // Normaliza o nome do usuário para minúsculas
       const nomeCompleto = (user.nome || '').toLowerCase();
-      // Verifica se o texto pesquisado está contido no nome[cite: 14]
+      // Verifica se o texto pesquisado está contido no nome
       return nomeCompleto.includes(buscaNome.toLowerCase().trim());
     });
 
-    // Ordena o array filtrado com base na coluna e sentido selecionados[cite: 14]
+    // Ordena o array filtrado com base na coluna e sentido selecionados
     resultado.sort((a, b) => {
-      // Extrai os valores das propriedades a comparar[cite: 14]
-      let valorA = a[colunaOrdenacao];
-      let valorB = b[colunaOrdenacao];
+      // Se a coluna for perfilPredominante, usa o perfil calculado para ordenar
+      let valorA = colunaOrdenacao === 'perfilPredominante' ? obterPerfilDoUsuario(a) : a[colunaOrdenacao];
+      let valorB = colunaOrdenacao === 'perfilPredominante' ? obterPerfilDoUsuario(b) : b[colunaOrdenacao];
 
-      // Trata valores nulos ou indefinidos substituindo por string vazia[cite: 14]
+      // Trata valores nulos ou indefinidos substituindo por string vazia
       if (valorA === null || valorA === undefined) valorA = '';
       if (valorB === null || valorB === undefined) valorB = '';
 
-      // Realiza comparação numérica direta caso ambos os campos sejam números[cite: 14]
+      // Realiza comparação numérica direta caso ambos os campos sejam números
       if (typeof valorA === 'number' && typeof valorB === 'number') {
         return direcaoOrdenacao === 'asc' ? valorA - valorB : valorB - valorA;
       }
 
-      // Converte para texto em caixa baixa para comparação lexicográfica[cite: 14]
+      // Converte para texto em caixa baixa para comparação lexicográfica
       const textoA = valorA.toString().toLowerCase();
       const textoB = valorB.toString().toLowerCase();
 
-      // Compara alfabeticamente considerando ascendente ou descendente[cite: 14]
+      // Compara alfabeticamente considerando ascendente ou descendente
       if (textoA < textoB) return direcaoOrdenacao === 'asc' ? -1 : 1;
       if (textoA > textoB) return direcaoOrdenacao === 'asc' ? 1 : -1;
       return 0;
     });
 
-    // Retorna o vetor filtrado e ordenado final[cite: 14]
+    // Retorna o vetor filtrado e ordenado final
     return resultado;
-  }, [usuarios, buscaNome, colunaOrdenacao, direcaoOrdenacao]); // Recalcula se qualquer uma dessas variáveis alterar[cite: 14]
+  }, [usuarios, buscaNome, colunaOrdenacao, direcaoOrdenacao]); // Recalcula se qualquer uma dessas variáveis alterar
 
-  // Renderização da interface JSX[cite: 14]
+  // Renderização da interface JSX
   return (
-    // Contêiner principal da página com classe de estilo global[cite: 14]
+    // Contêiner principal da página com classe de estilo global
     <div className='corpoP'>
-      {/* Barra superior de identificação da aplicação[cite: 14] */}
+      {/* Barra superior de identificação da aplicação */}
       <div className='barraSuperior'>
         <h1 className='barraTexto'>Teste de Aptidão Vocacional</h1>
       </div>
 
-      {/* Modal estático de autenticação administrativa[cite: 14] */}
+      {/* Modal estático de autenticação administrativa */}
       <Modal
         show={showLogin}
         backdrop="static"
         keyboard={false}
         contentClassName="modal-auth-custom"
       >
-        {/* Contêiner de estilização do card do formulário[cite: 14] */}
+        {/* Contêiner de estilização do card do formulário */}
         <div
           style={{
             backgroundColor: '#4A148C',
@@ -198,7 +300,7 @@ const ListarUsuario = () => {
             boxSizing: 'border-box'
           }}
         >
-          {/* Cabeçalho do formulário de autenticação[cite: 14] */}
+          {/* Cabeçalho do formulário de autenticação */}
           <div style={{ textAlign: 'center', marginBottom: '20px' }}>
             <h3 style={{ color: '#ffffff', fontSize: '20px', fontWeight: '700', margin: 0 }}>
               🔒 Acesso Administrativo
@@ -208,16 +310,16 @@ const ListarUsuario = () => {
             </p>
           </div>
 
-          {/* Exibição condicional de mensagem de erro[cite: 14] */}
+          {/* Exibição condicional de mensagem de erro */}
           {error && (
             <Alert variant="danger" style={{ fontSize: '13px', padding: '10px', textAlign: 'center' }}>
               {error}
             </Alert>
           )}
 
-          {/* Formulário com interceptação de evento de envio[cite: 14] */}
+          {/* Formulário com interceptação de evento de envio */}
           <Form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
-            {/* Campo de entrada para Usuário[cite: 14] */}
+            {/* Campo de entrada para Usuário */}
             <Form.Group controlId="formUsername" style={{ marginBottom: '14px', textAlign: 'left' }}>
               <Form.Label style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>
                 Usuário:
@@ -232,7 +334,7 @@ const ListarUsuario = () => {
               />
             </Form.Group>
 
-            {/* Campo de entrada para Senha[cite: 14] */}
+            {/* Campo de entrada para Senha */}
             <Form.Group controlId="formPassword" style={{ marginBottom: '20px', textAlign: 'left' }}>
               <Form.Label style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>
                 Senha:
@@ -246,7 +348,7 @@ const ListarUsuario = () => {
               />
             </Form.Group>
 
-            {/* Botão de envio para validar as credenciais[cite: 14] */}
+            {/* Botão de envio para validar as credenciais */}
             <Button
               type="button"
               onClick={handleLogin}
@@ -268,15 +370,15 @@ const ListarUsuario = () => {
         </div>
       </Modal>
 
-      {/* Seção principal exibida apenas após autenticação[cite: 14] */}
+      {/* Seção principal exibida apenas após autenticação */}
       {!showLogin && (
         <section style={{ width: '94%', maxWidth: '1300px', margin: 'auto', marginTop: '20px', textAlign: 'center' }}>
-          {/* Título do relatório[cite: 14] */}
+          {/* Título do relatório */}
           <h1 style={{ color: '#FFF', marginBottom: '18px', fontWeight: 'bold', fontSize: '24px' }}>
             Relatório Geral de Usuários e Resultados
           </h1>
 
-          {/* Barra com ferramentas de filtro e atualização[cite: 14] */}
+          {/* Barra com ferramentas de filtro e atualização */}
           <div
             style={{
               display: 'flex',
@@ -291,7 +393,7 @@ const ListarUsuario = () => {
               boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
             }}
           >
-            {/* Campo de pesquisa por nome do participante[cite: 14] */}
+            {/* Campo de pesquisa por nome do participante */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '1 1 280px', width: '100%' }}>
               <label style={{ color: '#FFF', fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap' }}>
                 🔍 Buscar:
@@ -312,13 +414,13 @@ const ListarUsuario = () => {
               />
             </div>
 
-            {/* Contador de resultados e botão para recarregar dados[cite: 14] */}
+            {/* Contador de resultados e botão para recarregar dados */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '15px', flex: '1 1 240px' }}>
               <span style={{ color: '#FFF', fontWeight: 'bold', fontSize: '14px' }}>
                 Total: <b>{usuariosFiltradosEOrdenados.length}</b> de {usuarios.length}
               </span>
 
-              {/* Botão de atualização manual da lista[cite: 14] */}
+              {/* Botão de atualização manual da lista */}
               <Button
                 variant="light"
                 onClick={carregarUsuarios}
@@ -338,7 +440,7 @@ const ListarUsuario = () => {
             </div>
           </div>
 
-          {/* Alerta exibido em caso de falha de requisição[cite: 14] */}
+          {/* Alerta exibido em caso de falha de requisição */}
           {msg && (
             <Alert variant="danger" style={{ fontWeight: 'bold' }}>
               {msg}
@@ -347,88 +449,90 @@ const ListarUsuario = () => {
 
           {/* Div da tabela utilizando a classe responsiva (70% no desktop, 100% no celular, scroll X e Y) */}
           <div className="tabela-container">
-            {/* Tabela estilizada do React-Bootstrap[cite: 14] */}
+            {/* Tabela estilizada do React-Bootstrap */}
             <Table responsive hover striped style={{ margin: 0, fontSize: '13px', textAlign: 'center' }}>
-              {/* Cabeçalho da tabela com gatilhos de ordenação ao clicar[cite: 14] */}
+              {/* Cabeçalho da tabela com gatilhos de ordenação ao clicar */}
               <thead style={{ backgroundColor: '#2b1055', color: '#ffffff', userSelect: 'none' }}>
                 <tr style={{ verticalAlign: 'middle' }}>
-                  {/* Cabeçalho da coluna ID[cite: 14] */}
+                  {/* Cabeçalho da coluna ID */}
                   <th onClick={() => manipularOrdenacao('id')} style={{ cursor: 'pointer', padding: '12px 8px', width: '60px' }}>
                     ID {renderIconeOrdenacao('id')}
                   </th>
-                  {/* Cabeçalho da coluna Nome[cite: 14] */}
+                  {/* Cabeçalho da coluna Nome */}
                   <th onClick={() => manipularOrdenacao('nome')} style={{ cursor: 'pointer', padding: '12px 10px' }}>
                     Nome {renderIconeOrdenacao('nome')}
                   </th>
-                  {/* Cabeçalho da coluna E-mail[cite: 14] */}
+                  {/* Cabeçalho da coluna E-mail */}
                   <th onClick={() => manipularOrdenacao('email')} style={{ cursor: 'pointer', padding: '12px 10px' }}>
                     E-mail {renderIconeOrdenacao('email')}
                   </th>
-                  {/* Cabeçalho da coluna Biológicas[cite: 14] */}
+                  {/* Cabeçalho da coluna Biológicas */}
                   <th onClick={() => manipularOrdenacao('biologicas')} style={{ cursor: 'pointer', padding: '12px 8px', color: CORES_AREAS.biologicas }}>
                     Biológicas {renderIconeOrdenacao('biologicas')}
                   </th>
-                  {/* Cabeçalho da coluna Exatas[cite: 14] */}
+                  {/* Cabeçalho da coluna Exatas */}
                   <th onClick={() => manipularOrdenacao('exatas')} style={{ cursor: 'pointer', padding: '12px 8px', color: CORES_AREAS.exatas }}>
                     Exatas {renderIconeOrdenacao('exatas')}
                   </th>
-                  {/* Cabeçalho da coluna Humanas[cite: 14] */}
+                  {/* Cabeçalho da coluna Humanas */}
                   <th onClick={() => manipularOrdenacao('humanas')} style={{ cursor: 'pointer', padding: '12px 8px', color: CORES_AREAS.humanas }}>
                     Humanas {renderIconeOrdenacao('humanas')}
                   </th>
-                  {/* Cabeçalho da coluna Tecnológicas[cite: 14] */}
+                  {/* Cabeçalho da coluna Tecnológicas */}
                   <th onClick={() => manipularOrdenacao('tecnologicas')} style={{ cursor: 'pointer', padding: '12px 8px', color: CORES_AREAS.tecnologicas }}>
                     Tecnológicas {renderIconeOrdenacao('tecnologicas')}
                   </th>
-                  {/* Cabeçalho da coluna Perfil Predominante[cite: 14] */}
+                  {/* Cabeçalho da coluna Perfil Predominante */}
                   <th onClick={() => manipularOrdenacao('perfilPredominante')} style={{ cursor: 'pointer', padding: '12px 10px' }}>
                     Perfil Predominante {renderIconeOrdenacao('perfilPredominante')}
                   </th>
                 </tr>
               </thead>
-              {/* Corpo da tabela com mapeamento dos registros[cite: 14] */}
+              {/* Corpo da tabela com mapeamento dos registros */}
               <tbody>
-                {/* Condicional que verifica se há dados a serem mostrados[cite: 14] */}
+                {/* Condicional que verifica se há dados a serem mostrados */}
                 {usuariosFiltradosEOrdenados.length > 0 ? (
-                  // Itera sobre a lista filtrada gerando as linhas correspondentes[cite: 14]
-                  usuariosFiltradosEOrdenados.map((user) => (
-                    <tr key={user.id} style={{ verticalAlign: 'middle' }}>
-                      {/* Exibe o identificador único[cite: 14] */}
-                      <td style={{ fontWeight: 'bold' }}>{user.id}</td>
-                      {/* Exibe o nome do candidato[cite: 14] */}
-                      <td style={{ fontWeight: '600', color: '#111', textAlign: 'left', paddingLeft: '14px' }}>{user.nome}</td>
-                      {/* Exibe o e-mail ou hífen caso esteja em branco[cite: 14] */}
-                      <td style={{ color: '#555', textAlign: 'left' }}>{user.email || '-'}</td>
-                      {/* Pontuação alcançada em Biológicas[cite: 14] */}
-                      <td style={{ fontWeight: 'bold', color: CORES_AREAS.biologicas }}>{user.biologicas} pts</td>
-                      {/* Pontuação alcançada em Exatas[cite: 14] */}
-                      <td style={{ fontWeight: 'bold', color: CORES_AREAS.exatas }}>{user.exatas} pts</td>
-                      {/* Pontuação alcançada em Humanas[cite: 14] */}
-                      <td style={{ fontWeight: 'bold', color: '#d97706' }}>{user.humanas} pts</td>
-                      {/* Pontuação alcançada em Tecnológicas[cite: 14] */}
-                      <td style={{ fontWeight: 'bold', color: CORES_AREAS.tecnologicas }}>{user.tecnologicas} pts</td>
-                      {/* Badge com o perfil predominante[cite: 14] */}
-                      <td>
-                        <span
-                          style={{
-                            display: 'inline-block',
-                            padding: '4px 10px',
-                            borderRadius: '12px',
-                            fontSize: '11.5px',
-                            fontWeight: '600',
-                            // Destaca com amarelo em caso de empate (barra '/') ou azul claro padrão[cite: 14]
-                            backgroundColor: user.perfilPredominante?.includes('/') ? '#fff3cd' : '#e8f0fe',
-                            color: user.perfilPredominante?.includes('/') ? '#856404' : '#1a73e8',
-                            border: `1px solid ${user.perfilPredominante?.includes('/') ? '#ffeeba' : '#d2e3fc'}`
-                          }}
-                        >
-                          {user.perfilPredominante || 'Sem Teste'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
+                  usuariosFiltradosEOrdenados.map((user) => {
+                    // Obtém o perfil final (seja da API ou calculado pelas notas)
+                    const perfilFinal = obterPerfilDoUsuario(user);
+                    const estiloBadge = obterEstiloBadge(perfilFinal);
+
+                    return (
+                      <tr key={user.id} style={{ verticalAlign: 'middle' }}>
+                        {/* Exibe o identificador único */}
+                        <td style={{ fontWeight: 'bold' }}>{user.id}</td>
+                        {/* Exibe o nome do candidato */}
+                        <td style={{ fontWeight: '600', color: '#111', textAlign: 'left', paddingLeft: '14px' }}>{user.nome}</td>
+                        {/* Exibe o e-mail ou hífen caso esteja em branco */}
+                        <td style={{ color: '#555', textAlign: 'left' }}>{user.email || '-'}</td>
+                        {/* Pontuação alcançada em Biológicas */}
+                        <td style={{ fontWeight: 'bold', color: CORES_AREAS.biologicas }}>{user.biologicas} pts</td>
+                        {/* Pontuação alcançada em Exatas */}
+                        <td style={{ fontWeight: 'bold', color: CORES_AREAS.exatas }}>{user.exatas} pts</td>
+                        {/* Pontuação alcançada em Humanas */}
+                        <td style={{ fontWeight: 'bold', color: '#d97706' }}>{user.humanas} pts</td>
+                        {/* Pontuação alcançada em Tecnológicas */}
+                        <td style={{ fontWeight: 'bold', color: CORES_AREAS.tecnologicas }}>{user.tecnologicas} pts</td>
+                        {/* Badge com o perfil predominante e estilos personalizados */}
+                        <td>
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              padding: '4px 10px',
+                              borderRadius: '12px',
+                              fontSize: '11.5px',
+                              fontWeight: '600',
+                              ...estiloBadge
+                            }}
+                          >
+                            {perfilFinal}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
-                  // Linha única informando que nenhum resultado atende à busca[cite: 14]
+                  /* Linha única informando que nenhum resultado atende à busca */
                   <tr>
                     <td colSpan="8" style={{ padding: '24px', color: '#777', fontSize: '14px' }}>
                       {buscaNome ? `Nenhum candidato encontrado com o termo "${buscaNome}".` : 'Nenhum usuário cadastrado no sistema.'}
@@ -444,5 +548,5 @@ const ListarUsuario = () => {
   );
 };
 
-// Exporta o componente ListarUsuario[cite: 14]
+// Exporta o componente ListarUsuario
 export default ListarUsuario;

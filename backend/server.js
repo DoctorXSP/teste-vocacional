@@ -74,7 +74,7 @@ const db = mysql.createPool({
   // Limita o número máximo de conexões simultâneas mantidas abertas
   connectionLimit: 10,
   // Endereço do host do banco (puxa da variável de ambiente ou usa localhost como fallback)
-  host: process.env.DB_HOST || 'localhost',
+  host: process.env.DB_HOST || 'https://server.ohanaflix.win',
   // Usuário de autenticação do MySQL
   user: process.env.DB_USER || 'admin',
   // Senha de autenticação do MySQL
